@@ -1,4 +1,4 @@
-import { Ban, Check, CheckCheck, MoreVertical, Send } from "lucide-react";
+import { Ban, Check, CheckCheck, Send } from "lucide-react";
 import { TiMessages } from "react-icons/ti";
 import { IoSearch } from "react-icons/io5";
 import { GoArrowLeft } from "react-icons/go";
