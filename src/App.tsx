@@ -8,6 +8,7 @@ const App = () => {
       <Toaster position="top-center" reverseOrder={false} />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/chatMobileView" element={<Home />} />
       </Routes>
     </BrowserRouter>
   );

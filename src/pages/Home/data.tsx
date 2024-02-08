@@ -53,6 +53,8 @@ const useData = () => {
   const [contactProfileDetails, setContactProfileDetails] =
     useState<IState["contactProfileDetails"]>(null);
 
+  const [showMobileChatView, setShowMobileChatView] = useState<boolean>(false);
+
   // auto scrolling
 
   const lastMessageRef = useRef<any>();
@@ -277,6 +279,7 @@ const useData = () => {
     requiredMediaType,
     lastMessageRef,
     contactProfileDetails,
+    showMobileChatView,
   };
 
   return {
@@ -293,6 +296,7 @@ const useData = () => {
     setSearchInput,
     setMediaLink,
     setContactProfileDetails,
+    setShowMobileChatView,
     handleTextareaChange,
     handleSendMessage,
   };

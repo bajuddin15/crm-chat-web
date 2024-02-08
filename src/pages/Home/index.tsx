@@ -1,6 +1,7 @@
 import { Ban, Check, CheckCheck, MoreVertical, Send } from "lucide-react";
 import { TiMessages } from "react-icons/ti";
 import { IoSearch } from "react-icons/io5";
+import { GoArrowLeft } from "react-icons/go";
 import useData from "./data";
 import Profile from "../../components/Profile";
 import { getFormatedDate, identifyFileType } from "../../utils/common";
@@ -12,9 +13,6 @@ import TemplateModal from "../../components/Modals/TemplateModal";
 import AttachmentModal from "../../components/Modals/AttachmentModal";
 import CreateContactModal from "../../components/Modals/CreateContactModal";
 
-// import { useDispatch, useSelector } from "react-redux";
-// import { RootState } from "../store";
-
 const Home = () => {
   const {
     state,
@@ -25,6 +23,7 @@ const Home = () => {
     setSelectedTemplate,
     setSearchInput,
     setMediaLink,
+    setShowMobileChatView,
     handleTextareaChange,
     handleSendMessage,
   } = useData();
@@ -42,11 +41,16 @@ const Home = () => {
     requiredMediaType,
     // lastMessageRef,
     contactProfileDetails,
+    showMobileChatView,
   } = state;
 
   return (
     <div className="flex">
-      <div className="contactContainer borderRight  min-h-screen">
+      <div
+        className={`${
+          showMobileChatView ? "hidden sm:flex sm:flex-col" : ""
+        } contactContainer borderRight  min-h-screen`}
+      >
         {/* header */}
         <div className="borderBottom  bg-white flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-4">
@@ -84,7 +88,10 @@ const Home = () => {
             return (
               <div
                 key={item?.conversationId}
-                onClick={() => setCurrentContact(item)}
+                onClick={() => {
+                  setCurrentContact(item);
+                  setShowMobileChatView(true);
+                }}
                 className={`flex items-center gap-4 p-3 cursor-pointer rounded-md hover:bg-gray-200 ${
                   currentContact?.conversationId === item?.conversationId &&
                   "bg-gray-200"
@@ -108,7 +115,7 @@ const Home = () => {
                         ? `${item?.msg.slice(0, 30)}...`
                         : item?.msg}
                     </p>
-                    <span className="text-xs">29</span>
+                    <span className="text-xs"></span>
                   </div>
                 </div>
               </div>
@@ -116,7 +123,11 @@ const Home = () => {
           })}
         </div>
       </div>
-      <div className="chatContainer  hidden borderRight sm:flex flex-col scrollbar-none relative">
+      <div
+        className={`chatContainer ${
+          showMobileChatView ? "flex flex-col" : "hidden"
+        }  borderRight sm:flex flex-col scrollbar-none relative`}
+      >
         {!currentContact ? (
           <div className="w-full h-full bg-white">
             <NoChatSelected />
@@ -126,6 +137,12 @@ const Home = () => {
             {/* chat container header */}
             <div className="borderBottom bg-white px-4 py-3 flex items-center justify-between sticky top-0 left-0 right-0 z-50">
               <div className="flex items-center space-x-4">
+                <div
+                  className="flex sm:hidden"
+                  onClick={() => setShowMobileChatView(false)}
+                >
+                  <GoArrowLeft size={20} />
+                </div>
                 <img
                   className="w-8 h-8 rounded-full"
                   src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
@@ -138,9 +155,7 @@ const Home = () => {
                 </h2>
               </div>
 
-              <div>
-                <MoreVertical size={22} />
-              </div>
+              <div>{/* <MoreVertical size={22} /> */}</div>
             </div>
 
             {/* all chats */}
@@ -351,7 +366,7 @@ const Home = () => {
           </>
         )}
       </div>
-      <div className="profileContainer hidden sm:flex flex-col p-4">
+      <div className={`profileContainer hidden sm:flex flex-col p-4`}>
         <Profile contactProfileDetails={contactProfileDetails} />
       </div>
     </div>
