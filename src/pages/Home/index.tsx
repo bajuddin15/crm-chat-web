@@ -55,9 +55,10 @@ const Home = () => {
     searchInput,
     mediaLink,
     requiredMediaType,
+    lastMessageRef,
+    contactProfileDetails,
   } = state;
 
-  console.log("chats----", chats);
   return (
     <div className="flex">
       <div className="contactContainer borderRight  min-h-screen">
@@ -366,9 +367,8 @@ const Home = () => {
           </>
         )}
       </div>
-      <div className="profileContainer hidden sm:flex flex-col">
-        <Profile />
-        <Button>Click me</Button>
+      <div className="profileContainer hidden sm:flex flex-col p-4">
+        <Profile contactProfileDetails={contactProfileDetails} />
       </div>
     </div>
   );

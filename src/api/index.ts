@@ -79,7 +79,6 @@ const getConvViewChats = async (token: string, contact: string) => {
     const formData = new FormData();
     formData.append("contact", contact);
     const resp1 = await axios.post(getCidApiUrl, formData, { headers });
-    console.log("cid resp-----", resp1.data);
     if (resp1.status === 200) {
       const cid = resp1.data?.cid;
       const getChatsApiUrl =
@@ -87,7 +86,6 @@ const getConvViewChats = async (token: string, contact: string) => {
       formData.append("cid", cid);
       const resp2 = await axios.post(getChatsApiUrl, formData, { headers });
       chatsData = resp2.data;
-      console.log("chats resp--------------", resp2.data);
     }
   } catch (error: any) {
     console.log("Error : ", error.message);
@@ -149,6 +147,53 @@ const createNewContact = async (token: string, contactData: any) => {
   }
 };
 
+const getIncomingMessages = async (
+  token: string,
+  conversationId: string,
+  timestamp: string
+) => {
+  let newResData;
+  console.log("timestamp---------req--", timestamp);
+  try {
+    const apiUrl =
+      "https://app.crm-messaging.cloud/index.php/App/getIncomingMessages";
+    const headers = {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`,
+    };
+    const formData = new FormData();
+    formData.append("conId", conversationId);
+    formData.append("timestamp", timestamp);
+    const { data } = await axios.post(apiUrl, formData, { headers });
+    newResData = data;
+  } catch (error: any) {
+    newResData = null;
+    console.log("Get incoming msg error:", error.message);
+  }
+  return newResData;
+};
+
+const getContactDetails = async (token: string, contact: string) => {
+  let contactDetails;
+  try {
+    const apiUrl =
+      "https://app.crm-messaging.cloud/index.php/Api/getPhoneDetailsAPI";
+    const headers = {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`,
+    };
+    const formData = new FormData();
+    formData.append("phone", contact);
+
+    const { data } = await axios.post(apiUrl, formData, { headers });
+    contactDetails = data;
+  } catch (error: any) {
+    contactDetails = null;
+    console.log("Contact Details Error : ", error.message);
+  }
+  return contactDetails;
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -157,4 +202,6 @@ export {
   getConvViewChats,
   sendMessage,
   createNewContact,
+  getIncomingMessages,
+  getContactDetails,
 };
