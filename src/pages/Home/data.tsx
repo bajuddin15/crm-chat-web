@@ -234,7 +234,7 @@ const useData = () => {
     };
 
     // Call fetchData every 3 seconds
-    const intervalId = setInterval(fetchAppData, 5000);
+    const intervalId = setInterval(fetchAppData, 3000);
 
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
