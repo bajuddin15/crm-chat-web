@@ -7,7 +7,6 @@ import { getAllTemplates } from "../../api";
 
 interface IProps {
   token: any;
-  message: string;
   setMessage: any;
   selectedTemplate: any;
   setSelectedTemplate: any;
@@ -16,13 +15,11 @@ interface IProps {
 interface IState {
   openModal: boolean;
   templates: Array<any>;
-  selectedValue: any;
   tempVariables: any;
 }
 
 const TemplateModal = ({
   token,
-  message,
   setMessage,
   selectedTemplate,
   setSelectedTemplate,
@@ -32,8 +29,6 @@ const TemplateModal = ({
   const [tempVariables, setTempVariables] = useState<IState["tempVariables"]>(
     []
   );
-  const [selectedValue, setSelectedValue] =
-    useState<IState["selectedValue"]>(null);
 
   const handleTemplateChange = (item: any) => {
     const template = item?.template;
@@ -76,7 +71,6 @@ const TemplateModal = ({
                 <div key={index}>
                   <TemplateValueEdit
                     item={item}
-                    message={message}
                     setMessage={setMessage}
                     tempVariables={tempVariables}
                     setTempVariables={setTempVariables}
@@ -96,7 +90,6 @@ const TemplateModal = ({
 
 const TemplateValueEdit = ({
   item,
-  message,
   setMessage,
   tempVariables,
   setTempVariables,
@@ -105,7 +98,6 @@ const TemplateValueEdit = ({
   handleCloseModal,
 }: {
   item: any;
-  message: string;
   setMessage: any;
   tempVariables: any;
   setTempVariables: any;

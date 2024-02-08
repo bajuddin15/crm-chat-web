@@ -1,22 +1,10 @@
-import {
-  Ban,
-  Check,
-  CheckCheck,
-  MoreVertical,
-  Paperclip,
-  Search,
-  Send,
-  SendHorizonal,
-  UserPlus,
-} from "lucide-react";
+import { Ban, Check, CheckCheck, MoreVertical, Send } from "lucide-react";
 import { TiMessages } from "react-icons/ti";
-import DocViewer from "react-doc-viewer";
 import { IoSearch } from "react-icons/io5";
-import ReactPlayer from "react-player/lazy";
 import useData from "./data";
 import Profile from "../../components/Profile";
 import { getFormatedDate, identifyFileType } from "../../utils/common";
-import { Button, Spinner, TextInput, Textarea } from "flowbite-react";
+import { Button, Spinner, TextInput } from "flowbite-react";
 import EmojiPickerModal from "../../components/Modals/EmojiPickerModal";
 import { colors } from "../../utils/constants";
 import SenderIdModal from "../../components/Modals/SenderIdModal";
@@ -43,19 +31,16 @@ const Home = () => {
   const {
     token,
     rows,
-    messagesEndRef,
     message,
     contacts,
     currentContact,
     chats,
-    selectedEmoji,
     sendMsgLoading,
-    selectedSenderId,
     selectedTemplate,
     searchInput,
     mediaLink,
     requiredMediaType,
-    lastMessageRef,
+    // lastMessageRef,
     contactProfileDetails,
   } = state;
 
@@ -320,7 +305,6 @@ const Home = () => {
                     />
                     <TemplateModal
                       token={token}
-                      message={message}
                       setMessage={setMessage}
                       selectedTemplate={selectedTemplate}
                       setSelectedTemplate={setSelectedTemplate}

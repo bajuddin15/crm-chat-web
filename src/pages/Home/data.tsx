@@ -8,7 +8,7 @@ import {
   getIncomingMessages,
   sendMessage,
 } from "../../api";
-import notificationSound from "../../assets/sounds/notification.mp3";
+// import notificationSound from "../../assets/sounds/notification.mp3";
 
 interface IState {
   allContacts: Array<any>;
@@ -55,11 +55,7 @@ const useData = () => {
   const [timestamp, setTimestamp] = useState<any>(null);
 
   // auto scrolling
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
   const lastMessageRef = useRef<any>();
 
   const handleTextareaChange = (event: any) => {
@@ -251,7 +247,6 @@ const useData = () => {
   const state = {
     token,
     rows,
-    messagesEndRef,
     message,
     contacts,
     currentContact,
