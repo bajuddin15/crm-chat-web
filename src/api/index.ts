@@ -148,9 +148,9 @@ const createNewContact = async (token: string, contactData: any) => {
 };
 
 const getIncomingMessages = async (
-  token: string,
-  conversationId: string,
-  timestamp: string
+  token: any,
+  conversationId: any,
+  timestamp: any
 ) => {
   let newResData;
   console.log("timestamp---------req--", timestamp);

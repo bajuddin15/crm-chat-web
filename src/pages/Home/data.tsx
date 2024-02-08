@@ -8,7 +8,7 @@ import {
   getIncomingMessages,
   sendMessage,
 } from "../../api";
-// import notificationSound from "../../assets/sounds/notification.mp3";
+import notificationSound from "../../assets/sounds/notification.mp3";
 
 interface IState {
   allContacts: Array<any>;
@@ -52,7 +52,6 @@ const useData = () => {
     useState<IState["requiredMediaType"]>(null);
   const [contactProfileDetails, setContactProfileDetails] =
     useState<IState["contactProfileDetails"]>(null);
-  const [timestamp, setTimestamp] = useState<any>(null);
 
   // auto scrolling
 
@@ -133,12 +132,23 @@ const useData = () => {
   };
 
   const fetchIncomingMessages = async (
-    token: string,
-    conversationId: string,
-    timestamp: string
+    token: any,
+    conversationId: any,
+    timestamp: any
   ) => {
+    let newTimestamp = null;
     const data = await getIncomingMessages(token, conversationId, timestamp);
-    if (data && data?.status === 200) {
+    console.log("incoming msg data--", {
+      "data?.timestamp": data?.timestamp,
+      timestamp: timestamp,
+    });
+    console.log("incoming--", data);
+    if (data && (data?.status === 200 || data?.status === 201)) {
+      // setTimestamp(data?.timestamp);
+      newTimestamp = data?.timestamp;
+      if (data?.status === 201) {
+        return newTimestamp;
+      }
       let newMsgArr = [];
       const dataFromFile = data?.data_from_file;
       // Iterate over keys in data_from_file
@@ -149,14 +159,12 @@ const useData = () => {
         }
       }
       if (newMsgArr.length > 0) {
-        // const sound = new Audio(notificationSound);
-        // sound.play();
+        const sound = new Audio(notificationSound);
+        sound.play();
       }
-      // console.log("incoming msg data--", newMsgArr);
-      setTimestamp(data?.timestamp);
       setChats([...chats, ...newMsgArr]);
     }
-    console.log("incoming--", data);
+    return newTimestamp;
   };
 
   useEffect(() => {
@@ -197,28 +205,36 @@ const useData = () => {
       if (token) {
         console.log("res--");
         await fetchConvContacts(token);
-        if (currentContact) {
-          console.log("chat resnnnn");
-          let currentDateTime = new Date();
-
-          // Convert to Unix timestamp
-          let tmp = Math.floor(currentDateTime.getTime() / 1000);
-          let currentTimestamp = tmp.toString();
-          let timestampValue = timestamp ? timestamp : currentTimestamp;
-          // console.log("tims---------", timestamp);
-          await fetchIncomingMessages(
-            token,
-            currentContact?.conversationId,
-            timestampValue
-          );
-
-          // await fetchConvChats(token, currentContact?.contact);
-        }
       }
     };
 
     // Call fetchData every 3 seconds
-    const intervalId = setInterval(fetchAppData, 10000);
+    const intervalId = setInterval(fetchAppData, 3000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+  useEffect(() => {
+    let timestamp: any = null;
+    const fetchAppData = async () => {
+      console.log("chat resnnnn");
+      let currentDateTime = new Date();
+
+      // Convert to Unix timestamp
+      let tmp = Math.floor(currentDateTime.getTime() / 1000);
+      let currentTimestamp = tmp.toString();
+      let timestampValue = timestamp ? timestamp : currentTimestamp;
+      // console.log("tims---------", timestamp);
+      const newTimestamp = await fetchIncomingMessages(
+        token,
+        currentContact?.conversationId,
+        timestampValue
+      );
+      timestamp = newTimestamp;
+    };
+
+    // Call fetchData every 3 seconds
+    const intervalId = setInterval(fetchAppData, 5000);
 
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
