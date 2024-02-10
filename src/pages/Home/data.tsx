@@ -24,6 +24,7 @@ interface IState {
   mediaLink: any;
   requiredMediaType: string | null;
   contactProfileDetails: any;
+  whatsTimer: any;
 }
 
 const useData = () => {
@@ -54,6 +55,7 @@ const useData = () => {
     useState<IState["contactProfileDetails"]>(null);
 
   const [showMobileChatView, setShowMobileChatView] = useState<boolean>(false);
+  const [whatsTimer, setWhatsTimer] = useState<IState["whatsTimer"]>(null);
 
   // auto scrolling
 
@@ -127,9 +129,11 @@ const useData = () => {
     const chatsData = await getConvViewChats(token, contact);
     if (chatsData) {
       let newChats = chatsData?.data?.conArr;
-      // if(newChats.length > 0 && chats.length > 0 && (newChats[0]?.msgId !== chats[chats.length -1]?.msgId)){}
       let chatsNew = [...newChats].reverse();
       setChats(chatsNew);
+      if (chatsData?.data?.whatsTimer !== "") {
+        setWhatsTimer(chatsData?.data?.whatsTimer);
+      }
     }
   };
 
@@ -280,6 +284,7 @@ const useData = () => {
     lastMessageRef,
     contactProfileDetails,
     showMobileChatView,
+    whatsTimer,
   };
 
   return {
@@ -297,6 +302,7 @@ const useData = () => {
     setMediaLink,
     setContactProfileDetails,
     setShowMobileChatView,
+    setWhatsTimer,
     handleTextareaChange,
     handleSendMessage,
   };
