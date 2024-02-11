@@ -25,6 +25,7 @@ interface IState {
   requiredMediaType: string | null;
   contactProfileDetails: any;
   whatsTimer: any;
+  lastTimestamp: any;
 }
 
 const useData = () => {
@@ -56,6 +57,8 @@ const useData = () => {
 
   const [showMobileChatView, setShowMobileChatView] = useState<boolean>(false);
   const [whatsTimer, setWhatsTimer] = useState<IState["whatsTimer"]>(null);
+  const [lastTimestamp, setLastTimestamp] =
+    useState<IState["lastTimestamp"]>(null);
 
   // auto scrolling
 
@@ -131,8 +134,11 @@ const useData = () => {
       let newChats = chatsData?.data?.conArr;
       let chatsNew = [...newChats].reverse();
       setChats(chatsNew);
+      setLastTimestamp(chatsData?.data?.timestamp);
       if (chatsData?.data?.whatsTimer !== "") {
         setWhatsTimer(chatsData?.data?.whatsTimer);
+      } else {
+        setWhatsTimer(null);
       }
     }
   };
@@ -142,6 +148,12 @@ const useData = () => {
     conversationId: any,
     timestamp: any
   ) => {
+    console.log("get Incoming inputs ---", {
+      token,
+      timestamp,
+      conversationId,
+      contact: currentContact?.contact,
+    });
     let newTimestamp = null;
     const data = await getIncomingMessages(token, conversationId, timestamp);
     console.log("incoming msg data--", {
@@ -168,6 +180,7 @@ const useData = () => {
         const sound = new Audio(notificationSound);
         sound.play();
       }
+      // setLastTimestamp(data?.timestamp)
       setChats([...chats, ...newMsgArr]);
     }
     return newTimestamp;
@@ -223,14 +236,13 @@ const useData = () => {
   useEffect(() => {
     let timestamp: any = null;
     const fetchAppData = async () => {
-      console.log("chat resnnnn");
-      let currentDateTime = new Date();
-
       // Convert to Unix timestamp
-      let tmp = Math.floor(currentDateTime.getTime() / 1000);
-      let currentTimestamp = tmp.toString();
-      let timestampValue = timestamp ? timestamp : currentTimestamp;
-      // console.log("tims---------", timestamp);
+      let timestampValue = timestamp ? timestamp : lastTimestamp;
+      console.log("chats---------", {
+        timestamp: timestampValue,
+        msg: chats[chats.length - 1]?.msg,
+        chats,
+      });
       const newTimestamp = await fetchIncomingMessages(
         token,
         currentContact?.conversationId,
@@ -244,7 +256,7 @@ const useData = () => {
 
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
-  }, []);
+  }, [currentContact?.conversationId, lastTimestamp]);
 
   useEffect(() => {
     const fetchContactDetails = async () => {

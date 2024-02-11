@@ -194,6 +194,38 @@ const getContactDetails = async (token: string, contact: string) => {
   return contactDetails;
 };
 
+const getCRMContacts = async (token: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Api/getContact2";
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  try {
+    const { data } = await axios.get(url, { headers });
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+const getConvId = async (token: string, contact: string) => {
+  try {
+    const getCidApiUrl =
+      "https://app.crm-messaging.cloud/index.php/Api/getcid3";
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+    const formData = new FormData();
+    formData.append("contact", contact);
+    const { data } = await axios.post(getCidApiUrl, formData, { headers });
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -204,4 +236,6 @@ export {
   createNewContact,
   getIncomingMessages,
   getContactDetails,
+  getCRMContacts,
+  getConvId,
 };

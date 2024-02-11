@@ -12,6 +12,7 @@ import SenderIdModal from "../../components/Modals/SenderIdModal";
 import TemplateModal from "../../components/Modals/TemplateModal";
 import AttachmentModal from "../../components/Modals/AttachmentModal";
 import CreateContactModal from "../../components/Modals/CreateContactModal";
+import SearchContactModal from "../../components/Modals/SearchContactModal";
 
 const Home = () => {
   const {
@@ -66,7 +67,10 @@ const Home = () => {
               </h2>
             </div>
             <div className="flex items-center gap-4">
-              {/* <Search size={20} color="black" /> */}
+              <SearchContactModal
+                token={token}
+                setCurrentContact={setCurrentContact}
+              />
               <CreateContactModal token={token} />
             </div>
           </div>
@@ -77,7 +81,7 @@ const Home = () => {
               id="search"
               type="text"
               icon={IoSearch}
-              placeholder="Search contact.."
+              placeholder="Search conversation.."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
@@ -188,13 +192,15 @@ const Home = () => {
                               <p className="mb-1">@{chat?.fromnumber}</p>
                               <p>{chat?.msg}</p>
                               {imageLink && (
-                                <div className="my-3">
-                                  <img
-                                    src={imageLink}
-                                    alt="image"
-                                    className="w-full max-h-80 object-cover rounded-md my-2"
-                                  />
-                                </div>
+                                <a href={imageLink} target="_blank">
+                                  <div className="my-3">
+                                    <img
+                                      src={imageLink}
+                                      alt="image"
+                                      className="w-full max-h-80 object-cover rounded-md my-2"
+                                    />
+                                  </div>
+                                </a>
                               )}
 
                               {videoLink && (
@@ -248,13 +254,15 @@ const Home = () => {
                             >
                               <p>{chat?.msg}</p>
                               {imageLink && (
-                                <div className="my-3">
-                                  <img
-                                    src={imageLink}
-                                    alt="image"
-                                    className="w-full max-h-80 object-cover rounded-md my-2"
-                                  />
-                                </div>
+                                <a href={imageLink} target="_blank">
+                                  <div className="my-3">
+                                    <img
+                                      src={imageLink}
+                                      alt="image"
+                                      className="w-full max-h-80 object-cover rounded-md my-2"
+                                    />
+                                  </div>
+                                </a>
                               )}
 
                               {videoLink && (
