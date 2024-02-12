@@ -47,4 +47,18 @@ function identifyFileType(url: string): string {
   }
 }
 
-export { getFormatedDate, identifyFileType };
+const getUniqueContacts = (contacts: any) => {
+  let uniqueIds = new Set();
+  let uniqueContacts: any = [];
+
+  contacts.forEach((obj: any) => {
+    if (!uniqueIds.has(obj?.conversationId)) {
+      uniqueIds.add(obj?.conversationId);
+      uniqueContacts.push(obj);
+    }
+  });
+
+  return uniqueContacts;
+};
+
+export { getFormatedDate, identifyFileType, getUniqueContacts };

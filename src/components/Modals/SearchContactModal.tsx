@@ -52,29 +52,23 @@ const SearchContactModal = ({ token, setCurrentContact }: IProps) => {
       setCurrentContact(currContact);
       setOpenModal(false);
     }
-    console.log("cid------------", cidData);
   };
 
   useEffect(() => {
     const fetchConvContacts = async (token: string) => {
       const data = await getCRMContacts(token);
-      console.log("contacts -----search---", data);
       if (data && data?.status === 200) {
         setContacts(data?.Contact);
         setAllContacts(data?.Contact);
       }
     };
     fetchConvContacts(token);
-  }, []);
+  }, [openModal]);
 
   useEffect(() => {
     // Update contacts based on search input
     const newContacts = handleSearch();
     setContacts(newContacts);
-    console.log("searchInput-------------------------", {
-      searchInput,
-      allContacts,
-    });
   }, [searchInput, allContacts]);
 
   return (

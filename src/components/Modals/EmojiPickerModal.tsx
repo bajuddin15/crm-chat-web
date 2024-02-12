@@ -30,7 +30,6 @@ const EmojiPickerModal: React.FC<IProps> = ({
           <Picker
             data={data}
             onEmojiSelect={(val: any) => {
-              console.log(val?.native);
               setSelectedEmoji(val?.native);
               setMessage((prevMsg: string) => prevMsg + val?.native);
             }}

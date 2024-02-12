@@ -35,13 +35,11 @@ const TemplateModal = ({
     let countVars = 0; // count of all {{}} in template msg
     let tempVars = [];
     for (let i = 0; i < template?.length - 2; i++) {
-      console.log(template[i]);
       if (template[i] === "{" && template[i + 1] === "{") {
         tempVars.push("");
         countVars++;
       }
     }
-    console.log("variables input---", tempVars);
     setTempVariables(tempVars);
     setSelectedTemplate(item);
   };

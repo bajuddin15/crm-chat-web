@@ -44,7 +44,6 @@ const DocumentPicker: React.FC<IProps> = ({ setMediaLink, setOpenModal }) => {
     setLoading(true);
     // Assuming you have a getUploadedDocumentUrl function in your API
     const data = await getUploadedUrl(selectedFile);
-    console.log(data);
     if (data && data?.url) {
       setMediaLink(data?.url);
       setOpenModal(false);
@@ -54,10 +53,6 @@ const DocumentPicker: React.FC<IProps> = ({ setMediaLink, setOpenModal }) => {
 
   const [dragOver, setDragOver] = useState(false);
   const uploadInputRef = React.createRef<HTMLInputElement>();
-
-  useEffect(() => {
-    console.log(selectedFile, "-------------");
-  }, [selectedFile]);
 
   return (
     <section

@@ -48,8 +48,8 @@ const CreateContactModal = ({ token }: IProps) => {
       return;
     }
     const contactData = {
-      fName,
-      lName,
+      fname: fName,
+      lname: lName,
       email,
       phone,
     };
@@ -65,9 +65,6 @@ const CreateContactModal = ({ token }: IProps) => {
       setPhone("");
       setOpenModal(false);
     }
-    console.log("create contact res ---", data);
-
-    console.log("form ----", contactData);
   };
   return (
     <>

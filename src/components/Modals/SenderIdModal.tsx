@@ -18,10 +18,19 @@ interface IState {
 const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
   const [openModal, setOpenModal] = useState<IState["openModal"]>(false);
   const [senderIds, setSenderIds] = useState<IState["senderIds"]>([]);
+  const [senderIdIndex, setSenderIdIndex] = useState(1);
   const [selectedValue, setSelectedValue] =
     useState<IState["selectedValue"]>(null);
 
   const handleSave = () => {
+    let index = 1;
+    for (let i = 0; i < senderIds?.length; i++) {
+      if (senderIds[i]?.number === selectedValue?.number) {
+        index = i + 1;
+        break;
+      }
+    }
+    setSenderIdIndex(index);
     setSelectedSenderId(selectedValue);
     setOpenModal(false);
   };
@@ -36,7 +45,6 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
         setSenderIds(provd);
         setSelectedSenderId(provd[0]);
         setSelectedValue(provd[0]);
-        console.log("sssssssssssssss", provd);
       }
     };
     fetchProviders();
@@ -47,7 +55,7 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
         className="cursor-pointer text-gray-400 border border-gray-300 text-xs px-2 py-1 rounded-md"
         onClick={() => setOpenModal(true)}
       >
-        1
+        {senderIdIndex}
       </div>
       <Modal
         // dismissible
@@ -56,7 +64,7 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
         onClose={() => setOpenModal(false)}
       >
         <Modal.Header>
-          <h4>Choose SenderId</h4>
+          <span>Choose SenderId</span>
           <div className="flex items-center gap-1 text-xs mt-2">
             <span>Selected: </span>
             <img
@@ -106,10 +114,10 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button size="sm" color="gray" onClick={handleSave}>
+          <Button size="sm" color="gray" onClick={() => setOpenModal(false)}>
             Cancel
           </Button>
-          <Button size="sm" onClick={() => setOpenModal(false)}>
+          <Button size="sm" onClick={handleSave}>
             Save
           </Button>
         </Modal.Footer>

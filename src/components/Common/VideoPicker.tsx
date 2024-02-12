@@ -49,15 +49,10 @@ const VideoPicker: React.FC<IProps> = ({ setMediaLink, setOpenModal }) => {
       setOpenModal(false);
     }
     setLoading(false);
-    console.log(data);
   };
 
   const [dragOver, setDragOver] = useState(false);
   const uploadInputRef = React.createRef<HTMLInputElement>();
-
-  useEffect(() => {
-    console.log(selectedFile, "-------------");
-  }, [selectedFile]);
 
   return (
     <section

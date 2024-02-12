@@ -46,24 +46,20 @@ const getUploadedUrl = async (file: any) => {
     const { data } = await axios.post(url, formData, { headers });
     return data;
   } catch (error: any) {
-    console.error("Upload File Error : ", error.message);
     return null;
   }
 };
 
-const getConvContacts = async (acessToken: string) => {
-  const url =
-    "https://app.crm-messaging.cloud/index.php/api/getConversationContact2";
+const getConvContacts = async (acessToken: string, page: number) => {
+  const url = `https://app.crm-messaging.cloud/index.php/api/getConversationContact3?page=${page}`;
   const headers = {
     Authorization: `Bearer ${acessToken}`,
   };
   let contacts = [];
   try {
     const { data } = await axios.get(url, { headers });
-    contacts = data?.data?.contactArr;
-  } catch (error: any) {
-    console.log("Fetch Contacts Error : ", error.message);
-  }
+    contacts = data;
+  } catch (error: any) {}
   return contacts;
 };
 
@@ -82,14 +78,12 @@ const getConvViewChats = async (token: string, contact: string) => {
     if (resp1.status === 200) {
       const cid = resp1.data?.cid;
       const getChatsApiUrl =
-        "https://app.crm-messaging.cloud/index.php/api/getconversationview3";
+        "https://app.crm-messaging.cloud/index.php/api/getconversationview4";
       formData.append("cid", cid);
       const resp2 = await axios.post(getChatsApiUrl, formData, { headers });
       chatsData = resp2.data;
     }
-  } catch (error: any) {
-    console.log("Error : ", error.message);
-  }
+  } catch (error: any) {}
   return chatsData;
 };
 
@@ -117,7 +111,6 @@ const sendMessage = async (msgData: any) => {
     const res = await axios.post(url, formData, { headers });
     data = res?.data;
   } catch (err: any) {
-    console.log("Send Message Error : ", err?.message);
     data = null;
   }
   return data;
@@ -153,7 +146,6 @@ const getIncomingMessages = async (
   timestamp: any
 ) => {
   let newResData;
-  console.log("timestamp---------req--", timestamp);
   try {
     const apiUrl =
       "https://app.crm-messaging.cloud/index.php/App/getIncomingMessages";
@@ -168,7 +160,6 @@ const getIncomingMessages = async (
     newResData = data;
   } catch (error: any) {
     newResData = null;
-    console.log("Get incoming msg error:", error.message);
   }
   return newResData;
 };
@@ -189,7 +180,6 @@ const getContactDetails = async (token: string, contact: string) => {
     contactDetails = data;
   } catch (error: any) {
     contactDetails = null;
-    console.log("Contact Details Error : ", error.message);
   }
   return contactDetails;
 };
@@ -204,7 +194,6 @@ const getCRMContacts = async (token: string) => {
     const { data } = await axios.get(url, { headers });
     return data;
   } catch (error) {
-    console.error(error);
     return null;
   }
 };
@@ -221,7 +210,6 @@ const getConvId = async (token: string, contact: string) => {
     const { data } = await axios.post(getCidApiUrl, formData, { headers });
     return data;
   } catch (error) {
-    console.error(error);
     return null;
   }
 };

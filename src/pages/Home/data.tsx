@@ -9,6 +9,7 @@ import {
   sendMessage,
 } from "../../api";
 import notificationSound from "../../assets/sounds/notification.mp3";
+import { getUniqueContacts } from "../../utils/common";
 
 interface IState {
   allContacts: Array<any>;
@@ -59,6 +60,9 @@ const useData = () => {
   const [whatsTimer, setWhatsTimer] = useState<IState["whatsTimer"]>(null);
   const [lastTimestamp, setLastTimestamp] =
     useState<IState["lastTimestamp"]>(null);
+  const [chatLoading, setChatLoading] = useState<boolean>(false);
+  const [contactLoading, setContactLoading] = useState<boolean>(false);
+  const [pageNumber, setPageNumber] = useState<number>(0);
 
   // auto scrolling
 
@@ -82,19 +86,25 @@ const useData = () => {
       selectedTemplate,
       mediaLink,
     };
-    console.log({
-      "senderId: ": selectedSenderId,
-      formdata: formData,
-      selectedTemplate,
-    });
 
     setSendMsgLoading(true);
     const data = await sendMessage(formData);
 
+    const fetchNewContacts = async (token: any) => {
+      const data = await getConvContacts(token, 0);
+      if (data && data?.status === 200) {
+        let contData = data?.data?.contactArr;
+        let fetchedContacts = [...contData, ...allContacts];
+        let uniqueContacts = getUniqueContacts(fetchedContacts);
+        setContacts(uniqueContacts);
+        setAllContacts(uniqueContacts);
+      }
+    };
+
     if (token && currentContact) {
       Promise.all([
         fetchConvChats(token, currentContact?.contact),
-        fetchConvContacts(token),
+        fetchNewContacts(token),
       ]);
     }
     if (data && data?.status === 200) {
@@ -106,7 +116,6 @@ const useData = () => {
       toast.error("Something went wrong");
     }
     setSendMsgLoading(false);
-    console.log("Send msg resp :", data);
   };
 
   const handleSearch = () => {
@@ -122,13 +131,20 @@ const useData = () => {
     }
   };
 
-  const fetchConvContacts = async (token: string) => {
-    const data = await getConvContacts(token);
-    setContacts(data);
-    setAllContacts(data);
+  const fetchConvContacts = async (token: any) => {
+    setContactLoading(true);
+    const data = await getConvContacts(token, pageNumber);
+    if (data && data?.status === 200) {
+      let contData = data?.data?.contactArr;
+      let fetchedContacts = [...allContacts, ...contData];
+      let uniqueContacts = getUniqueContacts(fetchedContacts);
+      setContacts(uniqueContacts);
+      setAllContacts(uniqueContacts);
+    }
+    setContactLoading(false);
   };
 
-  const fetchConvChats = async (token: string, contact: string) => {
+  const fetchConvChats = async (token: any, contact: string) => {
     const chatsData = await getConvViewChats(token, contact);
     if (chatsData) {
       let newChats = chatsData?.data?.conArr;
@@ -148,21 +164,9 @@ const useData = () => {
     conversationId: any,
     timestamp: any
   ) => {
-    console.log("get Incoming inputs ---", {
-      token,
-      timestamp,
-      conversationId,
-      contact: currentContact?.contact,
-    });
     let newTimestamp = null;
     const data = await getIncomingMessages(token, conversationId, timestamp);
-    console.log("incoming msg data--", {
-      "data?.timestamp": data?.timestamp,
-      timestamp: timestamp,
-    });
-    console.log("incoming--", data);
     if (data && (data?.status === 200 || data?.status === 201)) {
-      // setTimestamp(data?.timestamp);
       newTimestamp = data?.timestamp;
       if (data?.status === 201) {
         return newTimestamp;
@@ -202,14 +206,27 @@ const useData = () => {
   useEffect(() => {
     if (token) {
       fetchConvContacts(token);
-      if (currentContact) {
-        fetchConvChats(token, currentContact?.contact);
-      }
     }
-  }, [token, currentContact]);
+  }, [token]);
 
   useEffect(() => {
-    console.log("selectedTemp :", selectedTemplate);
+    if (token && currentContact) {
+      const fetchChats = async () => {
+        setChatLoading(true);
+        await fetchConvChats(token, currentContact?.contact);
+        setChatLoading(false);
+      };
+      fetchChats();
+    }
+  }, [currentContact]);
+
+  useEffect(() => {
+    if (token) {
+      fetchConvContacts(token);
+    }
+  }, [pageNumber]);
+
+  useEffect(() => {
     if (selectedTemplate) {
       let mType: string = selectedTemplate?.headertype;
       const mediaType =
@@ -218,31 +235,11 @@ const useData = () => {
     }
   }, [selectedTemplate]);
 
-  // fetch data in every 3 seconds for incoming
-  useEffect(() => {
-    const fetchAppData = async () => {
-      if (token) {
-        console.log("res--");
-        await fetchConvContacts(token);
-      }
-    };
-
-    // Call fetchData every 3 seconds
-    const intervalId = setInterval(fetchAppData, 3000);
-
-    // Clean up interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
   useEffect(() => {
     let timestamp: any = null;
     const fetchAppData = async () => {
-      // Convert to Unix timestamp
+      // Convert to Unique timestamp
       let timestampValue = timestamp ? timestamp : lastTimestamp;
-      console.log("chats---------", {
-        timestamp: timestampValue,
-        msg: chats[chats.length - 1]?.msg,
-        chats,
-      });
       const newTimestamp = await fetchIncomingMessages(
         token,
         currentContact?.conversationId,
@@ -252,7 +249,7 @@ const useData = () => {
     };
 
     // Call fetchData every 3 seconds
-    const intervalId = setInterval(fetchAppData, 3000);
+    const intervalId = setInterval(fetchAppData, 5000);
 
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
@@ -263,20 +260,20 @@ const useData = () => {
       if (token && currentContact) {
         const res = await getContactDetails(token, currentContact?.contact);
         setContactProfileDetails(res?.data);
-        console.log("profile detail---", res);
       }
     };
     fetchContactDetails();
   }, [currentContact]);
 
   // auto scroll
+  const autoTopToBottomScroll = () => {
+    lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
   useEffect(() => {
     setTimeout(() => {
-      lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+      autoTopToBottomScroll();
     }, 100);
   }, [chats]);
-
-  // notifications --------------------
 
   const state = {
     token,
@@ -297,6 +294,9 @@ const useData = () => {
     contactProfileDetails,
     showMobileChatView,
     whatsTimer,
+    chatLoading,
+    contactLoading,
+    pageNumber,
   };
 
   return {
@@ -315,8 +315,12 @@ const useData = () => {
     setContactProfileDetails,
     setShowMobileChatView,
     setWhatsTimer,
+    setChatLoading,
+    setContactLoading,
+    setPageNumber,
     handleTextareaChange,
     handleSendMessage,
+    autoTopToBottomScroll,
   };
 };
 
