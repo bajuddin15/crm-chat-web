@@ -48,7 +48,6 @@ const Home = () => {
     whatsTimer,
     chatLoading,
     contactLoading,
-    pageNumber,
   } = state;
 
   return (

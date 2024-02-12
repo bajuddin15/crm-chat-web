@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState, DragEvent, useEffect } from "react";
+import React, { ChangeEvent, useState, DragEvent } from "react";
 import { getUploadedUrl } from "../../api";
 
 interface IProps {
