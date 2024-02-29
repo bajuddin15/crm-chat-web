@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
@@ -6,6 +6,7 @@ import {
   getConvContacts,
   getConvViewChats,
   getIncomingMessages,
+  getSearchContacts,
   sendMessage,
 } from "../../api";
 import notificationSound from "../../assets/sounds/notification.mp3";
@@ -14,6 +15,7 @@ import { getUniqueContacts } from "../../utils/common";
 interface IState {
   allContacts: Array<any>;
   contacts: Array<any>;
+  searchedContacts: Array<any>;
   currentContact: any;
   chats: Array<any>;
   showEmojiPicker: boolean;
@@ -36,6 +38,9 @@ const useData = () => {
   const [rows, setRows] = useState(1); // Initial rows
   const [contacts, setContacts] = useState<IState["contacts"]>([]);
   const [allContacts, setAllContacts] = useState<IState["allContacts"]>([]);
+  const [searchedContacts, setSearchedContacts] = useState<
+    IState["searchedContacts"]
+  >([]);
   const [currentContact, setCurrentContact] =
     useState<IState["currentContact"]>(null);
   const [chats, setChats] = useState<IState["chats"]>([]);
@@ -118,17 +123,16 @@ const useData = () => {
     setSendMsgLoading(false);
   };
 
-  const handleSearch = () => {
-    if (!searchInput.trim()) {
-      // If search input is empty, display all contacts
-      return allContacts;
-    } else {
-      return allContacts.filter(
-        (item: any) =>
-          item.contact.toLowerCase().includes(searchInput.toLowerCase()) ||
-          item.name.toLowerCase().includes(searchInput.toLowerCase())
-      );
+  const handleSearchSubmit = async () => {
+    if (searchInput == "") {
+      setSearchedContacts([]);
     }
+    if (!searchInput || !token) {
+      return;
+    }
+
+    const searchedData = await getSearchContacts(token, searchInput);
+    if (searchedData) setSearchedContacts(searchedData);
   };
 
   const fetchConvContacts = async (token: any) => {
@@ -146,7 +150,7 @@ const useData = () => {
 
   const fetchConvChats = async (token: any, contact: string) => {
     const chatsData = await getConvViewChats(token, contact);
-    if (chatsData) {
+    if (chatsData && chatsData?.status === 200) {
       let newChats = chatsData?.data?.conArr;
       let chatsNew = [...newChats].reverse();
       setChats(chatsNew);
@@ -156,6 +160,8 @@ const useData = () => {
       } else {
         setWhatsTimer(null);
       }
+    } else {
+      setChats([]);
     }
   };
 
@@ -189,12 +195,6 @@ const useData = () => {
     }
     return newTimestamp;
   };
-
-  useEffect(() => {
-    // Update contacts based on search input
-    const newContacts = handleSearch();
-    setContacts(newContacts);
-  }, [searchInput, allContacts]);
 
   useEffect(() => {
     const textareaRows = message.split("\n").length;
@@ -275,6 +275,11 @@ const useData = () => {
     }, 100);
   }, [chats]);
 
+  // search global contacts when user is typing
+  useEffect(() => {
+    handleSearchSubmit();
+  }, [searchInput]);
+
   const state = {
     token,
     rows,
@@ -297,6 +302,7 @@ const useData = () => {
     chatLoading,
     contactLoading,
     pageNumber,
+    searchedContacts,
   };
 
   return {
@@ -318,9 +324,11 @@ const useData = () => {
     setChatLoading,
     setContactLoading,
     setPageNumber,
+    setSearchedContacts,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
+    handleSearchSubmit,
   };
 };
 

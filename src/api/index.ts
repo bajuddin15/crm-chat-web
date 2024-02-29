@@ -81,9 +81,11 @@ const getConvViewChats = async (token: string, contact: string) => {
         "https://app.crm-messaging.cloud/index.php/api/getconversationview4";
       formData.append("cid", cid);
       const resp2 = await axios.post(getChatsApiUrl, formData, { headers });
-      chatsData = resp2.data;
+      chatsData = resp2?.data;
     }
-  } catch (error: any) {}
+  } catch (error: any) {
+    console.log("Featch chats Error : ", error);
+  }
   return chatsData;
 };
 
@@ -214,6 +216,24 @@ const getConvId = async (token: string, contact: string) => {
   }
 };
 
+const getSearchContacts = async (token: string, searchInput: string) => {
+  const uri = "https://app.crm-messaging.cloud/index.php/Api/consearchbytoken";
+  let contactsData;
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+    const formData = new FormData();
+    formData.append("txt", searchInput);
+    const { data } = await axios.post(uri, formData, { headers });
+    contactsData = data;
+  } catch (error: any) {
+    contactsData = null;
+    console.log("Error: ", error);
+  }
+  return contactsData;
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -226,4 +246,5 @@ export {
   getContactDetails,
   getCRMContacts,
   getConvId,
+  getSearchContacts,
 };

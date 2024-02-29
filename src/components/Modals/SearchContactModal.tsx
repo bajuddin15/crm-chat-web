@@ -74,7 +74,7 @@ const SearchContactModal = ({ token, setCurrentContact }: IProps) => {
   return (
     <>
       <div className="cursor-pointer" onClick={() => setOpenModal(true)}>
-        <Search size={20} color="black" />
+        <Search size={18} color="black" />
       </div>
       <Modal
         size="2xl"

@@ -69,7 +69,7 @@ const CreateContactModal = ({ token }: IProps) => {
   return (
     <>
       <div className="cursor-pointer" onClick={() => setOpenModal(true)}>
-        <UserPlus size={20} color="black" />
+        <UserPlus size={18} color="black" />
       </div>
       <Modal show={openModal} size="md" onClose={onCloseModal}>
         <Modal.Header className="h-16">

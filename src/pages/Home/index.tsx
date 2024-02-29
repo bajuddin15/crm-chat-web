@@ -14,6 +14,9 @@ import AttachmentModal from "../../components/Modals/AttachmentModal";
 import CreateContactModal from "../../components/Modals/CreateContactModal";
 import SearchContactModal from "../../components/Modals/SearchContactModal";
 
+//
+import APP_LOGO from "../../assets/images/app_logo.png";
+
 const Home = () => {
   const {
     state,
@@ -26,6 +29,7 @@ const Home = () => {
     setMediaLink,
     setShowMobileChatView,
     setPageNumber,
+    setSearchedContacts,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
@@ -48,6 +52,7 @@ const Home = () => {
     whatsTimer,
     chatLoading,
     contactLoading,
+    searchedContacts,
   } = state;
 
   return (
@@ -59,15 +64,15 @@ const Home = () => {
           } contactContainer borderRight  min-h-screen`}
         >
           {/* header */}
-          <div className="borderBottom  bg-white flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-4">
+          <div className="borderBottom h-14  bg-white flex items-center justify-between px-4 py-3">
+            <div className="flex items-center">
               <img
-                className="w-8 h-8 rounded-full"
-                src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
+                className="w-10 h-10 object-contain rounded-full"
+                src={APP_LOGO}
                 alt="Rounded avatar"
               />
-              <h2 className="text-base font-semibold text-black">
-                Prateek Bansal
+              <h2 className="text-sm font-semibold text-black">
+                CRM Messaging
               </h2>
             </div>
             <div className="flex items-center gap-4">
@@ -80,7 +85,7 @@ const Home = () => {
           </div>
 
           {/* searchbar */}
-          <div className="mx-3 my-3">
+          <div className="mx-3 my-3 relative">
             <TextInput
               id="search"
               type="text"
@@ -89,6 +94,41 @@ const Home = () => {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
+
+            {searchInput && searchedContacts?.length > 0 && (
+              <div className="absolute top-[50px] left-0 w-full max-h-[80vh] overflow-y-auto custom-scrollbar bg-white  border border-gray-300 shadow-sm z-50">
+                <div className="flex flex-col gap-2 p-2">
+                  {searchedContacts?.map((item, index) => {
+                    return (
+                      <div
+                        key={index}
+                        onClick={() => {
+                          let currentCont = {
+                            contact: item?.phone,
+                            conversationId: item?.conversationId,
+                            name: `${item?.fname} ${item?.lname}`,
+                          };
+                          setSearchInput("");
+                          setSearchedContacts([]);
+                          setCurrentContact(currentCont);
+                        }}
+                        className="flex items-center gap-4 px-2 py-2 cursor-pointer hover:bg-gray-100 rounded-md"
+                      >
+                        <img
+                          className="w-8 h-8 rounded-full"
+                          src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
+                          alt="Rounded avatar"
+                        />
+                        <div className="flex flex-col w-full">
+                          <span className="text-sm font-semibold">{`${item?.fname} ${item?.lname}`}</span>
+                          <span className="text-xs">{item?.phone}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* contacts */}
@@ -158,7 +198,7 @@ const Home = () => {
           ) : (
             <>
               {/* chat container header */}
-              <div className="borderBottom bg-white px-4 py-3 flex items-center justify-between sticky top-0 left-0 right-0 z-50">
+              <div className="borderBottom h-14 bg-white px-4 py-3 flex items-center justify-between sticky top-0 left-0 right-0 z-50">
                 <div className="flex items-center space-x-4">
                   <div
                     className="flex sm:hidden"
@@ -335,7 +375,7 @@ const Home = () => {
 
                                     {chat?.deliveryStatus === "read" ||
                                     chat?.deliveryStatus === "delivered" ? (
-                                      <CheckCheck size={16} />
+                                      <CheckCheck size={16} color="#4085f5" />
                                     ) : chat?.deliveryStatus === "sent" ||
                                       chat?.deliveryStatus === "submitted" ||
                                       chat?.deliveryStatus === "queued" ? (

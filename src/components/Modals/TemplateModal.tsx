@@ -1,9 +1,8 @@
-"use client";
-
-import { Button, Modal } from "flowbite-react";
+import { Button, Modal, TextInput } from "flowbite-react";
 import { NotepadText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getAllTemplates } from "../../api";
+import { IoSearch } from "react-icons/io5";
 
 interface IProps {
   token: any;
@@ -16,6 +15,7 @@ interface IState {
   openModal: boolean;
   templates: Array<any>;
   tempVariables: any;
+  searchInput: string;
 }
 
 const TemplateModal = ({
@@ -26,9 +26,12 @@ const TemplateModal = ({
 }: IProps) => {
   const [openModal, setOpenModal] = useState<IState["openModal"]>(false);
   const [templates, setTemplates] = useState<IState["templates"]>([]);
+  const [allTemplates, setAllTemplates] = useState<IState["templates"]>([]);
   const [tempVariables, setTempVariables] = useState<IState["tempVariables"]>(
     []
   );
+
+  const [searchInput, setSearchInput] = useState<IState["searchInput"]>("");
 
   const handleTemplateChange = (item: any) => {
     const template = item?.template;
@@ -47,13 +50,33 @@ const TemplateModal = ({
     setOpenModal(false);
   };
 
+  const handleSearch = () => {
+    if (!searchInput.trim()) {
+      // If search input is empty, display all contacts
+      return allTemplates;
+    } else {
+      return allTemplates.filter(
+        (item: any) =>
+          item.unqName.toLowerCase().includes(searchInput.toLowerCase()) ||
+          item.Name.toLowerCase().includes(searchInput.toLowerCase())
+      );
+    }
+  };
+
   useEffect(() => {
     const fetchTemplates = async () => {
       const data = await getAllTemplates(token);
       setTemplates(data);
+      setAllTemplates(data);
     };
     fetchTemplates();
   }, []);
+
+  useEffect(() => {
+    // Update contacts based on search input
+    const newTemps = handleSearch();
+    setTemplates(newTemps);
+  }, [searchInput, allTemplates]);
 
   return (
     <>
@@ -61,9 +84,24 @@ const TemplateModal = ({
         <NotepadText color="gray" size={20} />
       </div>
       <Modal show={openModal} onClose={() => setOpenModal(false)}>
-        <Modal.Header>Choose Whatsapp Template</Modal.Header>
-        <Modal.Body>
-          <div className="space-y-4">
+        <Modal.Header className="h-16">
+          <div className="flex flex-col rounded-md">
+            <span className="text-base">Choose Whatsapp Template</span>
+          </div>
+        </Modal.Header>
+        <Modal.Body className="relative">
+          <div className="w-full bg-white py-4 sticky -top-7 left-0">
+            <TextInput
+              id="search"
+              type="text"
+              className="w-full"
+              icon={IoSearch}
+              placeholder="Search template.."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-4">
             {templates?.map((item, index) => {
               return (
                 <div key={index}>
