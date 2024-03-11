@@ -1,3 +1,17 @@
+Deploy instructions:
+Serve via python 
+python3 -m http.server 8000
+
+login to aws server and access crmm-nodejs folder and run below commmands
+nvm use node 17
+git pull to get latest changes from git repo
+npm install
+npm run build
+Go to dist folder and run 
+python3 -m http.server 8000
+first make sure port 8000 is free by checking pm2 list 
+then pm2 stop command
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
