@@ -216,7 +216,16 @@ const Home = () => {
                           ? `${item?.msg.slice(0, 30)}...`
                           : item?.msg}
                       </p>
-                      <span className="text-xs"></span>
+                      <div>
+                        {item?.isRead === "0" && (
+                          <span
+                            style={{ backgroundColor: colors.whatsapp }}
+                            className="text-xs text-white w-4 h-4 flex items-center justify-center rounded-full"
+                          >
+                            1
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
