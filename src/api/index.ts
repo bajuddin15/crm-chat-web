@@ -50,8 +50,12 @@ const getUploadedUrl = async (file: any) => {
   }
 };
 
-const getConvContacts = async (acessToken: string, page: number) => {
-  const url = `https://app.crm-messaging.cloud/index.php/api/getConversationContact3?page=${page}`;
+const getConvContacts = async (
+  acessToken: string,
+  page: number,
+  status: string
+) => {
+  const url = `https://app.crm-messaging.cloud/index.php/api/getConversationContact3?page=${page}&filter=${status}`;
   const headers = {
     Authorization: `Bearer ${acessToken}`,
   };
@@ -234,6 +238,47 @@ const getSearchContacts = async (token: string, searchInput: string) => {
   return contactsData;
 };
 
+const changeReadStatus = async (data: any) => {
+  const { conId, id, token, tab } = data;
+  const url = "https://app.crm-messaging.cloud/index.php/Message/readstatus";
+  if (!conId || !id || !token || !tab) {
+    return;
+  }
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const formData = new FormData();
+  formData.append("conId", conId);
+  formData.append("id", id);
+  formData.append("tab", tab);
+
+  let resData;
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
+const getProfileByToken = async (token: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Api/getProfileInfo";
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  let resData;
+  try {
+    const { data } = await axios.get(url, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -247,4 +292,6 @@ export {
   getCRMContacts,
   getConvId,
   getSearchContacts,
+  changeReadStatus,
+  getProfileByToken,
 };

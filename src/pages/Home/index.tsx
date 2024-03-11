@@ -1,4 +1,11 @@
-import { ArrowDownCircle, Ban, Check, CheckCheck, Send } from "lucide-react";
+import {
+  ArrowDownCircle,
+  Ban,
+  Check,
+  CheckCheck,
+  MoreVertical,
+  Send,
+} from "lucide-react";
 import { TiMessages } from "react-icons/ti";
 import { IoSearch } from "react-icons/io5";
 import { GoArrowLeft } from "react-icons/go";
@@ -15,7 +22,7 @@ import CreateContactModal from "../../components/Modals/CreateContactModal";
 import SearchContactModal from "../../components/Modals/SearchContactModal";
 
 //
-import APP_LOGO from "../../assets/images/app_logo.png";
+import { contactStatusData } from "../../constants";
 
 const Home = () => {
   const {
@@ -30,9 +37,12 @@ const Home = () => {
     setShowMobileChatView,
     setPageNumber,
     setSearchedContacts,
+    setShowContactStatus,
+    setContactStatusVal,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
+    handleChangeReadStatus,
   } = useData();
   const {
     token,
@@ -53,6 +63,10 @@ const Home = () => {
     chatLoading,
     contactLoading,
     searchedContacts,
+    showContactStatus,
+    contactStatusVal,
+    readStatus,
+    userProfileInfo,
   } = state;
 
   return (
@@ -65,22 +79,52 @@ const Home = () => {
         >
           {/* header */}
           <div className="borderBottom h-14  bg-white flex items-center justify-between px-4 py-3">
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
               <img
-                className="w-10 h-10 object-contain rounded-full"
-                src={APP_LOGO}
+                className="w-7 h-7 object-contain rounded-full"
+                src={userProfileInfo?.profilePic}
                 alt="Rounded avatar"
               />
               <h2 className="text-sm font-semibold text-black">
-                CRM Messaging
+                {userProfileInfo?.company}
               </h2>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 relative">
               <SearchContactModal
                 token={token}
                 setCurrentContact={setCurrentContact}
               />
               <CreateContactModal token={token} />
+
+              <button
+                className="-mr-3"
+                onClick={() => setShowContactStatus(!showContactStatus)}
+              >
+                <MoreVertical size={20} />
+              </button>
+
+              {showContactStatus && (
+                <div className="absolute -right-1 top-7 bg-white w-32 z-50 border border-gray-300 rounded-md p-1">
+                  <div className="flex flex-col text-sm">
+                    {contactStatusData?.map((item, index) => (
+                      <span
+                        key={index}
+                        className={`p-2 hover:bg-gray-100 rounded-md cursor-pointer ${
+                          contactStatusVal === item
+                            ? "bg-blue-500 text-white"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          setContactStatusVal(item);
+                          setShowContactStatus(false);
+                        }}
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -133,6 +177,11 @@ const Home = () => {
 
           {/* contacts */}
           <div className="overflow-y-auto h-[80vh] custom-scrollbar p-2 space-y-2">
+            {contacts?.length === 0 && (
+              <div>
+                <span className="text-sm">No Conctats</span>
+              </div>
+            )}
             {contacts?.map((item: any, index: number) => {
               const formatedDate = getFormatedDate(item?.date);
               return (
@@ -481,6 +530,22 @@ const Home = () => {
           }  flex-col p-4`}
         >
           <Profile contactProfileDetails={contactProfileDetails} />
+          <div>
+            <button
+              onClick={() => {
+                const data = {
+                  conId: currentContact?.conversationId,
+                  id: readStatus ? "0" : "1",
+                  token,
+                  tab: "primary",
+                };
+                handleChangeReadStatus(data);
+              }}
+              className="border border-gray-300 w-full text-start text-sm text-red-500 font-medium py-2 px-4 rounded-md bg-gray-50"
+            >
+              {`Mark as ${readStatus ? "Unread" : "Read"}`}
+            </button>
+          </div>
         </div>
       </div>
     </div>

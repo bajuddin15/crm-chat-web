@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
+  changeReadStatus,
   getContactDetails,
   getConvContacts,
   getConvViewChats,
   getIncomingMessages,
+  getProfileByToken,
   getSearchContacts,
   sendMessage,
 } from "../../api";
@@ -36,6 +38,8 @@ const useData = () => {
   const token = searchParams.get("token");
   const [message, setMessage] = useState("");
   const [rows, setRows] = useState(1); // Initial rows
+  const [showContactStatus, setShowContactStatus] = useState<boolean>(false);
+  const [contactStatusVal, setContactStatusVal] = useState<string>("All");
   const [contacts, setContacts] = useState<IState["contacts"]>([]);
   const [allContacts, setAllContacts] = useState<IState["allContacts"]>([]);
   const [searchedContacts, setSearchedContacts] = useState<
@@ -68,6 +72,8 @@ const useData = () => {
   const [chatLoading, setChatLoading] = useState<boolean>(false);
   const [contactLoading, setContactLoading] = useState<boolean>(false);
   const [pageNumber, setPageNumber] = useState<number>(0);
+  const [readStatus, setReadStatus] = useState<boolean>(false);
+  const [userProfileInfo, setUserProfileInfo] = useState<any>(null);
 
   // auto scrolling
 
@@ -96,7 +102,7 @@ const useData = () => {
     const data = await sendMessage(formData);
 
     const fetchNewContacts = async (token: any) => {
-      const data = await getConvContacts(token, 0);
+      const data = await getConvContacts(token, 0, contactStatusVal);
       if (data && data?.status === 200) {
         let contData = data?.data?.contactArr;
         let fetchedContacts = [...contData, ...allContacts];
@@ -135,9 +141,10 @@ const useData = () => {
     if (searchedData) setSearchedContacts(searchedData);
   };
 
-  const fetchConvContacts = async (token: any) => {
+  const fetchConvContacts = async (token: any, status: string) => {
+    let readContStatus = status.toLowerCase();
     setContactLoading(true);
-    const data = await getConvContacts(token, pageNumber);
+    const data = await getConvContacts(token, pageNumber, readContStatus);
     if (data && data?.status === 200) {
       let contData = data?.data?.contactArr;
       let fetchedContacts = [...allContacts, ...contData];
@@ -196,6 +203,35 @@ const useData = () => {
     return newTimestamp;
   };
 
+  const filterContactsByStatus = async (status: string, token: any) => {
+    let readContStatus = status.toLowerCase();
+    const data = await getConvContacts(token, pageNumber, readContStatus);
+    if (data && data?.status === 200) {
+      let contData = data?.data?.contactArr;
+      setContacts(contData);
+      setAllContacts(contData);
+    }
+  };
+
+  const handleChangeReadStatus = async (data: any) => {
+    const resData = await changeReadStatus(data);
+    if (resData) {
+      setReadStatus(!readStatus);
+      fetchConvContacts(token, contactStatusVal);
+    }
+  };
+
+  const fetchProfileInfo = async (token: string) => {
+    const resData = await getProfileByToken(token);
+    if (resData && resData?.status === 200) {
+      setUserProfileInfo(resData?.data);
+    }
+  };
+
+  useEffect(() => {
+    filterContactsByStatus(contactStatusVal, token);
+  }, [contactStatusVal]);
+
   useEffect(() => {
     const textareaRows = message.split("\n").length;
     const newRows = Math.min(Math.max(1, textareaRows), 5);
@@ -205,7 +241,8 @@ const useData = () => {
 
   useEffect(() => {
     if (token) {
-      fetchConvContacts(token);
+      fetchProfileInfo(token);
+      fetchConvContacts(token, contactStatusVal);
     }
   }, [token]);
 
@@ -218,11 +255,16 @@ const useData = () => {
       };
       fetchChats();
     }
+    if (currentContact?.isRead === "1") {
+      setReadStatus(true);
+    } else if (currentContact?.isRead === "0") {
+      setReadStatus(false);
+    }
   }, [currentContact]);
 
   useEffect(() => {
     if (token) {
-      fetchConvContacts(token);
+      fetchConvContacts(token, contactStatusVal);
     }
   }, [pageNumber]);
 
@@ -303,6 +345,10 @@ const useData = () => {
     contactLoading,
     pageNumber,
     searchedContacts,
+    showContactStatus,
+    contactStatusVal,
+    readStatus,
+    userProfileInfo,
   };
 
   return {
@@ -325,10 +371,15 @@ const useData = () => {
     setContactLoading,
     setPageNumber,
     setSearchedContacts,
+    setShowContactStatus,
+    setContactStatusVal,
+    setReadStatus,
+    setUserProfileInfo,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
     handleSearchSubmit,
+    handleChangeReadStatus,
   };
 };
 
