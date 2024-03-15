@@ -10,7 +10,10 @@ npm run build
 Go to dist folder and run 
 python3 -m http.server 8000
 first make sure port 8000 is free by checking pm2 list 
-then pm2 stop command
+then pm2 stop static-server
+
+then run ->python3 -m http.server 8000
+pm2 start static-server
 
 # React + TypeScript + Vite
 
