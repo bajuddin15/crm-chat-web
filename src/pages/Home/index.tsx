@@ -216,8 +216,8 @@ const Home = () => {
           {/* contacts */}
           <div className="overflow-y-auto h-[80vh] custom-scrollbar p-2 space-y-2">
             {!contactLoading && contacts?.length === 0 && (
-              <div>
-                <span className="text-sm">No Conctats</span>
+              <div className="flex items-center justify-center">
+                <span className="text-sm">No Conversations</span>
               </div>
             )}
             {contacts?.map((item: any, index: number) => {
@@ -277,7 +277,7 @@ const Home = () => {
 
             {/* load more button */}
             <div className="flex items-center justify-center my-3">
-              {contacts?.length % 20 === 0 && (
+              {contacts?.length > 0 && contacts?.length % 20 === 0 && (
                 <button
                   className="text-xs border border-gray-300 bg-gray-50  rounded-3xl px-4 py-2"
                   disabled={contactLoading}
