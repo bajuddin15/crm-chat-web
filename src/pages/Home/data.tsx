@@ -2,13 +2,20 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
+  addNoteByCid,
+  addTagByCid,
   changeReadStatus,
+  deleteNote,
+  deleteTag,
+  getAllNotesByCid,
+  getAllTagsByCid,
   getContactDetails,
   getConvContacts,
   getConvViewChats,
   getIncomingMessages,
   getProfileByToken,
   getSearchContacts,
+  makeArchivedContact,
   sendMessage,
 } from "../../api";
 import notificationSound from "../../assets/sounds/notification.mp3";
@@ -36,6 +43,9 @@ interface IState {
 const useData = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
+  const cid = searchParams.get("cid");
+  const contact = searchParams.get("contact");
+
   const [message, setMessage] = useState("");
   const [rows, setRows] = useState(1); // Initial rows
   const [showContactStatus, setShowContactStatus] = useState<boolean>(false);
@@ -73,6 +83,15 @@ const useData = () => {
   const [contactLoading, setContactLoading] = useState<boolean>(false);
   const [pageNumber, setPageNumber] = useState<number>(0);
   const [readStatus, setReadStatus] = useState<boolean>(false);
+  const [archiveStatus, setArchiveStatus] = useState<boolean>(false); // if true then contact in archive
+  const [showTagsComp, setShowTagsComp] = useState<boolean>(false); // for show tags comp
+  const [showNotesComp, setShowNotesComp] = useState<boolean>(false); // for show notes comp
+
+  const [tagValue, setTagValue] = useState<string>("");
+  const [noteValue, setNoteValue] = useState<string>("");
+  const [tags, setTags] = useState<Array<any>>([]);
+  const [notes, setNotes] = useState<Array<any>>([]);
+
   const [userProfileInfo, setUserProfileInfo] = useState<any>(null);
 
   // auto scrolling
@@ -205,9 +224,11 @@ const useData = () => {
 
   const filterContactsByStatus = async (status: string, token: any) => {
     let readContStatus = status.toLowerCase();
-    const data = await getConvContacts(token, pageNumber, readContStatus);
+    const data = await getConvContacts(token, 0, readContStatus);
     if (data && data?.status === 200) {
       let contData = data?.data?.contactArr;
+      if (contData?.length > 0) setCurrentContact(contData[0]);
+      else setCurrentContact(null);
       setContacts(contData);
       setAllContacts(contData);
     }
@@ -227,6 +248,103 @@ const useData = () => {
       setUserProfileInfo(resData?.data);
     }
   };
+
+  const handleChangeArchive = async (token: string) => {
+    let conId = currentContact?.conversationId;
+    let arc = archiveStatus ? "1" : "0";
+    const data = await makeArchivedContact(token, conId, arc);
+    if (data) {
+      toast.success(
+        `${archiveStatus ? "Unarchived" : "Archived"} Successfully`
+      );
+      setArchiveStatus(!archiveStatus);
+    }
+  };
+
+  const fetchAllTags = async () => {
+    if (!token) return;
+    const data = await getAllTagsByCid(token, currentContact?.conversationId);
+    if (data && data?.code === 200) {
+      setTags(data?.data);
+    }
+  };
+  const fetchAllNotes = async () => {
+    if (!token) return;
+    const data = await getAllNotesByCid(token, currentContact?.conversationId);
+    if (data && data?.code === 200) {
+      setNotes(data?.data);
+    }
+  };
+
+  const handleAddTag = async () => {
+    if (!token || !tagValue || !currentContact) return;
+    const data = await addTagByCid(
+      token,
+      tagValue,
+      currentContact?.conversationId
+    );
+    if (data && data?.code === "200") {
+      await fetchAllTags();
+      toast.success(data?.status);
+      setTagValue("");
+    }
+  };
+  const handleAddNote = async () => {
+    if (!token || !noteValue || !currentContact) return;
+    const data = await addNoteByCid(
+      token,
+      noteValue,
+      currentContact?.conversationId
+    );
+    if (data && data?.code === "200") {
+      await fetchAllNotes();
+      toast.success(data?.status);
+      setNoteValue("");
+    }
+  };
+
+  const handleDeleteTag = async (
+    tagId: string,
+    token: string,
+    conversationId: string
+  ) => {
+    if (!tagId || !token || !conversationId) return;
+    const data = await deleteTag(token, tagId);
+    if (data && data?.code === "200") {
+      const resp = await getAllTagsByCid(token, conversationId);
+      if (resp && resp?.code === 200) {
+        setTags(resp?.data);
+      }
+      toast.success(data?.status);
+    }
+  };
+
+  const handleDeleteNote = async (
+    noteId: string,
+    token: string,
+    conversationId: string
+  ) => {
+    if (!noteId || !token || !conversationId) return;
+    const data = await deleteNote(token, noteId);
+    if (data && data?.code === "200") {
+      const resp = await getAllNotesByCid(token, conversationId);
+      if (resp && resp?.code === 200) {
+        setNotes(resp?.data);
+      }
+      toast.success(data?.status);
+    }
+  };
+
+  // navigate to chatview if cid and contact exist in url
+  useEffect(() => {
+    if (cid && contact) {
+      const contactData = {
+        contact: contact,
+        conversationId: cid,
+      };
+      setCurrentContact(contactData);
+    }
+  }, [cid, contact]);
 
   useEffect(() => {
     filterContactsByStatus(contactStatusVal, token);
@@ -260,6 +378,13 @@ const useData = () => {
     } else if (currentContact?.isRead === "0") {
       setReadStatus(false);
     }
+    if (currentContact?.isArchived === "1") {
+      setArchiveStatus(true);
+    } else if (currentContact?.isArchived === "0") {
+      setArchiveStatus(false);
+    }
+    fetchAllTags();
+    fetchAllNotes();
   }, [currentContact]);
 
   useEffect(() => {
@@ -349,6 +474,13 @@ const useData = () => {
     contactStatusVal,
     readStatus,
     userProfileInfo,
+    archiveStatus,
+    showTagsComp,
+    showNotesComp,
+    tags,
+    notes,
+    tagValue,
+    noteValue,
   };
 
   return {
@@ -375,11 +507,23 @@ const useData = () => {
     setContactStatusVal,
     setReadStatus,
     setUserProfileInfo,
+    setArchiveStatus,
+    setShowTagsComp,
+    setShowNotesComp,
+    setTags,
+    setNotes,
+    setTagValue,
+    setNoteValue,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
     handleSearchSubmit,
     handleChangeReadStatus,
+    handleChangeArchive,
+    handleAddTag,
+    handleAddNote,
+    handleDeleteTag,
+    handleDeleteNote,
   };
 };
 

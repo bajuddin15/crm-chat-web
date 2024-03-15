@@ -61,4 +61,35 @@ const getUniqueContacts = (contacts: any) => {
   return uniqueContacts;
 };
 
-export { getFormatedDate, identifyFileType, getUniqueContacts };
+const getFullName = (firstName: string, lastName: string) => {
+  let fullName;
+  if (firstName && lastName) {
+    fullName = `${firstName} ${lastName}`;
+  } else if (firstName) {
+    fullName = firstName;
+  } else if (lastName) {
+    fullName = lastName;
+  } else fullName = "";
+  return fullName;
+};
+
+const getUnreadMsgCountByCid = (unreadMsgs: any, cid: string, contact: any) => {
+  let findItem;
+  for (let i = 0; i < unreadMsgs?.length; i++) {
+    let item = unreadMsgs[i];
+    if (item?.cid === cid || item?.fromnumber === contact) {
+      findItem = item;
+      break;
+    }
+  }
+
+  return findItem ? findItem?.message_count : 1;
+};
+
+export {
+  getFormatedDate,
+  identifyFileType,
+  getUniqueContacts,
+  getFullName,
+  getUnreadMsgCountByCid,
+};

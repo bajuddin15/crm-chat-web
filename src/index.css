@@ -28,6 +28,8 @@ body {
 }
 .profileContainer {
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .borderRight {
   border-right: 1px solid rgb(202, 200, 200);

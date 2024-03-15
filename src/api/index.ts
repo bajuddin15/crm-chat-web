@@ -87,9 +87,7 @@ const getConvViewChats = async (token: string, contact: string) => {
       const resp2 = await axios.post(getChatsApiUrl, formData, { headers });
       chatsData = resp2?.data;
     }
-  } catch (error: any) {
-    console.log("Featch chats Error : ", error);
-  }
+  } catch (error: any) {}
   return chatsData;
 };
 
@@ -233,7 +231,6 @@ const getSearchContacts = async (token: string, searchInput: string) => {
     contactsData = data;
   } catch (error: any) {
     contactsData = null;
-    console.log("Error: ", error);
   }
   return contactsData;
 };
@@ -279,6 +276,165 @@ const getProfileByToken = async (token: string) => {
   return resData;
 };
 
+const makeArchivedContact = async (
+  token: string,
+  conversationId: string,
+  arc: string
+) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/makeArchive";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("conId", conversationId);
+  formData.append("arc", arc);
+
+  let resData;
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
+const addTagByCid = async (token: string, tag: string, cid: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/addTag";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("cid", cid);
+  formData.append("tag", tag);
+
+  let resData;
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+const addNoteByCid = async (token: string, note: string, cid: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/addNote";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("cid", cid);
+  formData.append("note", note);
+
+  let resData;
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
+const getAllTagsByCid = async (token: string, conversationId: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/viewTag";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("cid", conversationId);
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+const getAllNotesByCid = async (token: string, conversationId: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/viewNote";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("cid", conversationId);
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
+const deleteTag = async (token: string, tagId: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/deleteTag";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("tagId", tagId);
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+const deleteNote = async (token: string, noteId: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/deleteNote";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("noteId", noteId);
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
+const getUnreadMessages = async (token: string) => {
+  const url =
+    "https://app.crm-messaging.cloud/index.php/App/fetchUnreadMessages";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  let resData;
+
+  try {
+    const { data } = await axios.get(url, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -294,4 +450,12 @@ export {
   getSearchContacts,
   changeReadStatus,
   getProfileByToken,
+  makeArchivedContact,
+  addTagByCid,
+  addNoteByCid,
+  getAllTagsByCid,
+  getAllNotesByCid,
+  deleteTag,
+  deleteNote,
+  getUnreadMessages,
 };
