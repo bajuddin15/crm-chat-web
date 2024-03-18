@@ -3,14 +3,16 @@ import {
   Ban,
   Check,
   CheckCheck,
+  ChevronDown,
   ChevronRight,
   MoreVertical,
   Send,
 } from "lucide-react";
 import { TiMessages } from "react-icons/ti";
-import { IoSearch } from "react-icons/io5";
+import { IoCheckmark, IoSearch } from "react-icons/io5";
 import { GoArrowLeft } from "react-icons/go";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdLabel } from "react-icons/md";
+import { FaCircleUser, FaUser } from "react-icons/fa6";
 import useData from "./data";
 import Profile from "../../components/Profile";
 import {
@@ -19,7 +21,7 @@ import {
   getUnreadMsgCountByCid,
   identifyFileType,
 } from "../../utils/common";
-import { Badge, Button, Spinner, TextInput } from "flowbite-react";
+import { Badge, Button, Spinner, TextInput, Tooltip } from "flowbite-react";
 import EmojiPickerModal from "../../components/Modals/EmojiPickerModal";
 import { colors } from "../../utils/constants";
 import SenderIdModal from "../../components/Modals/SenderIdModal";
@@ -30,11 +32,12 @@ import SearchContactModal from "../../components/Modals/SearchContactModal";
 import APP_LOGO from "../../assets/images/app_logo.png";
 
 //
-import { contactStatusData } from "../../constants";
+import { contactStatusData, getOwnerNameSlice } from "../../constants";
 import ViewAllTags from "../../components/ViewAllTags";
 import ViewAllNotes from "../../components/ViewAllNotes";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+// import SidebarDrawer from "../../components/SidebarDrawer";
 
 const Home = () => {
   const {
@@ -55,6 +58,9 @@ const Home = () => {
     setShowNotesComp,
     setTagValue,
     setNoteValue,
+    setShowTeamMembers,
+    setSelectedTeamMember,
+    setLabel,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
@@ -64,9 +70,12 @@ const Home = () => {
     handleAddNote,
     handleDeleteTag,
     handleDeleteNote,
+    handleAssignConversation,
+    handleAddLabel,
   } = useData();
   const {
     token,
+    teamEmail,
     rows,
     message,
     contacts,
@@ -95,6 +104,12 @@ const Home = () => {
     notes,
     tagValue,
     noteValue,
+    teamMembers,
+    showTeamMembers,
+    selectedTeamMember,
+    label,
+    addLabelLoading,
+    allLabels,
   } = state;
 
   const unreadMsgs = useSelector(
@@ -133,6 +148,13 @@ const Home = () => {
                 setCurrentContact={setCurrentContact}
               />
               <CreateContactModal token={token} />
+
+              {/* <SidebarDrawer
+                allLabels={allLabels}
+                teamMembers={teamMembers}
+                contactStatusVal={contactStatusVal}
+                setContactStatusVal={setContactStatusVal}
+              /> */}
 
               <button
                 className="-mr-3"
@@ -321,7 +343,124 @@ const Home = () => {
                   </h2>
                 </div>
 
-                <div>{whatsTimer && <Badge color="success">Live</Badge>}</div>
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div>
+                      <input
+                        className="text-sm outline-none p-1 focus:ring-0 border-t-0 border-l-0 border-r-0 border-b-2 border-b-gray-500 border-dotted text-gray-600 italic"
+                        type="text"
+                        placeholder="Add label to conversation"
+                        value={label}
+                        onChange={(e) => setLabel(e.target.value)}
+                      />
+                    </div>
+
+                    {label && (
+                      <div
+                        style={{
+                          maxWidth: "200px",
+                          display: "inline-flex", // Add this line
+                        }}
+                        className="absolute top-8 left-0 bg-white z-50 border border-gray-300 py-1 px-2 rounded-md flex items-center cursor-pointer hover:bg-gray-100"
+                        onClick={() =>
+                          handleAddLabel(
+                            token || "",
+                            currentContact?.conversationId,
+                            label
+                          )
+                        }
+                      >
+                        {addLabelLoading && (
+                          <Spinner
+                            color="info"
+                            aria-label="Info spinner loading"
+                            size="sm"
+                            className="mr-2 mb-1"
+                          />
+                        )}
+                        <span className="text-sm font-medium">
+                          {"Creating"}
+                        </span>
+                        <span className="mx-2 mt-1">
+                          <MdLabel size={24} color="#fcba03" />
+                        </span>
+                        <span className="text-sm">{label}</span>
+                      </div>
+                    )}
+                  </div>
+                  {teamEmail && (
+                    <div className="relative">
+                      <div
+                        onClick={() => setShowTeamMembers(!showTeamMembers)}
+                        className="bg-blue-100 flex items-center justify-between p-2 w-28 rounded-md cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <FaUser size={16} color="gray" />
+                          <span className="text-sm">
+                            {getOwnerNameSlice(
+                              currentContact?.ownerName ||
+                                selectedTeamMember?.name
+                            )}
+                          </span>
+                        </div>
+
+                        <div className="">
+                          <ChevronDown size={16} color="gray" />
+                        </div>
+                      </div>
+
+                      {/* users for asign */}
+                      {showTeamMembers && (
+                        <div
+                          style={{ scrollbarWidth: "none" }}
+                          className="absolute top-9 right-0 flex flex-col gap-2 bg-white z-50 w-52 h-64 overflow-auto break-words border border-gray-300 p-2 rounded-md shadow-sm"
+                        >
+                          {teamMembers?.map((item, index) => {
+                            if (!item?.name) return;
+                            return (
+                              <div
+                                key={index}
+                                onClick={() => {
+                                  setSelectedTeamMember(item);
+                                  handleAssignConversation(
+                                    token || "",
+                                    item?.email,
+                                    currentContact?.conversationId,
+                                    teamEmail
+                                  );
+                                }}
+                                className={`bg-blue-50 ${
+                                  selectedTeamMember &&
+                                  selectedTeamMember?.email === item?.email
+                                    ? "bg-blue-500 text-white"
+                                    : ""
+                                } p-2 rounded-md flex items-center justify-between cursor-pointer`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <FaCircleUser
+                                    size={18}
+                                    color={
+                                      selectedTeamMember &&
+                                      selectedTeamMember?.email === item?.email
+                                        ? "white"
+                                        : "gray"
+                                    }
+                                  />
+                                  <span className="text-sm">{item?.name}</span>
+                                </div>
+                                {selectedTeamMember &&
+                                  selectedTeamMember?.email === item?.email && (
+                                    <IoCheckmark size={14} color="white" />
+                                  )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {whatsTimer && <Badge color="success">Live</Badge>}
+                </div>
               </div>
 
               {/* all chats */}
@@ -474,22 +613,28 @@ const Home = () => {
                                 </div>
                               </div>
 
-                              <div className="flex justify-end">
+                              <div className="flex justify-end mt-1">
                                 <div className="flex items-center space-x-3">
                                   <span className="text-[10px]">
                                     {formatedDate}
                                   </span>
 
-                                  {chat?.deliveryStatus === "read" ||
-                                  chat?.deliveryStatus === "delivered" ? (
-                                    <CheckCheck size={16} color="#4085f5" />
-                                  ) : chat?.deliveryStatus === "sent" ||
-                                    chat?.deliveryStatus === "submitted" ||
-                                    chat?.deliveryStatus === "queued" ? (
-                                    <Check size={16} />
-                                  ) : (
-                                    <Ban size={16} />
-                                  )}
+                                  <Tooltip
+                                    content={chat?.deliveryStatus}
+                                    style="light"
+                                    className="mr-5"
+                                  >
+                                    {chat?.deliveryStatus === "read" ||
+                                    chat?.deliveryStatus === "delivered" ? (
+                                      <CheckCheck size={16} color="#4085f5" />
+                                    ) : chat?.deliveryStatus === "sent" ||
+                                      chat?.deliveryStatus === "submitted" ||
+                                      chat?.deliveryStatus === "queued" ? (
+                                      <Check size={16} />
+                                    ) : (
+                                      <Ban size={16} />
+                                    )}
+                                  </Tooltip>
                                 </div>
                               </div>
                             </div>
@@ -604,7 +749,10 @@ const Home = () => {
                 token={token || ""}
                 setCurrentContact={setCurrentContact}
               />
-              <div className="space-y-4 px-4 pb-4 h-[100vh - 56px] overflow-y-auto custom-scrollbar">
+              <div
+                style={{ scrollbarWidth: "none" }}
+                className="space-y-4 px-4 pb-4 h-[100vh - 56px] overflow-y-auto"
+              >
                 <div className="border border-gray-300 p-4 my-5 rounded-xl">
                   <div className="flex items-center gap-4 pb-4">
                     <img
@@ -643,6 +791,26 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* labels box */}
+                {allLabels?.length > 0 && (
+                  <div className="border border-gray-300 p-4 rounded-xl">
+                    <h2 className="text-sm font-medium">Labels</h2>
+                    <div className="flex flex-wrap gap-4 mt-5">
+                      {allLabels?.map((item) => {
+                        return (
+                          <div
+                            key={item?.labelId}
+                            className="flex items-center gap-2"
+                          >
+                            <MdLabel size={24} color="#fcba03" />
+                            <span className="text-sm">{item?.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 {/* add tag */}
                 <div className="border border-gray-300 p-4 rounded-xl">
                   <div className="flex flex-col space-y-4">
@@ -673,10 +841,12 @@ const Home = () => {
                     ) : (
                       <div className="flex items-center justify-between bg-blue-200 rounded-xl">
                         <div className="text-sm space-y-1 bg-blue-50 w-full p-3 rounded-tl-xl rounded-bl-xl">
-                          <p>{tags[0]?.tag}</p>
+                          <p className="text-sm">{tags[0]?.tag}</p>
                           <div className="flex items-center justify-between">
                             <div></div>
-                            <span>{tags[0]?.created_at}</span>
+                            <span className="text-xs">
+                              {tags[0]?.created_at}
+                            </span>
                           </div>
                         </div>
                         <div
@@ -730,10 +900,12 @@ const Home = () => {
                     ) : (
                       <div className="flex items-center justify-between bg-blue-200 rounded-xl">
                         <div className="text-sm space-y-1 bg-blue-50 w-full p-3 rounded-tl-xl rounded-bl-xl">
-                          <p>{notes[0].note}</p>
+                          <p className="text-sm">{notes[0].note}</p>
                           <div className="flex items-center justify-between">
                             <div></div>
-                            <span>{notes[0]?.created_at}</span>
+                            <span className="text-xs">
+                              {notes[0]?.created_at}
+                            </span>
                           </div>
                         </div>
                         <div

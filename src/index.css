@@ -17,7 +17,7 @@ body {
 }
 .chatContainer {
   flex: 2;
-  /* background-image: url("./assets//images/chatBg.jpg"); */
+  /* background-image: url("./assets//images/chatBg3.jpg"); */
   background-size: cover; /* This ensures the image covers the entire container */
   background-position: center; /* Center the image within the container */
   background-repeat: no-repeat; /* Do not repeat the image */

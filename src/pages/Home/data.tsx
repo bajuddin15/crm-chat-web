@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
+  addLabelByCid,
   addNoteByCid,
   addTagByCid,
+  assignConversationByCid,
   changeReadStatus,
   deleteNote,
   deleteTag,
+  fetchLabelsByCid,
   getAllNotesByCid,
   getAllTagsByCid,
   getContactDetails,
@@ -15,6 +18,7 @@ import {
   getIncomingMessages,
   getProfileByToken,
   getSearchContacts,
+  getTeamMembers,
   makeArchivedContact,
   sendMessage,
 } from "../../api";
@@ -43,6 +47,7 @@ interface IState {
 const useData = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
+  const teamEmail = searchParams.get("team");
   const cid = searchParams.get("cid");
   const contact = searchParams.get("contact");
 
@@ -94,6 +99,13 @@ const useData = () => {
 
   const [userProfileInfo, setUserProfileInfo] = useState<any>(null);
 
+  const [teamMembers, setTeamMembers] = useState<Array<any>>([]);
+  const [showTeamMembers, setShowTeamMembers] = useState<boolean>(false);
+  const [selectedTeamMember, setSelectedTeamMember] = useState<any>(null);
+  const [label, setLabel] = useState<string>(""); // for creating a new label
+  const [allLabels, setAllLabels] = useState<Array<any>>([]); // for creating a new label
+  const [addLabelLoading, setAddLabelLoading] = useState<boolean>(false);
+
   // auto scrolling
 
   const lastMessageRef = useRef<any>();
@@ -121,7 +133,7 @@ const useData = () => {
     const data = await sendMessage(formData);
 
     const fetchNewContacts = async (token: any) => {
-      const data = await getConvContacts(token, 0, contactStatusVal);
+      const data = await getConvContacts(token, 0, contactStatusVal, teamEmail);
       if (data && data?.status === 200) {
         let contData = data?.data?.contactArr;
         let fetchedContacts = [...contData, ...allContacts];
@@ -163,7 +175,12 @@ const useData = () => {
   const fetchConvContacts = async (token: any, status: string) => {
     let readContStatus = status.toLowerCase();
     setContactLoading(true);
-    const data = await getConvContacts(token, pageNumber, readContStatus);
+    const data = await getConvContacts(
+      token,
+      pageNumber,
+      readContStatus,
+      teamEmail
+    );
     if (data && data?.status === 200) {
       let contData = data?.data?.contactArr;
       let fetchedContacts = [...allContacts, ...contData];
@@ -224,7 +241,7 @@ const useData = () => {
 
   const filterContactsByStatus = async (status: string, token: any) => {
     let readContStatus = status.toLowerCase();
-    const data = await getConvContacts(token, 0, readContStatus);
+    const data = await getConvContacts(token, 0, readContStatus, teamEmail);
     if (data && data?.status === 200) {
       let contData = data?.data?.contactArr;
       if (contData?.length > 0) setCurrentContact(contData[0]);
@@ -335,6 +352,56 @@ const useData = () => {
     }
   };
 
+  const fetchTeamMembers = async () => {
+    if (!token) return;
+    const data = await getTeamMembers(token);
+    if (data && data?.status === 200) {
+      setTeamMembers(data?.data);
+    }
+  };
+
+  const handleAssignConversation = async (
+    token: string,
+    memberEmail: string,
+    conversationId: string,
+    teamEmail: string
+  ) => {
+    if (!token || !memberEmail || !conversationId || !teamEmail) return;
+    const data = await assignConversationByCid(
+      token,
+      memberEmail,
+      conversationId,
+      teamEmail
+    );
+    if (data && data?.status === 200) {
+      toast.success(data?.success);
+      setShowTeamMembers(false);
+    }
+  };
+
+  const fetchAllLabelsOfConv = async () => {
+    if (!token || !currentContact) return;
+    const data = await fetchLabelsByCid(token, currentContact?.conversationId);
+    if (data && data?.code === 200) {
+      setAllLabels(data?.data);
+    }
+  };
+
+  const handleAddLabel = async (
+    token: string,
+    conversationId: string,
+    label: string
+  ) => {
+    setAddLabelLoading(true);
+    const data = await addLabelByCid(token, conversationId, label);
+    if (data && data?.code === "200") {
+      toast.success(data?.status);
+      fetchAllLabelsOfConv();
+    }
+    setLabel("");
+    setAddLabelLoading(false);
+  };
+
   // navigate to chatview if cid and contact exist in url
   useEffect(() => {
     if (cid && contact) {
@@ -359,8 +426,11 @@ const useData = () => {
 
   useEffect(() => {
     if (token) {
-      fetchProfileInfo(token);
-      fetchConvContacts(token, contactStatusVal);
+      Promise.all([
+        fetchProfileInfo(token),
+        fetchConvContacts(token, contactStatusVal),
+        fetchTeamMembers(),
+      ]);
     }
   }, [token]);
 
@@ -383,8 +453,9 @@ const useData = () => {
     } else if (currentContact?.isArchived === "0") {
       setArchiveStatus(false);
     }
-    fetchAllTags();
-    fetchAllNotes();
+    Promise.all([fetchAllTags(), fetchAllNotes(), fetchAllLabelsOfConv()]);
+    setSelectedTeamMember(null);
+    setShowTeamMembers(false);
   }, [currentContact]);
 
   useEffect(() => {
@@ -449,6 +520,7 @@ const useData = () => {
 
   const state = {
     token,
+    teamEmail,
     rows,
     message,
     contacts,
@@ -481,6 +553,12 @@ const useData = () => {
     notes,
     tagValue,
     noteValue,
+    teamMembers,
+    showTeamMembers,
+    selectedTeamMember,
+    label,
+    addLabelLoading,
+    allLabels,
   };
 
   return {
@@ -514,6 +592,12 @@ const useData = () => {
     setNotes,
     setTagValue,
     setNoteValue,
+    setTeamMembers,
+    setShowTeamMembers,
+    setSelectedTeamMember,
+    setLabel,
+    setAddLabelLoading,
+    setAllLabels,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
@@ -524,6 +608,8 @@ const useData = () => {
     handleAddNote,
     handleDeleteTag,
     handleDeleteNote,
+    handleAssignConversation,
+    handleAddLabel,
   };
 };
 

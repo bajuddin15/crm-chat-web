@@ -53,9 +53,10 @@ const getUploadedUrl = async (file: any) => {
 const getConvContacts = async (
   acessToken: string,
   page: number,
-  status: string
+  status: string,
+  teamEmail: string | null
 ) => {
-  const url = `https://app.crm-messaging.cloud/index.php/api/getConversationContact3?page=${page}&filter=${status}`;
+  const url = `https://app.crm-messaging.cloud/index.php/api/getConversationContact3?page=${page}&filter=${status}&team=${teamEmail}`;
   const headers = {
     Authorization: `Bearer ${acessToken}`,
   };
@@ -435,6 +436,97 @@ const getUnreadMessages = async (token: string) => {
   return resData;
 };
 
+const getTeamMembers = async (token: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Team/getTeamMembers";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  let resData;
+
+  try {
+    const { data } = await axios.get(url, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
+const assignConversationByCid = async (
+  token: string,
+  memberEmail: string,
+  conversationId: string,
+  teamEmail: string
+) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Team/assignCon";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("member", memberEmail);
+  formData.append("con_id", conversationId);
+  formData.append("team", teamEmail);
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
+const addLabelByCid = async (
+  token: string,
+  conversationId: string,
+  label: string
+) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/addLabel";
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("cid", conversationId);
+  formData.append("label", label);
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
+const fetchLabelsByCid = async (token: string, conversationId: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/viewLabel";
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("cid", conversationId);
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -458,4 +550,8 @@ export {
   deleteTag,
   deleteNote,
   getUnreadMessages,
+  getTeamMembers,
+  assignConversationByCid,
+  addLabelByCid,
+  fetchLabelsByCid,
 };
