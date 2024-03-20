@@ -1,4 +1,5 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const getSenderIds = async (token: any) => {
   const url =
@@ -33,6 +34,30 @@ const getAllTemplates = async (token: any) => {
 };
 
 const getUploadedUrl = async (file: any) => {
+  const MAX_FILE_SIZE_MB = 16;
+  const ALLOWED_EXTENSIONS = [
+    "gif",
+    "jpg",
+    "jpeg",
+    "png",
+    "mp4",
+    "mp3",
+    "avi",
+    "doc",
+    "docx",
+    "pdf",
+  ];
+  if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+    // Convert MB to bytes
+    toast.error("File size exceeds the maximum allowed size (16MB)");
+    return null; // Stop further processing
+  }
+
+  const fileExtension = file.name.split(".").pop()?.toLowerCase();
+  if (!fileExtension || !ALLOWED_EXTENSIONS.includes(fileExtension)) {
+    toast.error("File type is not supported");
+    return null; // Stop further processing
+  }
   const url = "https://app.crm-messaging.cloud/index.php/api/upload";
 
   const headers = {

@@ -7,6 +7,7 @@ import {
   ChevronRight,
   MoreVertical,
   Send,
+  UserPlus,
 } from "lucide-react";
 import { TiMessages } from "react-icons/ti";
 import { IoCheckmark, IoSearch } from "react-icons/io5";
@@ -27,7 +28,7 @@ import { colors } from "../../utils/constants";
 import SenderIdModal from "../../components/Modals/SenderIdModal";
 import TemplateModal from "../../components/Modals/TemplateModal";
 import AttachmentModal from "../../components/Modals/AttachmentModal";
-import CreateContactModal from "../../components/Modals/CreateContactModal";
+// import CreateContactModal from "../../components/Modals/CreateContactModal";
 import SearchContactModal from "../../components/Modals/SearchContactModal";
 import APP_LOGO from "../../assets/images/app_logo.png";
 
@@ -37,6 +38,7 @@ import ViewAllTags from "../../components/ViewAllTags";
 import ViewAllNotes from "../../components/ViewAllNotes";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { Link } from "react-router-dom";
 // import SidebarDrawer from "../../components/SidebarDrawer";
 
 const Home = () => {
@@ -116,6 +118,11 @@ const Home = () => {
     (state: RootState) => state.store.unreadMessages
   );
 
+  const currentUrl = window.location.href; // Get the current URL
+  const url = currentUrl.split("?"); // split url
+  const baseUrl = url[0]; // Extract base URL
+  const extraUrl = url[1]; // Extract query URL
+
   return (
     <div className="relative">
       <div className="flex fixed top-0 left-0 right-0 bottom-0">
@@ -147,7 +154,12 @@ const Home = () => {
                 token={token}
                 setCurrentContact={setCurrentContact}
               />
-              <CreateContactModal token={token} />
+              <Link to={`${baseUrl}newMessage/?${extraUrl}`}>
+                <div className="cursor-pointer">
+                  <UserPlus size={18} color="black" />
+                </div>
+              </Link>
+              {/* <CreateContactModal token={token} /> */}
 
               {/* <SidebarDrawer
                 allLabels={allLabels}
@@ -337,7 +349,10 @@ const Home = () => {
                     alt="Rounded avatar"
                   />
                   <h2 className="text-base font-semibold text-black">
-                    {currentContact?.name
+                    {currentContact?.name &&
+                    currentContact?.name !== " " &&
+                    currentContact?.name !== "null" &&
+                    currentContact?.name !== "undefined"
                       ? currentContact?.name
                       : `+${currentContact?.contact}`}
                   </h2>
@@ -413,7 +428,7 @@ const Home = () => {
                       {showTeamMembers && (
                         <div
                           style={{ scrollbarWidth: "none" }}
-                          className="absolute top-9 right-0 flex flex-col gap-2 bg-white z-50 w-52 h-64 overflow-auto break-words border border-gray-300 p-2 rounded-md shadow-sm"
+                          className="absolute top-9 right-0 flex flex-col gap-2 bg-white z-50 w-52 max-h-64 overflow-auto break-words border border-gray-300 p-2 rounded-md shadow-sm"
                         >
                           {teamMembers?.map((item, index) => {
                             if (!item?.name) return;

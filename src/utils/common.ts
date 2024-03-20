@@ -17,6 +17,7 @@ const getFormatedDate = (providedDate: string) => {
 };
 
 function identifyFileType(url: string): string {
+  if (!url) return "";
   const imageExtensions: string[] = ["jpg", "jpeg", "png", "gif", "bmp", "svg"];
   const documentExtensions: string[] = [
     "doc",

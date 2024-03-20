@@ -142,6 +142,7 @@ const TemplateValueEdit = ({
   handleCloseModal: any;
 }) => {
   const [openModal, setOpenModal] = useState<IState["openModal"]>(false);
+  const [disabledSubmitBtn, setDisabledSubmitBtn] = useState<boolean>(false);
 
   const handleTempVarValueChange = (index: any, event: any) => {
     const newValues = [...tempVariables];
@@ -161,6 +162,17 @@ const TemplateValueEdit = ({
     handleCloseModal();
     setOpenModal(false);
   };
+
+  useEffect(() => {
+    let cntEmpty = 0;
+    for (let i = 0; i < tempVariables?.length; i++) {
+      if (tempVariables[i] === "") {
+        cntEmpty++;
+      }
+    }
+    const flag = cntEmpty > 0 ? true : false;
+    setDisabledSubmitBtn(flag);
+  }, [tempVariables]);
   return (
     <>
       <div
@@ -214,7 +226,12 @@ const TemplateValueEdit = ({
           <Button size="xs" color="gray" onClick={() => setOpenModal(false)}>
             Cancel
           </Button>
-          <Button size="xs" onClick={handleSubmit}>
+          <Button
+            color="blue"
+            disabled={disabledSubmitBtn}
+            size="xs"
+            onClick={handleSubmit}
+          >
             Save
           </Button>
         </Modal.Footer>

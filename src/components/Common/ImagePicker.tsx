@@ -111,7 +111,7 @@ const ImagePicker: React.FC<IProps> = ({ setMediaLink, setOpenModal }) => {
                     </h5>
                     <p className="font-normal text-sm text-gray-400 md:px-6">
                       Choose photo size should be less than{" "}
-                      <b className="text-gray-600">2mb</b>
+                      <b className="text-gray-600">16 MB</b>
                     </p>
                     <p className="font-normal text-sm text-gray-400 md:px-6">
                       and should be in{" "}

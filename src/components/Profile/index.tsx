@@ -5,6 +5,7 @@ import { getUnreadMessages } from "../../api";
 import { useDispatch } from "react-redux";
 import { setUnreadMessages } from "../../store/slices/storeSlice";
 import notificationSound from "../../assets/sounds/notification.mp3";
+import toast from "react-hot-toast";
 
 interface IProps {
   token: string;
@@ -28,20 +29,28 @@ const Profile = ({ token, setCurrentContact }: IProps) => {
       const data = await getUnreadMessages(token);
       if (data && Array.isArray(data)) {
         const unreadmsgCount = localStorage.getItem("unreadMsgCount");
+        const lastMsgTimestamp = localStorage.getItem("lastMsgTimestamp");
 
-        let cntSum = 0;
-        for (let i = 0; i < data?.length; i++) {
-          let item = data[i];
-          cntSum += parseInt(item?.message_count);
+        if (data?.length > 0) {
+          let item = data[0];
+          let cntMsg = item?.message_count;
+          let lastTimestamp = item?.last_message_timestamp;
+          if (unreadmsgCount !== cntMsg && lastMsgTimestamp !== lastTimestamp) {
+            toast.success(
+              `You have ${item?.message_count} unread messages from
+            ${item?.fromnumber}`,
+              {
+                duration: 10000,
+              }
+            );
+            const sound = new Audio(notificationSound);
+            sound.play();
+          }
+          localStorage.setItem("unreadMsgCount", cntMsg);
+          localStorage.setItem("lastMsgTimestamp", lastTimestamp);
+          setUnreadMsgs(data);
+          dispatch(setUnreadMessages(data));
         }
-        if (unreadmsgCount !== cntSum?.toString()) {
-          const sound = new Audio(notificationSound);
-          sound.play();
-        }
-
-        localStorage.setItem("unreadMsgCount", cntSum.toString());
-        setUnreadMsgs(data);
-        dispatch(setUnreadMessages(data));
       }
     };
     const intervalId = setInterval(fetchAllUnreadMsgs, 3000); // Call fetchAllUnreadMsgs every 3 seconds
@@ -75,7 +84,7 @@ const Profile = ({ token, setCurrentContact }: IProps) => {
       {/* unread msgs */}
       {showNotifications && (
         <div style={{ zIndex: 99 }} className="absolute top-10 right-0">
-          <div className="flex flex-col gap-2 bg-white z-50 border border-gray-300 w-[310px] h-[90vh] overflow-auto custom-scrollbar p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl">
+          <div className="flex flex-col gap-2 bg-white z-50 border border-gray-300 w-[310px] max-h-[90vh] overflow-auto custom-scrollbar p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl">
             {unreadMsgs?.map((item, index) => {
               return (
                 <div

@@ -105,7 +105,7 @@ const DocumentPicker: React.FC<IProps> = ({ setMediaLink, setOpenModal }) => {
                     </h5>
                     <p className="font-normal text-sm text-gray-400 md:px-6">
                       Choose document size should be less than{" "}
-                      <b className="text-gray-600">5mb</b>
+                      <b className="text-gray-600">16 MB</b>
                     </p>
                     <p className="font-normal text-sm text-gray-400 md:px-6">
                       Supported formats:{" "}
