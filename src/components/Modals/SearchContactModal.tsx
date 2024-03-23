@@ -2,6 +2,7 @@ import { Modal } from "flowbite-react";
 import { ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getCRMContacts, getConvId } from "../../api";
+import { getFullName } from "../../utils/common";
 
 interface IProps {
   token: any;
@@ -102,10 +103,8 @@ const SearchContactModal = ({ token, setCurrentContact }: IProps) => {
               <span className="text-sm">Total ({contacts?.length})</span>
             </div>
             {contacts?.map((contact) => {
-              let fullName =
-                contact?.fname !== "undefined" && contact?.lname !== "undefined"
-                  ? `${contact?.fname} ${contact?.lname}`
-                  : "";
+              let fullName = getFullName(contact?.fname, contact?.lname);
+
               return (
                 <div
                   key={contact?.id}
@@ -119,7 +118,9 @@ const SearchContactModal = ({ token, setCurrentContact }: IProps) => {
                   />
                   <div className="flex items-center justify-between flex-1">
                     <div>
-                      <h2 className="text-base font-semibold">{fullName}</h2>
+                      {fullName && (
+                        <h2 className="text-base font-semibold">{fullName}</h2>
+                      )}
                       <span
                         className={`${
                           fullName !== "" && fullName !== " "

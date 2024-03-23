@@ -7,6 +7,7 @@ import {
   addTagByCid,
   assignConversationByCid,
   changeReadStatus,
+  deleteLabel,
   deleteNote,
   deleteTag,
   fetchLabelsByCid,
@@ -105,6 +106,7 @@ const useData = () => {
   const [label, setLabel] = useState<string>(""); // for creating a new label
   const [allLabels, setAllLabels] = useState<Array<any>>([]); // for creating a new label
   const [addLabelLoading, setAddLabelLoading] = useState<boolean>(false);
+  const [showDeleteLabelId, setShowDeleteLabelId] = useState<any>(null);
 
   // auto scrolling
 
@@ -241,6 +243,7 @@ const useData = () => {
 
   const filterContactsByStatus = async (status: string, token: any) => {
     let readContStatus = status.toLowerCase();
+    setContactLoading(true);
     const data = await getConvContacts(token, 0, readContStatus, teamEmail);
     if (data && data?.status === 200) {
       let contData = data?.data?.contactArr;
@@ -249,6 +252,7 @@ const useData = () => {
       setContacts(contData);
       setAllContacts(contData);
     }
+    setContactLoading(false);
   };
 
   const handleChangeReadStatus = async (data: any) => {
@@ -402,6 +406,14 @@ const useData = () => {
     setAddLabelLoading(false);
   };
 
+  const handleDeleteLabel = async (token: string, labelId: string) => {
+    const data = await deleteLabel(token, labelId);
+    if (data && data?.code === "200") {
+      toast.success(data?.status);
+      fetchAllLabelsOfConv();
+    }
+  };
+
   // navigate to chatview if cid and contact exist in url
   useEffect(() => {
     if (cid && contact) {
@@ -467,9 +479,11 @@ const useData = () => {
   useEffect(() => {
     if (selectedTemplate) {
       let mType: string = selectedTemplate?.headertype;
-      const mediaType =
-        mType?.charAt(0).toUpperCase() + mType.slice(1).toLowerCase();
-      setRequiredMediaType(mediaType);
+      if (mType && mType !== "none") {
+        const mediaType =
+          mType?.charAt(0).toUpperCase() + mType.slice(1).toLowerCase();
+        setRequiredMediaType(mediaType);
+      }
     }
   }, [selectedTemplate]);
 
@@ -559,6 +573,7 @@ const useData = () => {
     label,
     addLabelLoading,
     allLabels,
+    showDeleteLabelId,
   };
 
   return {
@@ -598,6 +613,7 @@ const useData = () => {
     setLabel,
     setAddLabelLoading,
     setAllLabels,
+    setShowDeleteLabelId,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
@@ -610,6 +626,7 @@ const useData = () => {
     handleDeleteNote,
     handleAssignConversation,
     handleAddLabel,
+    handleDeleteLabel,
   };
 };
 

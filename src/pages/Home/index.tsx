@@ -8,6 +8,7 @@ import {
   MoreVertical,
   Send,
   UserPlus,
+  X,
 } from "lucide-react";
 import { TiMessages } from "react-icons/ti";
 import { IoCheckmark, IoSearch } from "react-icons/io5";
@@ -17,10 +18,12 @@ import { FaCircleUser, FaUser } from "react-icons/fa6";
 import useData from "./data";
 import Profile from "../../components/Profile";
 import {
+  formatDateOfChat,
   getFormatedDate,
   getFullName,
   getUnreadMsgCountByCid,
   identifyFileType,
+  trimCompanyName,
 } from "../../utils/common";
 import { Badge, Button, Spinner, TextInput, Tooltip } from "flowbite-react";
 import EmojiPickerModal from "../../components/Modals/EmojiPickerModal";
@@ -63,6 +66,7 @@ const Home = () => {
     setShowTeamMembers,
     setSelectedTeamMember,
     setLabel,
+    setShowDeleteLabelId,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
@@ -74,6 +78,7 @@ const Home = () => {
     handleDeleteNote,
     handleAssignConversation,
     handleAddLabel,
+    handleDeleteLabel,
   } = useData();
   const {
     token,
@@ -112,6 +117,7 @@ const Home = () => {
     label,
     addLabelLoading,
     allLabels,
+    showDeleteLabelId,
   } = state;
 
   const unreadMsgs = useSelector(
@@ -144,9 +150,7 @@ const Home = () => {
                 alt="Rounded avatar"
               />
               <h2 className="text-sm font-semibold text-black">
-                {userProfileInfo?.company?.length > 14
-                  ? userProfileInfo?.company?.slice(0, 14)
-                  : userProfileInfo?.company}
+                {trimCompanyName(userProfileInfo?.company)}
               </h2>
             </div>
             <div className="flex items-center gap-4 relative">
@@ -254,6 +258,17 @@ const Home = () => {
                 <span className="text-sm">No Conversations</span>
               </div>
             )}
+            {contactLoading && (
+              <div className="flex items-center justify-center -mt-2">
+                <Badge
+                  color="warning"
+                  size="sm"
+                  className="inline-block px-4 text-[13px]"
+                >
+                  Loading...
+                </Badge>
+              </div>
+            )}
             {contacts?.map((item: any, index: number) => {
               const formatedDate = getFormatedDate(item?.date);
               const unreadMsgCount = getUnreadMsgCountByCid(
@@ -311,7 +326,7 @@ const Home = () => {
 
             {/* load more button */}
             <div className="flex items-center justify-center my-3">
-              {contacts?.length > 0 && contacts?.length % 20 === 0 && (
+              {contacts?.length > 0 && contacts?.length > 10 && (
                 <button
                   className="text-xs border border-gray-300 bg-gray-50  rounded-3xl px-4 py-2"
                   disabled={contactLoading}
@@ -495,7 +510,7 @@ const Home = () => {
                 ) : (
                   <div className="overflow-y-auto overflow-x-hidden h-full custom-scrollbar flex flex-col justify-end">
                     {chats?.map((chat: any, index: number) => {
-                      const formatedDate = getFormatedDate(chat?.date);
+                      const formatedDate = formatDateOfChat(chat?.date);
                       const fileType = identifyFileType(chat?.media);
                       const imageLink =
                         fileType === "image" ? chat?.media : null;
@@ -707,6 +722,8 @@ const Home = () => {
                       <div>
                         {!mediaLink &&
                           selectedTemplate &&
+                          selectedTemplate?.headertype &&
+                          selectedTemplate?.headertype !== "none" &&
                           selectedTemplate?.headertype !== "" &&
                           selectedTemplate?.headertype !== "TEXT" && (
                             <span className="text-red-500 tracking-tight text-xs">
@@ -816,10 +833,24 @@ const Home = () => {
                         return (
                           <div
                             key={item?.labelId}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-1 py-1 px-2 rounded-md"
+                            onMouseEnter={() =>
+                              setShowDeleteLabelId(item?.labelId)
+                            }
+                            onMouseLeave={() => setShowDeleteLabelId(null)}
                           >
-                            <MdLabel size={24} color="#fcba03" />
+                            <MdLabel size={22} color="#fcba03" />
                             <span className="text-sm">{item?.label}</span>
+                            {showDeleteLabelId === item?.labelId && (
+                              <div
+                                className="cursor-pointer bg-white shadow-md p-[2px] rounded-full border border-gray-300"
+                                onClick={() =>
+                                  handleDeleteLabel(token || "", item?.labelId)
+                                }
+                              >
+                                <X size={14} color="red" />
+                              </div>
+                            )}
                           </div>
                         );
                       })}

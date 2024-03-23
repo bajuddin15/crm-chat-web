@@ -552,6 +552,27 @@ const fetchLabelsByCid = async (token: string, conversationId: string) => {
   return resData;
 };
 
+const deleteLabel = async (token: string, labelId: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/deleteLabel";
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("label_id", labelId);
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -579,4 +600,5 @@ export {
   assignConversationByCid,
   addLabelByCid,
   fetchLabelsByCid,
+  deleteLabel,
 };

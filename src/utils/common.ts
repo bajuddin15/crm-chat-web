@@ -64,6 +64,12 @@ const getUniqueContacts = (contacts: any) => {
 
 const getFullName = (firstName: string, lastName: string) => {
   let fullName;
+  if (firstName === "null" && lastName === "null") {
+    fullName = "";
+  } else if (firstName === "undefined" && lastName === "undefined") {
+    fullName = "";
+  }
+
   if (firstName && lastName) {
     fullName = `${firstName} ${lastName}`;
   } else if (firstName) {
@@ -87,10 +93,39 @@ const getUnreadMsgCountByCid = (unreadMsgs: any, cid: string, contact: any) => {
   return findItem ? findItem?.message_count : 1;
 };
 
+function formatDateOfChat(dateString: string) {
+  const parsedDate = moment(dateString, "YYYY-MM-DD HH:mm:ss");
+  const today = moment().startOf("day");
+  const yesterday = moment().subtract(1, "days").startOf("day");
+  if (parsedDate.isSame(today, "d")) {
+    const formattedTime = parsedDate.format("h:mm A");
+    return formattedTime;
+  } else if (parsedDate.isSame(yesterday, "d")) {
+    const formattedTime = parsedDate.format("h:mm A");
+    return `Yesterday, ${formattedTime}`;
+  } else {
+    return moment(dateString).format("DD MMM YYYY, hh:mm A");
+  }
+}
+
+const trimCompanyName = (companyName: string): string => {
+  if (companyName?.length > 20) {
+    if (companyName?.includes(" ")) {
+      return companyName?.split(" ")[0];
+    } else {
+      return `${companyName.slice(0, 20)}...`;
+    }
+  } else {
+    return companyName;
+  }
+};
+
 export {
   getFormatedDate,
   identifyFileType,
   getUniqueContacts,
   getFullName,
   getUnreadMsgCountByCid,
+  formatDateOfChat,
+  trimCompanyName,
 };
