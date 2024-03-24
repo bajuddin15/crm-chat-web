@@ -5,7 +5,6 @@ import {
   CheckCheck,
   ChevronDown,
   ChevronRight,
-  MoreVertical,
   Send,
   UserPlus,
   X,
@@ -42,6 +41,7 @@ import ViewAllNotes from "../../components/ViewAllNotes";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { Link } from "react-router-dom";
+import SidebarDrawer from "../../components/SidebarDrawer";
 // import SidebarDrawer from "../../components/SidebarDrawer";
 
 const Home = () => {
@@ -67,6 +67,8 @@ const Home = () => {
     setSelectedTeamMember,
     setLabel,
     setShowDeleteLabelId,
+    setSelectedFilterLabelId,
+    setSelectedFilterOwnerId,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
@@ -118,6 +120,7 @@ const Home = () => {
     addLabelLoading,
     allLabels,
     showDeleteLabelId,
+    labelsOfToken,
   } = state;
 
   const unreadMsgs = useSelector(
@@ -128,6 +131,13 @@ const Home = () => {
   const url = currentUrl.split("?"); // split url
   const baseUrl = url[0]; // Extract base URL
   const extraUrl = url[1]; // Extract query URL
+
+  // badge show
+  const whats = new Date(whatsTimer); // Convert the string to a Date object
+  const currentTime = new Date(); // Current time
+  const timeDifference = currentTime.getTime() - whats.getTime();
+  const hoursDifference = timeDifference / (1000 * 60 * 60);
+  const showBadge = hoursDifference < 24;
 
   return (
     <div className="relative">
@@ -165,19 +175,21 @@ const Home = () => {
               </Link>
               {/* <CreateContactModal token={token} /> */}
 
-              {/* <SidebarDrawer
-                allLabels={allLabels}
+              <SidebarDrawer
+                allLabels={labelsOfToken}
                 teamMembers={teamMembers}
                 contactStatusVal={contactStatusVal}
                 setContactStatusVal={setContactStatusVal}
-              /> */}
+                setSelectedFilterLabelId={setSelectedFilterLabelId}
+                setSelectedFilterOwnerId={setSelectedFilterOwnerId}
+              />
 
-              <button
+              {/* <button
                 className="-mr-3"
                 onClick={() => setShowContactStatus(!showContactStatus)}
               >
                 <MoreVertical size={20} />
-              </button>
+              </button> */}
 
               {showContactStatus && (
                 <div className="absolute -right-1 top-7 bg-white w-32 z-50 border border-gray-300 rounded-md p-1">
@@ -489,7 +501,9 @@ const Home = () => {
                       )}
                     </div>
                   )}
-                  {whatsTimer && <Badge color="success">Live</Badge>}
+                  {whatsTimer && showBadge && (
+                    <Badge color="success">Live</Badge>
+                  )}
                 </div>
               </div>
 

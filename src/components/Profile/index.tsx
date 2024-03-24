@@ -58,6 +58,7 @@ const Profile = ({ token, setCurrentContact }: IProps) => {
     // Clean up the interval when the component unmounts or when the dependency changes
     return () => clearInterval(intervalId);
   }, []);
+
   return (
     <div className="relative">
       <>
@@ -99,9 +100,13 @@ const Profile = ({ token, setCurrentContact }: IProps) => {
                     setShowNotifications(false);
                   }}
                 >
-                  <span className="text-sm">
+                  <span className="text-[13px]">
                     You have {item?.message_count} unread messages from{" "}
-                    {item?.fromnumber}
+                    <span className="text-blue-500 font-semibold">
+                      {item?.contact_name?.trim()
+                        ? item?.contact_name
+                        : item?.fromnumber}
+                    </span>
                   </span>
                 </div>
               );

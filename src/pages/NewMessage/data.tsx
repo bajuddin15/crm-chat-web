@@ -1,5 +1,5 @@
 import React from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { getProfileByToken, getSenderIds, sendMessage } from "../../api";
 import toast from "react-hot-toast";
 
@@ -16,6 +16,8 @@ interface IState {
 }
 
 const useData = () => {
+  const navigate = useNavigate();
+
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const teamEmail = searchParams.get("team");
@@ -88,6 +90,7 @@ const useData = () => {
   };
 
   const handleSubmit = async () => {
+    if (!token) return;
     if (!phoneNumber) {
       toast.error("Enter valid mobile number");
       return;
@@ -118,6 +121,11 @@ const useData = () => {
       setSelectedTemplate(null);
       setRequiredMediaType(null);
       toast.success("Message sent successfully");
+      let navigateUrl = `/?token=${token}`;
+      if (teamEmail) {
+        navigateUrl += `&team=${teamEmail}`;
+      }
+      navigate(navigateUrl);
     } else {
       toast.error("Something went wrong");
     }

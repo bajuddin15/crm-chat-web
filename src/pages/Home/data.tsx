@@ -11,6 +11,7 @@ import {
   deleteNote,
   deleteTag,
   fetchLabelsByCid,
+  getAllLabelsByToken,
   getAllNotesByCid,
   getAllTagsByCid,
   getContactDetails,
@@ -105,8 +106,12 @@ const useData = () => {
   const [selectedTeamMember, setSelectedTeamMember] = useState<any>(null);
   const [label, setLabel] = useState<string>(""); // for creating a new label
   const [allLabels, setAllLabels] = useState<Array<any>>([]); // for creating a new label
+  const [labelsOfToken, setLabelsOfToken] = useState<Array<any>>([]); // for fetch labels
   const [addLabelLoading, setAddLabelLoading] = useState<boolean>(false);
   const [showDeleteLabelId, setShowDeleteLabelId] = useState<any>(null);
+
+  const [selectedFilterLabelId, setSelectedFilterLabelId] = useState<any>("");
+  const [selectedFilterOwnerId, setSelectedFilterOwnerId] = useState<any>("");
 
   // auto scrolling
 
@@ -135,7 +140,14 @@ const useData = () => {
     const data = await sendMessage(formData);
 
     const fetchNewContacts = async (token: any) => {
-      const data = await getConvContacts(token, 0, contactStatusVal, teamEmail);
+      const filterFormData = {
+        page: 0,
+        status: contactStatusVal,
+        teamEmail,
+        labelId: selectedFilterLabelId,
+        ownerId: selectedFilterOwnerId,
+      };
+      const data = await getConvContacts(token, filterFormData);
       if (data && data?.status === 200) {
         let contData = data?.data?.contactArr;
         let fetchedContacts = [...contData, ...allContacts];
@@ -177,12 +189,14 @@ const useData = () => {
   const fetchConvContacts = async (token: any, status: string) => {
     let readContStatus = status.toLowerCase();
     setContactLoading(true);
-    const data = await getConvContacts(
-      token,
-      pageNumber,
-      readContStatus,
-      teamEmail
-    );
+    const filterFormData = {
+      page: pageNumber,
+      status: readContStatus,
+      teamEmail,
+      labelId: selectedFilterLabelId,
+      ownerId: selectedFilterOwnerId,
+    };
+    const data = await getConvContacts(token, filterFormData);
     if (data && data?.status === 200) {
       let contData = data?.data?.contactArr;
       let fetchedContacts = [...allContacts, ...contData];
@@ -244,7 +258,14 @@ const useData = () => {
   const filterContactsByStatus = async (status: string, token: any) => {
     let readContStatus = status.toLowerCase();
     setContactLoading(true);
-    const data = await getConvContacts(token, 0, readContStatus, teamEmail);
+    const filterFormData = {
+      page: 0,
+      status: readContStatus,
+      teamEmail,
+      labelId: selectedFilterLabelId,
+      ownerId: selectedFilterOwnerId,
+    };
+    const data = await getConvContacts(token, filterFormData);
     if (data && data?.status === 200) {
       let contData = data?.data?.contactArr;
       if (contData?.length > 0) setCurrentContact(contData[0]);
@@ -414,6 +435,43 @@ const useData = () => {
     }
   };
 
+  const fetchLabelsOfToken = async (token: string) => {
+    if (!token) return;
+    const data = await getAllLabelsByToken(token);
+    if (data && data?.code === 200) {
+      setLabelsOfToken(data?.data);
+    }
+  };
+
+  // Filtered apply
+  useEffect(() => {
+    const fetchFilteredContacts = async () => {
+      if (!token) return;
+      const filterFormData = {
+        page: 0,
+        status: contactStatusVal,
+        teamEmail,
+        labelId: selectedFilterLabelId,
+        ownerId: selectedFilterOwnerId,
+      };
+      const data = await getConvContacts(token, filterFormData);
+      if (data && data?.status === 200) {
+        let contData = data?.data?.contactArr;
+        let uniqueContacts = getUniqueContacts(contData);
+        if (contData?.length > 0) setCurrentContact(contData[0]);
+        else setCurrentContact(null);
+        setContacts(uniqueContacts);
+        setAllContacts(uniqueContacts);
+      }
+    };
+    Promise.all([fetchFilteredContacts()]);
+  }, [
+    contactStatusVal,
+    teamEmail,
+    selectedFilterLabelId,
+    selectedFilterOwnerId,
+  ]);
+
   // navigate to chatview if cid and contact exist in url
   useEffect(() => {
     if (cid && contact) {
@@ -442,6 +500,7 @@ const useData = () => {
         fetchProfileInfo(token),
         fetchConvContacts(token, contactStatusVal),
         fetchTeamMembers(),
+        fetchLabelsOfToken(token),
       ]);
     }
   }, [token]);
@@ -574,6 +633,9 @@ const useData = () => {
     addLabelLoading,
     allLabels,
     showDeleteLabelId,
+    labelsOfToken,
+    selectedFilterLabelId,
+    selectedFilterOwnerId,
   };
 
   return {
@@ -614,6 +676,9 @@ const useData = () => {
     setAddLabelLoading,
     setAllLabels,
     setShowDeleteLabelId,
+    setLabelsOfToken,
+    setSelectedFilterLabelId,
+    setSelectedFilterOwnerId,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,

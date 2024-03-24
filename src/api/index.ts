@@ -75,21 +75,31 @@ const getUploadedUrl = async (file: any) => {
   }
 };
 
-const getConvContacts = async (
-  acessToken: string,
-  page: number,
-  status: string,
-  teamEmail: string | null
-) => {
-  const url = `https://app.crm-messaging.cloud/index.php/api/getConversationContact3?page=${page}&filter=${status}&team=${teamEmail}`;
+const getConvContacts = async (accessToken: string, filterFormData: any) => {
+  const { page, status, teamEmail, labelId, ownerId } = filterFormData;
+  const url =
+    "https://app.crm-messaging.cloud/index.php/api/getConversationContact3";
   const headers = {
-    Authorization: `Bearer ${acessToken}`,
+    Authorization: `Bearer ${accessToken}`,
   };
+  const queryParams = {
+    page: page,
+    filter: status,
+    team: teamEmail,
+    owner_id: ownerId,
+    label_id: labelId,
+  };
+
   let contacts = [];
   try {
-    const { data } = await axios.get(url, { headers });
+    const { data } = await axios.get(url, {
+      headers: headers,
+      params: queryParams, // Passing query parameters here
+    });
     contacts = data;
-  } catch (error: any) {}
+  } catch (error: any) {
+    // Handle error
+  }
   return contacts;
 };
 
@@ -573,6 +583,24 @@ const deleteLabel = async (token: string, labelId: string) => {
   return resData;
 };
 
+const getAllLabelsByToken = async (token: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Message/fetchlabels";
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  let resData;
+
+  try {
+    const { data } = await axios.get(url, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -601,4 +629,5 @@ export {
   addLabelByCid,
   fetchLabelsByCid,
   deleteLabel,
+  getAllLabelsByToken,
 };
