@@ -562,7 +562,11 @@ const fetchLabelsByCid = async (token: string, conversationId: string) => {
   return resData;
 };
 
-const deleteLabel = async (token: string, labelId: string) => {
+const deleteLabel = async (
+  token: string,
+  labelId: string,
+  conversationId: string
+) => {
   const url = "https://app.crm-messaging.cloud/index.php/Message/deleteLabel";
 
   const headers = {
@@ -571,6 +575,7 @@ const deleteLabel = async (token: string, labelId: string) => {
 
   const formData = new FormData();
   formData.append("label_id", labelId);
+  formData.append("cid", conversationId);
 
   let resData;
 

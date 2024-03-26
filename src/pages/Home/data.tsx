@@ -108,6 +108,7 @@ const useData = () => {
   const [allLabels, setAllLabels] = useState<Array<any>>([]); // for creating a new label
   const [labelsOfToken, setLabelsOfToken] = useState<Array<any>>([]); // for fetch labels
   const [addLabelLoading, setAddLabelLoading] = useState<boolean>(false);
+  const [assignLabelLoading, setAssignLabelLoading] = useState<boolean>(false);
   const [showDeleteLabelId, setShowDeleteLabelId] = useState<any>(null);
 
   const [selectedFilterLabelId, setSelectedFilterLabelId] = useState<any>("");
@@ -426,9 +427,27 @@ const useData = () => {
     setLabel("");
     setAddLabelLoading(false);
   };
+  const handleAssignLabel = async (
+    token: string,
+    conversationId: string,
+    label: string
+  ) => {
+    setAssignLabelLoading(true);
+    const data = await addLabelByCid(token, conversationId, label);
+    if (data && data?.code === "200") {
+      toast.success(data?.status);
+      fetchAllLabelsOfConv();
+    }
+    setLabel("");
+    setAssignLabelLoading(false);
+  };
 
-  const handleDeleteLabel = async (token: string, labelId: string) => {
-    const data = await deleteLabel(token, labelId);
+  const handleDeleteLabel = async (
+    token: string,
+    labelId: string,
+    conversationId: string
+  ) => {
+    const data = await deleteLabel(token, labelId, conversationId);
     if (data && data?.code === "200") {
       toast.success(data?.status);
       fetchAllLabelsOfConv();
@@ -443,13 +462,21 @@ const useData = () => {
     }
   };
 
+  const handleExistingFilteredLabels = (label: string) => {
+    let labels = [];
+    labels = labelsOfToken?.filter((item) =>
+      item?.label?.toLowerCase()?.includes(label?.toLowerCase())
+    );
+    return labels;
+  };
+
   // Filtered apply
   useEffect(() => {
     const fetchFilteredContacts = async () => {
       if (!token) return;
       const filterFormData = {
         page: 0,
-        status: contactStatusVal,
+        status: contactStatusVal?.toLowerCase(),
         teamEmail,
         labelId: selectedFilterLabelId,
         ownerId: selectedFilterOwnerId,
@@ -636,6 +663,7 @@ const useData = () => {
     labelsOfToken,
     selectedFilterLabelId,
     selectedFilterOwnerId,
+    assignLabelLoading,
   };
 
   return {
@@ -679,6 +707,7 @@ const useData = () => {
     setLabelsOfToken,
     setSelectedFilterLabelId,
     setSelectedFilterOwnerId,
+    setAssignLabelLoading,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
@@ -691,7 +720,9 @@ const useData = () => {
     handleDeleteNote,
     handleAssignConversation,
     handleAddLabel,
+    handleAssignLabel,
     handleDeleteLabel,
+    handleExistingFilteredLabels,
   };
 };
 

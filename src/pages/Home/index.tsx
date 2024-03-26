@@ -81,6 +81,8 @@ const Home = () => {
     handleAssignConversation,
     handleAddLabel,
     handleDeleteLabel,
+    handleExistingFilteredLabels,
+    handleAssignLabel,
   } = useData();
   const {
     token,
@@ -121,6 +123,7 @@ const Home = () => {
     allLabels,
     showDeleteLabelId,
     labelsOfToken,
+    assignLabelLoading,
   } = state;
 
   const unreadMsgs = useSelector(
@@ -398,35 +401,69 @@ const Home = () => {
                     </div>
 
                     {label && (
-                      <div
-                        style={{
-                          maxWidth: "200px",
-                          display: "inline-flex", // Add this line
-                        }}
-                        className="absolute top-8 left-0 bg-white z-50 border border-gray-300 py-1 px-2 rounded-md flex items-center cursor-pointer hover:bg-gray-100"
-                        onClick={() =>
-                          handleAddLabel(
-                            token || "",
-                            currentContact?.conversationId,
-                            label
-                          )
-                        }
-                      >
-                        {addLabelLoading && (
-                          <Spinner
-                            color="info"
-                            aria-label="Info spinner loading"
-                            size="sm"
-                            className="mr-2 mb-1"
-                          />
-                        )}
-                        <span className="text-sm font-medium">
-                          {"Creating"}
-                        </span>
-                        <span className="mx-2 mt-1">
-                          <MdLabel size={24} color="#fcba03" />
-                        </span>
-                        <span className="text-sm">{label}</span>
+                      <div className="absolute top-10 left-0 bg-white z-50 w-52 p-2 border border-gray-300 space-y-2">
+                        <div
+                          style={{
+                            display: "inline-flex", // Add this line
+                            scrollbarWidth: "none",
+                          }}
+                          className="w-full overflow-x-auto border border-gray-300 py-1 px-2 rounded-md flex items-center cursor-pointer hover:bg-gray-100"
+                          onClick={() =>
+                            handleAddLabel(
+                              token || "",
+                              currentContact?.conversationId,
+                              label
+                            )
+                          }
+                        >
+                          {addLabelLoading && (
+                            <Spinner
+                              color="info"
+                              aria-label="Info spinner loading"
+                              size="sm"
+                              className="mr-2 mb-1"
+                            />
+                          )}
+                          <span className="text-sm font-medium">
+                            {"Creating"}
+                          </span>
+                          <span className="mx-2 mt-1">
+                            <MdLabel size={24} color="#fcba03" />
+                          </span>
+                          <span className="text-sm">{label}</span>
+                        </div>
+
+                        <hr />
+                        <div className="flex flex-col gap-2">
+                          {handleExistingFilteredLabels(label)?.map((item) => {
+                            return (
+                              <div
+                                key={item?.labelId}
+                                className="flex items-center cursor-pointer"
+                                onClick={() =>
+                                  handleAssignLabel(
+                                    token || "",
+                                    currentContact?.conversationId,
+                                    item?.label
+                                  )
+                                }
+                              >
+                                {assignLabelLoading && (
+                                  <Spinner
+                                    color="info"
+                                    aria-label="Info spinner loading"
+                                    size="sm"
+                                    className="mr-2 mb-1"
+                                  />
+                                )}
+                                <span className="mx-2 mt-1">
+                                  <MdLabel size={24} color="#fcba03" />
+                                </span>
+                                <span className="text-sm">{item?.label}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -859,7 +896,11 @@ const Home = () => {
                               <div
                                 className="cursor-pointer bg-white shadow-md p-[2px] rounded-full border border-gray-300"
                                 onClick={() =>
-                                  handleDeleteLabel(token || "", item?.labelId)
+                                  handleDeleteLabel(
+                                    token || "",
+                                    item?.labelId,
+                                    item?.conversationId
+                                  )
                                 }
                               >
                                 <X size={14} color="red" />
