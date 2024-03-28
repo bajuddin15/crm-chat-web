@@ -42,6 +42,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { Link } from "react-router-dom";
 import SidebarDrawer from "../../components/SidebarDrawer";
+import EditContactInfo from "../../components/Modals/EditContactInfo";
 // import SidebarDrawer from "../../components/SidebarDrawer";
 
 const Home = () => {
@@ -69,6 +70,7 @@ const Home = () => {
     setShowDeleteLabelId,
     setSelectedFilterLabelId,
     setSelectedFilterOwnerId,
+    setContactProfileDetails,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
@@ -707,10 +709,18 @@ const Home = () => {
                                   >
                                     {chat?.deliveryStatus === "read" ||
                                     chat?.deliveryStatus === "delivered" ? (
-                                      <CheckCheck size={16} color="#4085f5" />
+                                      <CheckCheck
+                                        size={16}
+                                        color={
+                                          chat?.deliveryStatus === "read"
+                                            ? "#4085f5"
+                                            : "#000"
+                                        }
+                                      />
                                     ) : chat?.deliveryStatus === "sent" ||
                                       chat?.deliveryStatus === "submitted" ||
-                                      chat?.deliveryStatus === "queued" ? (
+                                      chat?.deliveryStatus === "queued" ||
+                                      chat?.deliveryStatus === "accepted" ? (
                                       <Check size={16} />
                                     ) : (
                                       <Ban size={16} />
@@ -775,6 +785,7 @@ const Home = () => {
                           selectedTemplate &&
                           selectedTemplate?.headertype &&
                           selectedTemplate?.headertype !== "none" &&
+                          selectedTemplate?.headertype !== "NONE" &&
                           selectedTemplate?.headertype !== "" &&
                           selectedTemplate?.headertype !== "TEXT" && (
                             <span className="text-red-500 tracking-tight text-xs">
@@ -849,6 +860,11 @@ const Home = () => {
                         contactProfileDetails?.lname
                       ) || contactProfileDetails?.phone}
                     </span>
+                    <EditContactInfo
+                      token={token}
+                      contact={contactProfileDetails?.phone}
+                      setContactProfileDetails={setContactProfileDetails}
+                    />
                   </div>
                   <hr />
                   <div className="flex flex-col gap-4 px-2 py-4">

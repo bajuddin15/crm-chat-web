@@ -1,6 +1,11 @@
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { getProfileByToken, getSenderIds, sendMessage } from "../../api";
+import {
+  getProfileByToken,
+  getSenderIds,
+  scheduleMessage,
+  sendMessage,
+} from "../../api";
 import toast from "react-hot-toast";
 
 interface IState {
@@ -13,6 +18,8 @@ interface IState {
   selectedTemplate: any;
   requiredMediaType: string | null;
   loading: boolean;
+  date: string;
+  time: string;
 }
 
 const useData = () => {
@@ -42,6 +49,8 @@ const useData = () => {
   const [totalCharacters, setTotalCharacters] = React.useState<number>(0);
   const [creditCount, setCreditCount] = React.useState<number>(0);
   const [loading, setLoading] = React.useState<IState["loading"]>(false);
+  const [date, setDate] = React.useState<IState["date"]>("");
+  const [time, setTime] = React.useState<IState["time"]>("");
 
   const handleChangeMessage = (e: any) => {
     const inputValue = e.target.value;
@@ -99,7 +108,12 @@ const useData = () => {
       toast.error("Enter your message");
       return;
     }
-    if (requiredMediaType && !mediaLink) {
+    if (
+      requiredMediaType &&
+      requiredMediaType.toLowerCase() !== "none" &&
+      requiredMediaType.toLowerCase() !== "text" &&
+      !mediaLink
+    ) {
       toast.error("Attachment should be valid");
       return;
     }
@@ -130,6 +144,35 @@ const useData = () => {
       toast.error("Something went wrong");
     }
     setLoading(false);
+  };
+
+  const handleScheduleMessage = async (setOpenModal: any) => {
+    if (!token) return;
+    const data = {
+      teamEmail,
+      date,
+      time,
+      body: message,
+      to: phoneNumber,
+      fromId: selectedSenderId?.id,
+      media: mediaLink,
+      tempType: selectedTemplate?.type,
+      tempId: selectedTemplate?.whatsapp_template_id,
+      channel: selectedSenderId?.defaultChannel,
+      contactId: null,
+      location: null,
+    };
+    const resData = await scheduleMessage(token, data);
+    if (resData && resData?.status === 200) {
+      toast.success("Message scheduled.");
+      setDate("");
+      setTime("");
+      setMessage("");
+      setMediaLink(null);
+      setPhoneNumber("");
+      setSelectedTemplate(null);
+      setOpenModal(false);
+    }
   };
 
   React.useEffect(() => {
@@ -175,6 +218,8 @@ const useData = () => {
     totalCharacters,
     creditCount,
     loading,
+    date,
+    time,
   };
   return {
     state,
@@ -189,8 +234,11 @@ const useData = () => {
     setTotalCharacters,
     setCreditCount,
     setLoading,
+    setDate,
+    setTime,
     handleChangeMessage,
     handleSubmit,
+    handleScheduleMessage,
   };
 };
 

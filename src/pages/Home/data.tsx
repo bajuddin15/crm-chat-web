@@ -554,7 +554,7 @@ const useData = () => {
     Promise.all([fetchAllTags(), fetchAllNotes(), fetchAllLabelsOfConv()]);
     setSelectedTeamMember(null);
     setShowTeamMembers(false);
-  }, [currentContact]);
+  }, [currentContact?.contact]);
 
   useEffect(() => {
     if (token) {

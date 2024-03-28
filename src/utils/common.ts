@@ -1,4 +1,5 @@
 import moment from "moment";
+import toast from "react-hot-toast";
 
 const getFormatedDate = (providedDate: string) => {
   const parsedDate = moment(providedDate, "YYYY-MM-DD HH:mm:ss");
@@ -120,6 +121,15 @@ const trimCompanyName = (companyName: string): string => {
   }
 };
 
+const handleCopy = async (textToCopy: string) => {
+  try {
+    await navigator.clipboard.writeText(textToCopy);
+    toast.success("Url Copied.");
+  } catch (err) {
+    toast.error("Copied Failed. Please try again.");
+  }
+};
+
 export {
   getFormatedDate,
   identifyFileType,
@@ -128,4 +138,5 @@ export {
   getUnreadMsgCountByCid,
   formatDateOfChat,
   trimCompanyName,
+  handleCopy,
 };

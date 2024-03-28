@@ -606,6 +606,138 @@ const getAllLabelsByToken = async (token: string) => {
   return resData;
 };
 
+const generateShortUrl = async (longUrl: string) => {
+  const url = "https://app.crm-messaging.cloud/index.php/App/shortUrl";
+
+  const formData = new FormData();
+  formData.append("url", longUrl);
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData);
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
+const scheduleMessage = async (token: string, scheduleData: any) => {
+  const {
+    teamEmail,
+    date,
+    time,
+    body,
+    to,
+    fromId,
+    media,
+    tempType,
+    tempId,
+    channel,
+    contactId,
+    location,
+  } = scheduleData;
+  if (!teamEmail) {
+    toast.error("Team email is mandatory");
+    return;
+  }
+  if (!date) {
+    toast.error("Select date for schedule message");
+    return;
+  }
+  if (!time) {
+    toast.error("Select time for schedule message");
+    return;
+  }
+  if (!body) {
+    toast.error("Please write a valid message");
+    return;
+  }
+  if (!to) {
+    toast.error("Phone number should be valid");
+    return;
+  }
+  if (!fromId) {
+    toast.error("Please select a sender number");
+    return;
+  }
+
+  const url =
+    "https://app.crm-messaging.cloud/index.php/Schedule/scheduleMessage";
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+
+  formData.append("team", teamEmail);
+  formData.append("date", date);
+  formData.append("time", time);
+  formData.append("body", body);
+  formData.append("to", to);
+  formData.append("fromId", fromId);
+  formData.append("channel", channel);
+  if (media) {
+    formData.append("media", media);
+  }
+  if (channel === "whatsapp" && tempType && tempId) {
+    formData.append("tempType", tempType);
+    formData.append("tempId", tempId);
+  }
+  if (channel === "whatsapp" && contactId) {
+    formData.append("contactId", contactId);
+  }
+  if (channel === "whatsapp" && location) {
+    formData.append("location", location);
+  }
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
+const updateContactApi = async (token: string, contactData: any) => {
+  const { firstName, lastName, email, phone, newPhone } = contactData;
+  const url = "https://app.crm-messaging.cloud/index.php/api/updateContactApi";
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("phone", phone);
+
+  if (firstName) {
+    formData.append("fname", firstName);
+  }
+  if (lastName) {
+    formData.append("lname", lastName);
+  }
+  if (email) {
+    formData.append("email", email);
+  }
+  if (newPhone) {
+    formData.append("new_phone", newPhone);
+  }
+
+  let resData;
+
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -635,4 +767,7 @@ export {
   fetchLabelsByCid,
   deleteLabel,
   getAllLabelsByToken,
+  generateShortUrl,
+  scheduleMessage,
+  updateContactApi,
 };

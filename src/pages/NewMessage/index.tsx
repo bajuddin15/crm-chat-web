@@ -11,6 +11,8 @@ import { Send } from "lucide-react";
 import { Spinner } from "flowbite-react";
 import { PHONE_IMG1 } from "../../utils/constants";
 import { identifyFileType } from "../../utils/common";
+import ShortUrlModal from "../../components/Modals/ShortUrlModal";
+import ScheduleMessage from "../../components/Modals/ScheduleMessage";
 
 const NewMessage = () => {
   const {
@@ -21,8 +23,11 @@ const NewMessage = () => {
     setSelectedEmoji,
     setSelectedSenderId,
     setSelectedTemplate,
+    setDate,
+    setTime,
     handleChangeMessage,
     handleSubmit,
+    handleScheduleMessage,
   } = useData();
   const {
     token,
@@ -38,6 +43,8 @@ const NewMessage = () => {
     totalCharacters,
     creditCount,
     loading,
+    date,
+    time,
   } = state;
 
   const fileType = identifyFileType(mediaLink);
@@ -73,7 +80,7 @@ const NewMessage = () => {
           <div className="text-sm space-y-2">
             <label htmlFor="mobileNumber">Mobile Number</label>
             <PhoneInput
-              country={"in"}
+              country={"us"}
               inputStyle={{ width: "100%" }}
               value={phoneNumber}
               onChange={(phoneVal) => setPhoneNumber(phoneVal)}
@@ -182,9 +189,14 @@ const NewMessage = () => {
             selectedTemplate={selectedTemplate}
             setSelectedTemplate={setSelectedTemplate}
           />
+
+          <ShortUrlModal setMessage={setMessage} />
           <div>
             {!mediaLink &&
               selectedTemplate &&
+              selectedTemplate?.headertype &&
+              selectedTemplate?.headertype !== "none" &&
+              selectedTemplate?.headertype !== "NONE" &&
               selectedTemplate?.headertype !== "" &&
               selectedTemplate?.headertype !== "TEXT" && (
                 <span className="text-red-500 tracking-tight text-xs">
@@ -195,9 +207,16 @@ const NewMessage = () => {
         </div>
 
         <div className="flex items-center gap-5 h-full">
+          <ScheduleMessage
+            date={date}
+            time={time}
+            setDate={setDate}
+            setTime={setTime}
+            handleScheduleMessage={handleScheduleMessage}
+          />
           <button
             onClick={handleSubmit}
-            className="bg-blue-500 text-white py-2 px-4 rounded-md flex items-center gap-2"
+            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center gap-2"
           >
             <span className="text-sm">Send</span>
             {loading ? (
