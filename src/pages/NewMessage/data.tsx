@@ -157,7 +157,7 @@ const useData = () => {
       fromId: selectedSenderId?.id,
       media: mediaLink,
       tempType: selectedTemplate?.type,
-      tempId: selectedTemplate?.whatsapp_template_id,
+      tempId: selectedTemplate?.id,
       channel: selectedSenderId?.defaultChannel,
       contactId: null,
       location: null,

@@ -49,6 +49,7 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
     };
     fetchProviders();
   }, []);
+
   return (
     <>
       <div
@@ -96,7 +97,7 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
                       htmlFor={item?.number}
                       className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                     >
-                      {item?.number}
+                      {item?.label ? item?.label : item?.number}
                     </label>
                   </div>
                   <input

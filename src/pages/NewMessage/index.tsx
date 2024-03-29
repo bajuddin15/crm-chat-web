@@ -109,7 +109,7 @@ const NewMessage = () => {
                     value={item?.number}
                     selected={selectedSenderId?.number === item?.number}
                   >
-                    {item?.number}
+                    {item?.label ? item?.label : item?.number}
                   </option>
                 );
               })}
