@@ -62,7 +62,10 @@ const Profile = ({ token, setCurrentContact }: IProps) => {
   return (
     <div className="relative">
       <>
-        <div className="flex items-center justify-between h-14 borderBottom px-4 sticky top-0 left-0 bg-white z-50">
+        <div
+          style={{ zIndex: 20 }}
+          className="flex items-center justify-between h-14 borderBottom px-4 sticky top-0 left-0 bg-white"
+        >
           <span className="text-sm">
             {showNotifications ? "" : "Contact Info"}
           </span>

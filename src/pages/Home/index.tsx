@@ -35,7 +35,11 @@ import SearchContactModal from "../../components/Modals/SearchContactModal";
 import APP_LOGO from "../../assets/images/app_logo.png";
 
 //
-import { contactStatusData, getOwnerNameSlice } from "../../constants";
+import {
+  AVATAR_URL,
+  contactStatusData,
+  getOwnerNameSlice,
+} from "../../constants";
 import ViewAllTags from "../../components/ViewAllTags";
 import ViewAllNotes from "../../components/ViewAllNotes";
 import { useSelector } from "react-redux";
@@ -43,6 +47,7 @@ import { RootState } from "../../store";
 import { Link } from "react-router-dom";
 import SidebarDrawer from "../../components/SidebarDrawer";
 import EditContactInfo from "../../components/Modals/EditContactInfo";
+import VoiceCall from "../../components/VoiceCall/VoiceCall";
 // import SidebarDrawer from "../../components/SidebarDrawer";
 
 const Home = () => {
@@ -253,7 +258,7 @@ const Home = () => {
                       >
                         <img
                           className="w-8 h-8 rounded-full"
-                          src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
+                          src={AVATAR_URL}
                           alt="Rounded avatar"
                         />
                         <div className="flex flex-col w-full">
@@ -388,6 +393,8 @@ const Home = () => {
                       ? currentContact?.name
                       : `+${currentContact?.contact}`}
                   </h2>
+
+                  <VoiceCall devToken={token} currentContact={currentContact} />
                 </div>
 
                 <div className="flex items-center gap-4">

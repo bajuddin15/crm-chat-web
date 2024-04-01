@@ -738,6 +738,27 @@ const updateContactApi = async (token: string, contactData: any) => {
   return resData;
 };
 
+const getProviderDetails = async (token: string, providerNumber: string) => {
+  const url =
+    "https://app.crm-messaging.cloud/index.php/api/fetchProviderDetails";
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const formData = new FormData();
+  formData.append("provider_number", providerNumber);
+
+  let resData;
+  try {
+    const { data } = await axios.post(url, formData, { headers });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -770,4 +791,5 @@ export {
   generateShortUrl,
   scheduleMessage,
   updateContactApi,
+  getProviderDetails,
 };
