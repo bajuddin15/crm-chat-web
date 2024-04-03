@@ -3,6 +3,7 @@ import { ChevronRight, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getCRMContacts, getConvId } from "../../api";
 import { getFullName } from "../../utils/common";
+import { AVATAR_IMG } from "../../assets/images";
 
 interface IProps {
   token: any;
@@ -113,8 +114,8 @@ const SearchContactModal = ({ token, setCurrentContact }: IProps) => {
                 >
                   <img
                     className="w-12 h-12 rounded-full"
-                    src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
-                    alt="Rounded avatar"
+                    src={AVATAR_IMG}
+                    alt="avatar-img"
                   />
                   <div className="flex items-center justify-between flex-1">
                     <div>

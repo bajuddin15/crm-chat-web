@@ -36,8 +36,7 @@ import APP_LOGO from "../../assets/images/app_logo.png";
 
 //
 import {
-  AVATAR_URL,
-  contactStatusData,
+  // contactStatusData,
   getOwnerNameSlice,
 } from "../../constants";
 import ViewAllTags from "../../components/ViewAllTags";
@@ -48,6 +47,7 @@ import { Link } from "react-router-dom";
 import SidebarDrawer from "../../components/SidebarDrawer";
 import EditContactInfo from "../../components/Modals/EditContactInfo";
 import VoiceCall from "../../components/VoiceCall/VoiceCall";
+import { AVATAR_IMG } from "../../assets/images";
 // import SidebarDrawer from "../../components/SidebarDrawer";
 
 const Home = () => {
@@ -63,7 +63,7 @@ const Home = () => {
     setShowMobileChatView,
     setPageNumber,
     setSearchedContacts,
-    setShowContactStatus,
+    // setShowContactStatus,
     setContactStatusVal,
     setShowTagsComp,
     setShowNotesComp,
@@ -111,7 +111,7 @@ const Home = () => {
     chatLoading,
     contactLoading,
     searchedContacts,
-    showContactStatus,
+    // showContactStatus,
     contactStatusVal,
     readStatus,
     userProfileInfo,
@@ -194,6 +194,14 @@ const Home = () => {
                 setSelectedFilterOwnerId={setSelectedFilterOwnerId}
               />
 
+              <div className="flex md:hidden">
+                <Profile
+                  type="onlyBell"
+                  token={token || ""}
+                  setCurrentContact={setCurrentContact}
+                />
+              </div>
+
               {/* <button
                 className="-mr-3"
                 onClick={() => setShowContactStatus(!showContactStatus)}
@@ -201,7 +209,7 @@ const Home = () => {
                 <MoreVertical size={20} />
               </button> */}
 
-              {showContactStatus && (
+              {/* {showContactStatus && (
                 <div className="absolute -right-1 top-7 bg-white w-32 z-50 border border-gray-300 rounded-md p-1">
                   <div className="flex flex-col text-sm">
                     {contactStatusData?.map((item, index) => (
@@ -222,7 +230,7 @@ const Home = () => {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
 
@@ -258,7 +266,7 @@ const Home = () => {
                       >
                         <img
                           className="w-8 h-8 rounded-full"
-                          src={AVATAR_URL}
+                          src={AVATAR_IMG}
                           alt="Rounded avatar"
                         />
                         <div className="flex flex-col w-full">
@@ -312,7 +320,7 @@ const Home = () => {
                 >
                   <img
                     className="w-8 h-8 rounded-full"
-                    src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
+                    src={AVATAR_IMG}
                     alt="Rounded avatar"
                   />
                   <div className="flex flex-col w-full">
@@ -382,14 +390,14 @@ const Home = () => {
                   </div>
                   <img
                     className="w-8 h-8 rounded-full"
-                    src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
-                    alt="Rounded avatar"
+                    src={AVATAR_IMG}
+                    alt="avatar-img"
                   />
                   <h2 className="text-base font-semibold text-black">
                     {currentContact?.name &&
                     currentContact?.name !== " " &&
-                    currentContact?.name !== "null" &&
-                    currentContact?.name !== "undefined"
+                    currentContact?.name !== "null null" &&
+                    currentContact?.name !== "undefined undefined"
                       ? currentContact?.name
                       : `+${currentContact?.contact}`}
                   </h2>
@@ -397,7 +405,7 @@ const Home = () => {
                   <VoiceCall devToken={token} currentContact={currentContact} />
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="hidden md:flex items-center gap-4">
                   <div className="relative">
                     <div>
                       <input
@@ -858,8 +866,8 @@ const Home = () => {
                   <div className="flex items-center gap-4 pb-4">
                     <img
                       className="w-7 h-7 rounded-full"
-                      src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg"
-                      alt="Rounded avatar"
+                      src={AVATAR_IMG}
+                      alt="avatar-img"
                     />
                     <span className="text-sm font-semibold">
                       {getFullName(

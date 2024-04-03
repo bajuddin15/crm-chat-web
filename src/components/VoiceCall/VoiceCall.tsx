@@ -4,15 +4,12 @@ import { useEffect, useState } from "react";
 import { FaPhoneAlt } from "react-icons/fa";
 import { ImPhoneHangUp } from "react-icons/im";
 import { MdMoreVert, MdCall } from "react-icons/md";
-import {
-  AVATAR_URL,
-  VOICE_API_BASE_URL,
-  getTitleOfVoiceCall,
-} from "../../constants";
+import { VOICE_API_BASE_URL, getTitleOfVoiceCall } from "../../constants";
 import { ArrowLeft } from "lucide-react";
 import { getProviderDetails, getSenderIds } from "../../api";
 import PopupModal from "./Modals/PopupModal";
 import toast from "react-hot-toast";
+import { AVATAR_IMG } from "../../assets/images";
 
 interface IProps {
   devToken: any;
@@ -311,6 +308,10 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
     }
   }, [outgoingCallAccepted, incomingCallAccepted]);
 
+  console.log({
+    outgoingCall,
+  });
+
   return (
     <div
       style={{ zIndex: 999 }}
@@ -414,7 +415,7 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
           <div className="flex flex-col items-center justify-center">
             <img
               className="w-14 h-14 object-fill rounded-full"
-              src={AVATAR_URL}
+              src={AVATAR_IMG}
               alt="avatar-img"
             />
             <div className="flex flex-col mt-4">
@@ -532,7 +533,7 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
           <div className="flex flex-col items-center justify-center">
             <img
               className="w-14 h-14 object-fill rounded-full"
-              src={AVATAR_URL}
+              src={AVATAR_IMG}
               alt="avatar-img"
             />
             <div className="flex flex-col mt-4">

@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 interface IProps {
   token: string;
   setCurrentContact: any;
+  type?: string;
 }
 
 interface IState {
@@ -17,7 +18,7 @@ interface IState {
   showNotifications: boolean;
 }
 
-const Profile = ({ token, setCurrentContact }: IProps) => {
+const Profile = ({ token, setCurrentContact, type = "" }: IProps) => {
   const dispatch = useDispatch();
 
   const [unreadMsgs, setUnreadMsgs] = React.useState<IState["unreadMsgs"]>([]);
@@ -62,15 +63,9 @@ const Profile = ({ token, setCurrentContact }: IProps) => {
   return (
     <div className="relative">
       <>
-        <div
-          style={{ zIndex: 20 }}
-          className="flex items-center justify-between h-14 borderBottom px-4 sticky top-0 left-0 bg-white"
-        >
-          <span className="text-sm">
-            {showNotifications ? "" : "Contact Info"}
-          </span>
+        {type === "onlyBell" ? (
           <div
-            className="cursor-pointer relative"
+            className="cursor-pointer relative mt-2"
             onClick={() => setShowNotifications(!showNotifications)}
           >
             <Bell size={18} />
@@ -82,7 +77,29 @@ const Profile = ({ token, setCurrentContact }: IProps) => {
               {unreadMsgs?.length}
             </span>
           </div>
-        </div>
+        ) : (
+          <div
+            style={{ zIndex: 20 }}
+            className="flex items-center justify-between h-14 borderBottom px-4 sticky top-0 left-0 bg-white"
+          >
+            <span className="text-sm">
+              {showNotifications ? "" : "Contact Info"}
+            </span>
+            <div
+              className="cursor-pointer relative"
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
+              <Bell size={18} />
+
+              <span
+                style={{ backgroundColor: colors.whatsapp }}
+                className="absolute -top-2 -right-1 text-[8px] text-white z-50 p-[2px] rounded-full flex items-center justify-center"
+              >
+                {unreadMsgs?.length}
+              </span>
+            </div>
+          </div>
+        )}
       </>
 
       {/* unread msgs */}

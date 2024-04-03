@@ -1,8 +1,7 @@
 import { Button, Modal } from "flowbite-react";
+import { FaCommentSms, FaWhatsapp } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import { getSenderIds } from "../../api";
-import whatsappImg from "../../assets/images/whatsapp.svg";
-import smsImg from "../../assets/images/sms.png";
 
 interface IProps {
   token: any;
@@ -68,13 +67,14 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
           <span>Choose SenderId</span>
           <div className="flex items-center gap-1 text-xs mt-2">
             <span>Selected: </span>
-            <img
-              src={
-                selectedValue?.defaultChannel === "sms" ? smsImg : whatsappImg
-              }
-              alt="channel-img"
-              className="w-4 h-4 object-cover"
-            />
+
+            <div>
+              {selectedValue?.defaultChannel === "whatsapp" ? (
+                <FaWhatsapp size={20} color={"green"} />
+              ) : (
+                <FaCommentSms size={20} color={"blue"} />
+              )}
+            </div>
             <span>{selectedValue?.number}</span>
           </div>
         </Modal.Header>
@@ -85,13 +85,13 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
               return (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <img
-                      src={
-                        item?.defaultChannel === "sms" ? smsImg : whatsappImg
-                      }
-                      alt="channel-img"
-                      className="w-8 h-8 object-cover"
-                    />
+                    <div>
+                      {item?.defaultChannel === "whatsapp" ? (
+                        <FaWhatsapp size={20} color={"green"} />
+                      ) : (
+                        <FaCommentSms size={20} color={"blue"} />
+                      )}
+                    </div>
 
                     <label
                       htmlFor={item?.number}

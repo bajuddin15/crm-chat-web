@@ -269,8 +269,8 @@ const useData = () => {
     const data = await getConvContacts(token, filterFormData);
     if (data && data?.status === 200) {
       let contData = data?.data?.contactArr;
-      if (contData?.length > 0) setCurrentContact(contData[0]);
-      else setCurrentContact(null);
+      // if (contData?.length > 0) setCurrentContact(contData[0]);
+      // else setCurrentContact(null);
       setContacts(contData);
       setAllContacts(contData);
     }
@@ -485,8 +485,8 @@ const useData = () => {
       if (data && data?.status === 200) {
         let contData = data?.data?.contactArr;
         let uniqueContacts = getUniqueContacts(contData);
-        if (contData?.length > 0) setCurrentContact(contData[0]);
-        else setCurrentContact(null);
+        // if (contData?.length > 0) setCurrentContact(contData[0]);
+        // else setCurrentContact(null);
         setContacts(uniqueContacts);
         setAllContacts(uniqueContacts);
       }

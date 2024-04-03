@@ -110,11 +110,11 @@ function formatDateOfChat(dateString: string) {
 }
 
 const trimCompanyName = (companyName: string): string => {
-  if (companyName?.length > 20) {
+  if (companyName?.length > 17) {
     if (companyName?.includes(" ")) {
       return companyName?.split(" ")[0];
     } else {
-      return `${companyName.slice(0, 20)}...`;
+      return `${companyName.slice(0, 17)}...`;
     }
   } else {
     return companyName;
