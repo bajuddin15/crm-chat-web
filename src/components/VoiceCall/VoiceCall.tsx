@@ -6,7 +6,7 @@ import { ImPhoneHangUp } from "react-icons/im";
 import { MdMoreVert, MdCall } from "react-icons/md";
 import { VOICE_API_BASE_URL, getTitleOfVoiceCall } from "../../constants";
 import { ArrowLeft } from "lucide-react";
-import { getProviderDetails, getSenderIds } from "../../api";
+import { getSenderIds } from "../../api";
 import PopupModal from "./Modals/PopupModal";
 import toast from "react-hot-toast";
 import { AVATAR_IMG } from "../../assets/images";
@@ -172,27 +172,18 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
         const provideNumber = voiceEnabledProvider?.number;
         setProviderNumber(provideNumber);
 
-        const resData = await getProviderDetails(devToken || "", provideNumber);
-        if (resData && resData?.provider_number) {
-          const formData = {
-            provider_number:
-              resData?.provider_number[0] === "+"
-                ? resData?.provider_number
-                : `+${resData?.provider_number}`,
-            account_sid: resData?.account_sid,
-            twiml_app_sid: resData?.twiml_app_sid,
-            twilio_api_key: resData?.twilio_api_key,
-            twilio_api_secret: resData?.twilio_api_secret,
-          };
+        const formData = {
+          devToken,
+          providerNumber: provideNumber,
+        };
 
-          const { data } = await axios.post(
-            `${VOICE_API_BASE_URL}/api/token`,
-            formData
-          );
-          console.log("Got a Token.");
-          setToken(data?.token);
-          // setClientName(data?.identity);
-        }
+        const { data } = await axios.post(
+          `${VOICE_API_BASE_URL}/api/token`,
+          formData
+        );
+        console.log("Got a Token.");
+        setToken(data?.token);
+        // setClientName(data?.identity);
       } catch (error: any) {
         console.log(error?.message);
       }
@@ -307,10 +298,6 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
       return () => clearInterval(timer);
     }
   }, [outgoingCallAccepted, incomingCallAccepted]);
-
-  console.log({
-    outgoingCall,
-  });
 
   return (
     <div

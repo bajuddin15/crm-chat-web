@@ -50,6 +50,7 @@ const useData = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const teamEmail = searchParams.get("team");
+  const source = searchParams.get("source");
   const cid = searchParams.get("cid");
   const contact = searchParams.get("contact");
 
@@ -135,6 +136,7 @@ const useData = () => {
       channel: selectedSenderId?.defaultChannel,
       selectedTemplate,
       mediaLink,
+      source,
     };
 
     setSendMsgLoading(true);

@@ -129,8 +129,16 @@ const getConvViewChats = async (token: string, contact: string) => {
 
 const sendMessage = async (msgData: any) => {
   let data;
-  const { token, to, message, fromnum, channel, selectedTemplate, mediaLink } =
-    msgData;
+  const {
+    token,
+    to,
+    message,
+    fromnum,
+    channel,
+    selectedTemplate,
+    mediaLink,
+    source,
+  } = msgData;
   try {
     const url = "https://app.crm-messaging.cloud/index.php/Api/sendMsg";
     const headers = {
@@ -146,6 +154,9 @@ const sendMessage = async (msgData: any) => {
     }
     if (mediaLink) {
       formData.append("mediaUrl", mediaLink);
+    }
+    if (source) {
+      formData.append("source", source);
     }
 
     const res = await axios.post(url, formData, { headers });
@@ -738,26 +749,26 @@ const updateContactApi = async (token: string, contactData: any) => {
   return resData;
 };
 
-const getProviderDetails = async (token: string, providerNumber: string) => {
-  const url =
-    "https://app.crm-messaging.cloud/index.php/api/fetchProviderDetails";
+// const getProviderDetails = async (token: string, providerNumber: string) => {
+//   const url =
+//     "https://app.crm-messaging.cloud/index.php/api/fetchProviderDetails";
 
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
+//   const headers = {
+//     Authorization: `Bearer ${token}`,
+//   };
 
-  const formData = new FormData();
-  formData.append("provider_number", providerNumber);
+//   const formData = new FormData();
+//   formData.append("provider_number", providerNumber);
 
-  let resData;
-  try {
-    const { data } = await axios.post(url, formData, { headers });
-    resData = data;
-  } catch (error) {
-    resData = null;
-  }
-  return resData;
-};
+//   let resData;
+//   try {
+//     const { data } = await axios.post(url, formData, { headers });
+//     resData = data;
+//   } catch (error) {
+//     resData = null;
+//   }
+//   return resData;
+// };
 
 export {
   getSenderIds,
@@ -791,5 +802,5 @@ export {
   generateShortUrl,
   scheduleMessage,
   updateContactApi,
-  getProviderDetails,
+  // getProviderDetails,
 };

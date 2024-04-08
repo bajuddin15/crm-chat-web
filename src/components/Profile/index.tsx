@@ -54,7 +54,7 @@ const Profile = ({ token, setCurrentContact, type = "" }: IProps) => {
         }
       }
     };
-    const intervalId = setInterval(fetchAllUnreadMsgs, 3000); // Call fetchAllUnreadMsgs every 3 seconds
+    const intervalId = setInterval(fetchAllUnreadMsgs, 5000); // Call fetchAllUnreadMsgs every 3 seconds
 
     // Clean up the interval when the component unmounts or when the dependency changes
     return () => clearInterval(intervalId);

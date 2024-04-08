@@ -270,8 +270,18 @@ const Home = () => {
                           alt="Rounded avatar"
                         />
                         <div className="flex flex-col w-full">
-                          <span className="text-sm font-semibold">{`${item?.fname} ${item?.lname}`}</span>
-                          <span className="text-xs">{item?.phone}</span>
+                          <span className="text-sm font-semibold">
+                            {getFullName(item?.fname, item?.lname)}
+                          </span>
+                          <span
+                            className={
+                              getFullName(item?.fname, item?.lname)
+                                ? "text-xs"
+                                : "text-sm font-semibold"
+                            }
+                          >
+                            {item?.phone}
+                          </span>
                         </div>
                       </div>
                     );
