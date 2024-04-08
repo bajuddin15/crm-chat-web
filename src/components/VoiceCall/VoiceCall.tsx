@@ -88,6 +88,7 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
     // we can update ui
     setOutgoingCall(null);
     setOutgoingCallAccepted(false); // disconnect outgoing call so update ui with this parameter
+    setCallDuration(0);
   };
 
   const outgoingCallHangup = (call: any) => {
@@ -101,6 +102,7 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
 
     setOutgoingCall(null);
     setOutgoingCallAccepted(false); // disconnect outgoing call so update ui with this parameter
+    setCallDuration(0);
   };
 
   // HANDLE INCOMING CALL
@@ -157,6 +159,7 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
   const resetIncomingCallUI = () => {
     setIncomingCall(null);
     setIncomingCallAccepted(false);
+    setCallDuration(0);
     // so there is no incomming call we can reset ui based on this incommingCall parameter
   };
 
