@@ -15,3 +15,8 @@ export const getTitleOfVoiceCall = (name: any, number: any) => {
     ? name
     : number;
 };
+
+export const DEVICE_STATUS = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+};

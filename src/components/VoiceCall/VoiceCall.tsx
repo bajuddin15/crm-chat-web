@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { FaPhoneAlt } from "react-icons/fa";
 import { ImPhoneHangUp } from "react-icons/im";
 import { MdMoreVert, MdCall } from "react-icons/md";
-import { VOICE_API_BASE_URL, getTitleOfVoiceCall } from "../../constants";
+import {
+  DEVICE_STATUS,
+  VOICE_API_BASE_URL,
+  getTitleOfVoiceCall,
+} from "../../constants";
 import { ArrowLeft } from "lucide-react";
 import { getSenderIds } from "../../api";
 import PopupModal from "./Modals/PopupModal";
@@ -38,7 +42,7 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
   const [showAudioDevicesView, setShowAudioDevicesView] = useState("");
   const [showSettingsView, setShowSettingsView] = useState<boolean>(false);
 
-  const [providerNumber, setProviderNumber] = useState<any>(null);
+  const [providerNumber, setProviderNumber] = useState<any>("");
 
   useEffect(() => {
     setPhoneNumber(currentContact?.contact);
@@ -201,7 +205,34 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
 
   useEffect(() => {
     getAudioDevices();
-  }, [device]);
+
+    const status = token ? DEVICE_STATUS.ACTIVE : DEVICE_STATUS.INACTIVE;
+    updateDeviceStatus(status);
+
+    return () => {
+      // Update deviceStatus to "INACTIVE" when component unmounts
+      updateDeviceStatus(DEVICE_STATUS.INACTIVE);
+    };
+  }, [token]);
+
+  const updateDeviceStatus = async (status: any) => {
+    try {
+      const senderIdsData = await getSenderIds(devToken);
+      const providers = senderIdsData?.Provider;
+
+      const voiceEnabledProvider = providers?.find(
+        (item: any) => item?.voice === "1"
+      );
+      const phoneNumber = voiceEnabledProvider?.number;
+      const formData = {
+        phoneNumber,
+        deviceStatus: status,
+      };
+      await axios.put(`${VOICE_API_BASE_URL}/api/updateDeviceStatus`, formData);
+    } catch (error) {
+      console.log("Error updating device status : ", error);
+    }
+  };
 
   // SETUP STEP 3:
   // Instantiate a new Twilio.Device

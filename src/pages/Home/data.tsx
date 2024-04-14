@@ -579,17 +579,19 @@ const useData = () => {
     let timestamp: any = null;
     const fetchAppData = async () => {
       // Convert to Unique timestamp
-      let timestampValue = timestamp ? timestamp : lastTimestamp;
-      const newTimestamp = await fetchIncomingMessages(
-        token,
-        currentContact?.conversationId,
-        timestampValue
-      );
-      timestamp = newTimestamp;
+      if (currentContact?.conversationId) {
+        let timestampValue = timestamp ? timestamp : lastTimestamp;
+        const newTimestamp = await fetchIncomingMessages(
+          token,
+          currentContact?.conversationId,
+          timestampValue
+        );
+        timestamp = newTimestamp;
+      }
     };
 
-    // Call fetchData every 3 seconds
-    const intervalId = setInterval(fetchAppData, 5000);
+    // Call fetchData every 10 seconds
+    const intervalId = setInterval(fetchAppData, 10000); // call this in every 10 seconds
 
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);

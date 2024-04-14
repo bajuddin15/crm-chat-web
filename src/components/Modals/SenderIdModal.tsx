@@ -24,7 +24,7 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
   const handleSave = () => {
     let index = 1;
     for (let i = 0; i < senderIds?.length; i++) {
-      if (senderIds[i]?.number === selectedValue?.number) {
+      if (senderIds[i]?.id === selectedValue?.id) {
         index = i + 1;
         break;
       }
@@ -81,9 +81,12 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
 
         <Modal.Body>
           <div className="space-y-6">
-            {senderIds?.map((item, index) => {
+            {senderIds?.map((item) => {
               return (
-                <div key={index} className="flex items-center justify-between">
+                <div
+                  key={item?.id}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center space-x-4">
                     <div>
                       {item?.defaultChannel === "whatsapp" ? (
@@ -94,18 +97,18 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
                     </div>
 
                     <label
-                      htmlFor={item?.number}
+                      htmlFor={item?.id}
                       className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                     >
                       {item?.label ? item?.label : item?.number}
                     </label>
                   </div>
                   <input
-                    id={item?.number}
+                    id={item?.id}
                     type="radio"
                     value={item?.numer}
                     name="senderIds"
-                    checked={selectedValue?.number === item?.number}
+                    checked={selectedValue?.id === item?.id}
                     onChange={() => setSelectedValue(item)}
                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                   />
@@ -118,7 +121,7 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
           <Button size="sm" color="gray" onClick={() => setOpenModal(false)}>
             Cancel
           </Button>
-          <Button size="sm" onClick={handleSave}>
+          <Button color="blue" size="sm" onClick={handleSave}>
             Save
           </Button>
         </Modal.Footer>

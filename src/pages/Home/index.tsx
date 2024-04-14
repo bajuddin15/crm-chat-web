@@ -733,7 +733,8 @@ const Home = () => {
                                     className="mr-5"
                                   >
                                     {chat?.deliveryStatus === "read" ||
-                                    chat?.deliveryStatus === "delivered" ? (
+                                    chat?.deliveryStatus === "delivered" ||
+                                    chat?.deliveryStatus === "played" ? (
                                       <CheckCheck
                                         size={16}
                                         color={
