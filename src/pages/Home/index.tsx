@@ -606,7 +606,7 @@ const Home = () => {
                           {chat?.log === "INCOMING" ? (
                             <div className="my-2  flex flex-col space-y-1">
                               {/* incomming */}
-                              <div className="w-5/6 text-xs bg-white  p-4 rounded-tl-3xl rounded-tr-3xl rounded-br-3xl border border-gray-300">
+                              <div className="w-5/6 text-xs bg-white  p-4 rounded-tl-3xl rounded-tr-3xl rounded-br-3xl border border-gray-300 break-words">
                                 <p className="mb-1">@{chat?.fromnumber}</p>
                                 <p>{chat?.msg}</p>
                                 {imageLink && (
@@ -675,7 +675,7 @@ const Home = () => {
                                         ? colors.primary
                                         : colors.whatsapp,
                                   }}
-                                  className="w-5/6  text-xs text-white p-4 rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl"
+                                  className="w-5/6  text-xs text-white p-4 rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl break-words"
                                 >
                                   <p>{chat?.msg}</p>
                                   {imageLink && (
