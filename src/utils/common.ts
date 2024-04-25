@@ -130,6 +130,50 @@ const handleCopy = async (textToCopy: string) => {
   }
 };
 
+const extractUsername = (email: string) => {
+  // Check if the email is valid
+  if (!email.includes("@")) {
+    return "Invalid email format";
+  }
+
+  // Split the email address at the "@" symbol
+  let parts = email.split("@");
+
+  // Extract the portion before the "@" symbol
+  let username = parts[0];
+
+  return username;
+};
+
+const setJwtTokenInLocalStorage = (token: string) => {
+  localStorage.setItem("jwtToken", token);
+};
+
+const getJwtTokenFromLocalStorage = () => {
+  const token = localStorage.getItem("jwtToken");
+  return token;
+};
+
+export const getFormatedTime = (timestamp: string) => {
+  // like 02:12 pm, Sunday, Monday... etc
+  if (!timestamp) return "";
+  const now = moment();
+  const createdAt = moment(timestamp);
+  const diffInSeconds = now.diff(createdAt, "seconds");
+
+  if (diffInSeconds < 60) {
+    return `${diffInSeconds} seconds ago`;
+  } else if (diffInSeconds < 3600) {
+    return `${moment.duration(diffInSeconds, "seconds").minutes()} minutes ago`;
+  } else if (diffInSeconds < 86400) {
+    return createdAt.format("h:mm A");
+  } else if (diffInSeconds < 604800) {
+    return createdAt.format("dddd");
+  } else {
+    return createdAt.format("MM/DD/YYYY");
+  }
+};
+
 export {
   getFormatedDate,
   identifyFileType,
@@ -139,4 +183,7 @@ export {
   formatDateOfChat,
   trimCompanyName,
   handleCopy,
+  extractUsername,
+  setJwtTokenInLocalStorage,
+  getJwtTokenFromLocalStorage,
 };

@@ -137,6 +137,7 @@ const useData = () => {
       selectedTemplate,
       mediaLink,
       source,
+      teamEmail,
     };
 
     setSendMsgLoading(true);

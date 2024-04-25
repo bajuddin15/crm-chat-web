@@ -7,18 +7,20 @@ import Picker from "@emoji-mart/react";
 interface IProps {
   setSelectedEmoji: any;
   setMessage: any;
+  color?: string;
 }
 
 const EmojiPickerModal: React.FC<IProps> = ({
   setSelectedEmoji,
   setMessage,
+  color,
 }) => {
   const [openModal, setOpenModal] = useState(false);
 
   return (
     <>
       <div className="cursor-pointer" onClick={() => setOpenModal(true)}>
-        <Smile color="gray" size={20} />
+        <Smile color={color ? color : "gray"} size={20} />
       </div>
       <Modal
         dismissible

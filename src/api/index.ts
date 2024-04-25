@@ -138,6 +138,7 @@ const sendMessage = async (msgData: any) => {
     selectedTemplate,
     mediaLink,
     source,
+    teamEmail,
   } = msgData;
   try {
     const url = "https://app.crm-messaging.cloud/index.php/Api/sendMsg";
@@ -157,6 +158,9 @@ const sendMessage = async (msgData: any) => {
     }
     if (source) {
       formData.append("source", source);
+    }
+    if (teamEmail) {
+      formData.append("team", teamEmail);
     }
 
     const res = await axios.post(url, formData, { headers });

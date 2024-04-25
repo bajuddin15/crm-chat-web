@@ -1,4 +1,5 @@
 export const VOICE_API_BASE_URL = "https://voice.crm-messaging.cloud";
+export const SOCKET_URL = "http://localhost:4000";
 
 export const AVATAR_URL =
   "https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg";

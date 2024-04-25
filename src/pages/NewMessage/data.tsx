@@ -127,6 +127,7 @@ const useData = () => {
       selectedTemplate,
       mediaLink,
       source,
+      teamEmail,
     };
 
     setLoading(true);
