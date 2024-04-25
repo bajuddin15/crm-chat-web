@@ -12,6 +12,7 @@ import { getJwtTokenFromLocalStorage } from "../../../../utils/common";
 import { useSocketContext } from "../../../../context/SocketContext";
 import notificationSound from "../../../../assets/sounds/notification.mp3";
 import { useAuthContext } from "../../../../context/AuthContext";
+import { LIVE_CHAT_API_URL } from "../../../../constants";
 
 interface IState {
   message: string;
@@ -68,7 +69,7 @@ const useData = () => {
         const formData = new FormData();
         formData.append("file", file);
         const { data: resData } = await axios.post(
-          `http://localhost:4000/api/v1/uploadFile`,
+          `${LIVE_CHAT_API_URL}/api/v1/uploadFile`,
           formData,
           { headers: { Authorization: `Bearer ${jwtToken}` } }
         );
@@ -84,7 +85,7 @@ const useData = () => {
           mediaType,
         };
         const { data } = await axios.post(
-          `http://localhost:4000/api/v1/messages/send/${selectedConversation?._id}`,
+          `${LIVE_CHAT_API_URL}/api/v1/messages/send/${selectedConversation?._id}`,
           msgData,
           { headers }
         );
@@ -136,7 +137,7 @@ const useData = () => {
         Authorization: `Bearer ${jwtToken}`,
       };
       const { data } = await axios.get(
-        `http://localhost:4000/api/v1/users/?crmToken=${authUser?.crmToken}`,
+        `${LIVE_CHAT_API_URL}/api/v1/users/?crmToken=${authUser?.crmToken}`,
         { headers }
       );
       if (data && data?.success) {
@@ -162,7 +163,7 @@ const useData = () => {
         message,
       };
       const { data } = await axios.post(
-        `http://localhost:4000/api/v1/messages/send/${selectedConversation?._id}`,
+        `${LIVE_CHAT_API_URL}/api/v1/messages/send/${selectedConversation?._id}`,
         formData,
         { headers }
       );
@@ -194,7 +195,7 @@ const useData = () => {
           Authorization: `Bearer ${jwtToken}`,
         };
         const { data } = await axios.get(
-          `http://localhost:4000/api/v1/messages/${selectedConversation?._id}`,
+          `${LIVE_CHAT_API_URL}/api/v1/messages/${selectedConversation?._id}`,
           { headers }
         );
         if (data && data.success) {

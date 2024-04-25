@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setConversations } from "../../store/slices/storeSlice";
 import { RootState } from "../../store";
 import { useSocketContext } from "../../context/SocketContext";
+import { LIVE_CHAT_API_URL } from "../../constants";
 
 interface IState {
   userProfileInfo: any;
@@ -57,7 +58,7 @@ const useData = () => {
         };
 
         const { data } = await axios.post(
-          "http://localhost:4000/api/v1/auth/loginAdmin",
+          `${LIVE_CHAT_API_URL}/api/v1/auth/loginAdmin`,
           formData,
           { headers }
         );
@@ -82,7 +83,7 @@ const useData = () => {
         Authorization: `Bearer ${jwtToken}`,
       };
       const { data } = await axios.get(
-        `http://localhost:4000/api/v1/users/?crmToken=${authUser?.crmToken}`,
+        `${LIVE_CHAT_API_URL}/api/v1/users/?crmToken=${authUser?.crmToken}`,
         { headers }
       );
       if (data && data?.success) {
