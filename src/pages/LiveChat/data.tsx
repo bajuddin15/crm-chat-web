@@ -42,7 +42,6 @@ const useData = () => {
     try {
       // crmToken, fullName, username, password, profilePic
       const resData = await getProfileByToken(token);
-      console.log({ resDataAuth: resData });
       if (resData && resData?.status === 200) {
         setUserProfileInfo(resData?.data);
         const authInfo = resData?.data;
@@ -68,8 +67,6 @@ const useData = () => {
           setJwtTokenInLocalStorage(authInfo?.token);
           setAuthUser(data?.data);
         }
-
-        console.log("loginadmin ", data);
       }
     } catch (error: any) {
       console.log("Auth Error : ", error.message);
@@ -89,7 +86,6 @@ const useData = () => {
       if (data && data?.success) {
         dispatch(setConversations(data?.data));
       }
-      console.log("convs ", { data });
     } catch (error: any) {
       console.log("Fetch live conversations error : ", error?.message);
     }

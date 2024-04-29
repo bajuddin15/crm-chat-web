@@ -20,8 +20,6 @@ const Conversation = () => {
   const { state } = useData();
   const { loading } = state;
 
-  console.log("convs --", conversations);
-
   const { onlineUsers } = useSocketContext();
   return (
     <div className="w-full h-full bg-white flex flex-col justify-between">
@@ -45,7 +43,6 @@ const Conversation = () => {
           </div>
         )}
         {conversations.map((item) => {
-          console.log({ item });
           const isSelected = selectedConversation?._id === item._id;
           const isOnline = onlineUsers.includes(item._id);
 

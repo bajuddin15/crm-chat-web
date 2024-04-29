@@ -23,7 +23,7 @@ const Chat = () => {
     messages,
     lastMessageRef,
     selectedConversation,
-    selectedFile,
+    // selectedFile,
     fileType,
     sendMsgLoading,
   } = state;
@@ -34,7 +34,6 @@ const Chat = () => {
     (state: RootState) => state.store.usersTypingStatus
   );
 
-  console.log({ selectedFile, fileType });
   return (
     <div className="w-full h-full flex flex-col justify-between">
       {/* chat header */}

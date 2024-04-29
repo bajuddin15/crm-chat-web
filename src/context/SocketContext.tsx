@@ -33,9 +33,6 @@ export const SocketContextProvider: React.FC<SocketContextProviderProps> = ({
 
   useEffect(() => {
     const connectSocket = () => {
-      console.log({
-        userId: authUser?._id,
-      });
       const newSocket = io(SOCKET_URL, {
         query: {
           userId: authUser?._id, // Use optional chaining to avoid errors if authUser is null or undefined

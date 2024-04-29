@@ -124,7 +124,7 @@ const trimCompanyName = (companyName: string): string => {
 const handleCopy = async (textToCopy: string) => {
   try {
     await navigator.clipboard.writeText(textToCopy);
-    toast.success("Url Copied.");
+    toast.success("Copied to clipboard!.");
   } catch (err) {
     toast.error("Copied Failed. Please try again.");
   }

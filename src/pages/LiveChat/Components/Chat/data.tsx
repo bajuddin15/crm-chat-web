@@ -143,7 +143,6 @@ const useData = () => {
       if (data && data?.success) {
         dispatch(setConversations(data?.data));
       }
-      console.log("convs ", { data });
     } catch (error: any) {
       console.log("Fetch live conversations error : ", error?.message);
     }
@@ -216,7 +215,9 @@ const useData = () => {
       newMessage.shouldShake = true;
       const sound = new Audio(notificationSound);
       sound.play();
-      dispatch(setMessages([...messages, newMessage]));
+      if (newMessage.senderId === selectedConversation?._id) {
+        dispatch(setMessages([...messages, newMessage]));
+      }
       fetchConversations();
     });
 
