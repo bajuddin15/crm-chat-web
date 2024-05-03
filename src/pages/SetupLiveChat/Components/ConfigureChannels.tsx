@@ -1,5 +1,4 @@
 import axios from "axios";
-import e from "cors";
 import { Button } from "flowbite-react";
 import React from "react";
 import { LIVE_CHAT_API_URL } from "../../../constants";
