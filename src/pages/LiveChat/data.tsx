@@ -51,6 +51,7 @@ const useData = () => {
           username: extractUsername(authInfo?.email) || authInfo?.phone,
           password: authInfo?.phone,
           profilePic: authInfo?.profilePic,
+          plan: authInfo?.plan,
         };
         const headers = {
           "Content-Type": "application/json",

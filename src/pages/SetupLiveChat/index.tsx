@@ -1,4 +1,9 @@
-type Tabs = "configure" | "availability" | "trackingCode";
+import ConfigureWidgets from "./Components/ConfigureWidgets";
+import TrackingCode from "./Components/TrackingCode";
+import ConfigureChannels from "./Components/ConfigureChannels";
+import useData from "./data";
+
+type Tabs = "configureWidgets" | "configureChannels" | "trackingCode";
 
 interface TabProps {
   activeTab: string;
@@ -6,14 +11,14 @@ interface TabProps {
 }
 
 const SetupLiveChat = () => {
-  const [activeTab, setActiveTab] = useState<Tabs>("configure");
+  const { activeTab, setActiveTab } = useData();
 
   const getTabComponent = (tab: Tabs) => {
     switch (tab) {
-      case "configure":
-        return <Configure />;
-      case "availability":
-        return <Availability />;
+      case "configureWidgets":
+        return <ConfigureWidgets setActiveTab={setActiveTab} />;
+      case "configureChannels":
+        return <ConfigureChannels setActiveTab={setActiveTab} />;
       case "trackingCode":
         return <TrackingCode />;
     }
@@ -29,11 +34,6 @@ const SetupLiveChat = () => {
 
 export default SetupLiveChat;
 
-import { useState } from "react";
-import Configure from "./Components/Configure";
-import Availability from "./Components/Availability";
-import TrackingCode from "./Components/TrackingCode";
-
 const TabNavigation: React.FC<TabProps> = ({ activeTab, setActiveTab }) => {
   const handleTabClick = (tabName: Tabs) => {
     setActiveTab(tabName); // Update the active tab state when a tab is clicked
@@ -46,30 +46,30 @@ const TabNavigation: React.FC<TabProps> = ({ activeTab, setActiveTab }) => {
         <li className="me-2">
           <a
             href="#"
-            onClick={() => handleTabClick("configure")}
+            onClick={() => handleTabClick("configureWidgets")}
             className={`inline-block p-4 border-b-2 rounded-t-lg ${
-              activeTab === "configure"
+              activeTab === "configureWidgets"
                 ? "text-blue-600 border-blue-600"
                 : "text-gray-500 border-b-transparent dark:text-gray-500 hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
             }`}
           >
-            Configure
+            Configure Widgets
           </a>
         </li>
         {/* Tab 2: Availability */}
-        {/* <li className="me-2">
+        <li className="me-2">
           <a
             href="#"
-            onClick={() => handleTabClick("availability")}
+            onClick={() => handleTabClick("configureChannels")}
             className={`inline-block p-4 border-b-2 rounded-t-lg ${
-              activeTab === "availability"
+              activeTab === "configureChannels"
                 ? "text-blue-600 border-blue-600"
                 : "text-gray-500 border-b-transparent dark:text-gray-500 hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
             }`}
           >
-            Availability
+            Configure Channels
           </a>
-        </li> */}
+        </li>
         {/* Tab 3: Tracking Code */}
         <li className="me-2">
           <a

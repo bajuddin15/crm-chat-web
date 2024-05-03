@@ -46,7 +46,9 @@ const Chat = () => {
           />
 
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">Unknown Visitor</span>
+            <span className="text-sm font-semibold">
+              {selectedConversation?.fullName}
+            </span>
             {isOnline && (
               <span className="text-[12px] font-normal text-gray-500">
                 {usersTypingMap[selectedConversation?._id]

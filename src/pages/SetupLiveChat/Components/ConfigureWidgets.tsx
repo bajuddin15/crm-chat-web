@@ -19,10 +19,11 @@ interface IState {
   scriptCode: string;
 }
 
-const Configure = () => {
+const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
   const { token, userProfileInfo } = useData();
 
   const [disableSaveBtn, setDisableSaveBtn] = React.useState<boolean>(true);
+  const [loading, setLoading] = React.useState<boolean>(false);
   const [state, setState] = React.useState<IState>({
     crmToken: token || "",
     color: "2046D0",
@@ -39,17 +40,20 @@ const Configure = () => {
   const handleCreateConfig = async () => {
     try {
       const formData = { ...state, color: `#${state.color}` };
+      setLoading(true);
       const { data } = await axios.post(
         `${LIVE_CHAT_API_URL}/api/v1/widgetConfig/create`,
         formData
       );
       if (data && data?.success) {
+        setActiveTab("configureChannels");
         toast.success(data?.message);
       }
     } catch (error: any) {
       console.log("Error : ", error.messsage);
     } finally {
       setDisableSaveBtn(true);
+      setLoading(false);
     }
   };
 
@@ -224,7 +228,7 @@ const Configure = () => {
             onClick={handleCreateConfig}
             color="blue"
           >
-            Save
+            {loading ? "Please wait.." : "Save and Continue"}
           </Button>
         </div>
       </div>
@@ -297,4 +301,4 @@ const Configure = () => {
   );
 };
 
-export default Configure;
+export default ConfigureWidgets;
