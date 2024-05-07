@@ -16,11 +16,15 @@ const Conversation = () => {
   const selectedConversation = useSelector(
     (state: RootState) => state.store.selectedConversation
   );
+  const usersTypingMap = useSelector(
+    (state: RootState) => state.store.usersTypingStatus
+  );
 
   const { state } = useData();
   const { loading } = state;
 
   const { onlineUsers } = useSocketContext();
+
   return (
     <div className="w-full h-full bg-white flex flex-col justify-between">
       <div className="flex items-center gap-3 h-[52px] p-3 bg-white border-b border-b-gray-300">
@@ -75,7 +79,9 @@ const Conversation = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs">
-                    {item?.recentMessage?.message}
+                    {usersTypingMap[item?._id]
+                      ? `typing...`
+                      : item?.recentMessage?.message}
                   </span>
                   {/* <span className="text-[10px]">1</span> */}
                 </div>

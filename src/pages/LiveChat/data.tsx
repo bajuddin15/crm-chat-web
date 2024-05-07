@@ -10,7 +10,10 @@ import axios from "axios";
 import notificationSound from "../../assets/sounds/notification.mp3";
 import { useAuthContext } from "../../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
-import { setConversations } from "../../store/slices/storeSlice";
+import {
+  setConversations,
+  setNotifications,
+} from "../../store/slices/storeSlice";
 import { RootState } from "../../store";
 import { useSocketContext } from "../../context/SocketContext";
 import { LIVE_CHAT_API_URL } from "../../constants";
@@ -25,6 +28,9 @@ const useData = () => {
   const { socket } = useSocketContext();
   const selectedConversation = useSelector(
     (state: RootState) => state.store.selectedConversation
+  );
+  const notifications = useSelector(
+    (state: RootState) => state.store.notifications
   );
 
   const [searchParams] = useSearchParams();
@@ -105,6 +111,31 @@ const useData = () => {
     fetchCons();
   }, [authUser]);
 
+  // fetch all notifications
+  React.useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const jwtToken = getJwtTokenFromLocalStorage();
+        const headers = {
+          Authorization: `Bearer ${jwtToken}`,
+        };
+        const { data } = await axios.get(
+          `${LIVE_CHAT_API_URL}/api/v1/notifications`,
+          {
+            headers,
+          }
+        );
+        if (data && data?.success) {
+          const notificationData = data?.data?.notifications;
+          dispatch(setNotifications(notificationData));
+        }
+      } catch (error: any) {
+        console.log("Fetch notifications error : ", error?.message);
+      }
+    };
+    fetchNotifications();
+  }, [authUser]);
+
   //   listen incoming messages
   React.useEffect(() => {
     socket?.on("newMessage", (newMessage: any) => {
@@ -116,6 +147,21 @@ const useData = () => {
 
     return () => socket?.off("newMessage");
   }, [socket]);
+
+  React.useEffect(() => {
+    socket?.on("newNotification", (newNotification: any) => {
+      // newNotification.shouldShake = true;
+      // if (newNotification.to === authUser._id) {
+      // }
+      console.log("new notification : ", newNotification);
+      const updatedNotifications = [...notifications, newNotification];
+      dispatch(setNotifications(updatedNotifications));
+      // const sound = new Audio(notificationSound);
+      // sound.play();
+      // fetchConversations();
+    });
+    return () => socket?.off("newNotification");
+  }, [socket, notifications, setNotifications]);
 
   const state = {
     token,

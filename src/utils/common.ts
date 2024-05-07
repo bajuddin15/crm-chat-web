@@ -174,6 +174,35 @@ export const getFormatedTime = (timestamp: string) => {
   }
 };
 
+export const formatCreatedAt = (createdAt: string) => {
+  // just like 1s, 1m, 1h, 1w
+  const now = moment(); // Current date and time
+  const timestamp = moment(createdAt); // Convert createdAt string to moment object
+
+  // Calculate difference in milliseconds between now and createdAt
+  const diffMilliseconds = now.diff(timestamp);
+
+  // Calculate difference in seconds, minutes, hours, and weeks
+  const diffSeconds = Math.floor(diffMilliseconds / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffWeeks = Math.floor(diffDays / 7);
+
+  // Determine the appropriate relative time format based on the difference
+  if (diffWeeks > 0) {
+    return `${diffWeeks}w`; // Weeks
+  } else if (diffDays > 0) {
+    return `${diffDays}d`; // Days
+  } else if (diffHours > 0) {
+    return `${diffHours}h`; // Hours
+  } else if (diffMinutes > 0) {
+    return `${diffMinutes}m`; // Minutes
+  } else {
+    return `${diffSeconds}s`; // Seconds (fallback)
+  }
+};
+
 export {
   getFormatedDate,
   identifyFileType,
