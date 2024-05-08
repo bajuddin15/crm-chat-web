@@ -162,13 +162,13 @@ export const getFormatedTime = (timestamp: string) => {
   const diffInSeconds = now.diff(createdAt, "seconds");
 
   if (diffInSeconds < 60) {
-    return `${diffInSeconds} seconds ago`;
+    return `${diffInSeconds} sec. ago`;
   } else if (diffInSeconds < 3600) {
-    return `${moment.duration(diffInSeconds, "seconds").minutes()} minutes ago`;
+    return `${moment.duration(diffInSeconds, "seconds").minutes()} min. ago`;
   } else if (diffInSeconds < 86400) {
     return createdAt.format("h:mm A");
   } else if (diffInSeconds < 604800) {
-    return createdAt.format("dddd");
+    return createdAt.format("ddd");
   } else {
     return createdAt.format("MM/DD/YYYY");
   }

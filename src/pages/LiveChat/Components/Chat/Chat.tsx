@@ -8,6 +8,7 @@ import EmojiPickerModal from "../../../../components/Modals/EmojiPickerModal";
 import { useSocketContext } from "../../../../context/SocketContext";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../store";
+import { Tooltip } from "flowbite-react";
 
 const Chat = () => {
   const {
@@ -100,9 +101,11 @@ const Chat = () => {
             style={{ display: "none" }}
           />
           {/* Trigger file input click when paperclip is clicked */}
-          <label className="cursor-pointer" htmlFor="fileInput">
-            <Paperclip size={20} />
-          </label>
+          <Tooltip content="Max Size: 10 MB" style="light">
+            <label className="cursor-pointer" htmlFor="fileInput">
+              <Paperclip size={20} />
+            </label>
+          </Tooltip>
         </div>
 
         <div className="flex-1">
