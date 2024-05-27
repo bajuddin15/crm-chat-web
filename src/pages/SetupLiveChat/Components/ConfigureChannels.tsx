@@ -4,6 +4,7 @@ import React from "react";
 import { LIVE_CHAT_API_URL } from "../../../constants";
 import toast from "react-hot-toast";
 import useData from "../data";
+import { Minus, Plus } from "lucide-react";
 
 interface FormState {
   whatsappNumber: string;
@@ -12,15 +13,15 @@ interface FormState {
   widgetMessage: string;
   message1: string;
   message2: string;
-  snippet1: string;
-  snippet2: string;
-  snippet3: string;
-  snippet4: string;
-  snippet5: string;
 }
 
 interface IProps {
   setActiveTab: any;
+}
+
+interface IState {
+  snippets: Array<string>;
+  loading: boolean;
 }
 
 const ConfigureChannels: React.FC<IProps> = ({ setActiveTab }) => {
@@ -32,29 +33,27 @@ const ConfigureChannels: React.FC<IProps> = ({ setActiveTab }) => {
     widgetMessage: "Hi, How can I Help You?",
     message1: "",
     message2: "",
-    snippet1: "",
-    snippet2: "",
-    snippet3: "",
-    snippet4: "",
-    snippet5: "",
   });
+  const [snippets, setSnippets] = React.useState<IState["snippets"]>([""]);
   const [disableSaveBtn, setDisableSaveBtn] = React.useState<boolean>(true);
-  const [loading, setLoading] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState<IState["loading"]>(false);
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
+  const handleAddSnippet = () => {
+    const updated = [...snippets, ""];
+    setSnippets(updated);
+  };
 
+  const handleDeleteSnippet = (indexToDelete: number) => {
+    const updated = [...snippets].filter((_, index) => index !== indexToDelete);
+    setSnippets(updated);
+  };
+
+  const handleSubmit = async () => {
     try {
       const messages = [values.message1, values.message2].filter(
         (message) => message !== ""
       );
-      const snippets = [
-        values.snippet1,
-        values.snippet2,
-        values.snippet3,
-        values.snippet4,
-        values.snippet5,
-      ].filter((snippet) => snippet !== "");
+      const snippetsData = [...snippets].filter((snippet) => snippet !== "");
       const formData = {
         crmToken: token,
         whatsappNumber: values.whatsappNumber,
@@ -62,7 +61,7 @@ const ConfigureChannels: React.FC<IProps> = ({ setActiveTab }) => {
         widgetMessage: values.widgetMessage,
         callNumber: values.callNumber,
         liveChatMessages: messages,
-        snippets: snippets,
+        snippets: snippetsData,
       };
       setLoading(true);
       const { data } = await axios.post(
@@ -108,12 +107,10 @@ const ConfigureChannels: React.FC<IProps> = ({ setActiveTab }) => {
               info?.liveChatMessages?.length > 1
                 ? info?.liveChatMessages[1]
                 : "",
-            snippet1: info?.snippets?.length > 0 ? info?.snippets[0] : "",
-            snippet2: info?.snippets?.length > 1 ? info?.snippets[1] : "",
-            snippet3: info?.snippets?.length > 2 ? info?.snippets[2] : "",
-            snippet4: info?.snippets?.length > 3 ? info?.snippets[3] : "",
-            snippet5: info?.snippets?.length > 4 ? info?.snippets[4] : "",
           };
+          if (info?.snippets?.length > 0) {
+            setSnippets(info?.snippets);
+          }
           setValues(vals);
         }
       } catch (error: any) {
@@ -123,10 +120,7 @@ const ConfigureChannels: React.FC<IProps> = ({ setActiveTab }) => {
     if (token) fetchWidgetConfig(token);
   }, [token]);
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="pb-5 space-y-5 w-full md:w-[500px]"
-    >
+    <div className="pb-5 space-y-5 w-full md:w-[500px]">
       <div className="flex flex-col gap-2">
         <label htmlFor="whatsappNumber" className="text-sm">
           WhatsApp Number
@@ -230,86 +224,53 @@ const ConfigureChannels: React.FC<IProps> = ({ setActiveTab }) => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label htmlFor="addSnippet1" className="text-sm">
-          Add Snippet 1 (optional)
-        </label>
-        <input
-          className="text-sm border border-gray-400 outline-none py-2 px-3 rounded-md focus:ring-0"
-          name="addSnippet1"
-          id="addSnippet1"
-          type="text"
-          value={values.snippet1}
-          onChange={(e: any) =>
-            setValues({ ...values, snippet1: e.target.value })
-          }
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <label htmlFor="addSnippet2" className="text-sm">
-          Add Snippet 2 (optional)
-        </label>
-        <input
-          className="text-sm border border-gray-400 outline-none py-2 px-3 rounded-md focus:ring-0"
-          name="addSnippet2"
-          id="addSnippet2"
-          type="text"
-          value={values.snippet2}
-          onChange={(e: any) =>
-            setValues({ ...values, snippet2: e.target.value })
-          }
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <label htmlFor="addSnippet3" className="text-sm">
-          Add Snippet 3 (optional)
-        </label>
-        <input
-          className="text-sm border border-gray-400 outline-none py-2 px-3 rounded-md focus:ring-0"
-          name="addSnippet3"
-          id="addSnippet3"
-          type="text"
-          value={values.snippet3}
-          onChange={(e: any) =>
-            setValues({ ...values, snippet3: e.target.value })
-          }
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <label htmlFor="addSnippet4" className="text-sm">
-          Add Snippet 4 (optional)
-        </label>
-        <input
-          className="text-sm border border-gray-400 outline-none py-2 px-3 rounded-md focus:ring-0"
-          name="addSnippet4"
-          id="addSnippet4"
-          type="text"
-          value={values.snippet4}
-          onChange={(e: any) =>
-            setValues({ ...values, snippet4: e.target.value })
-          }
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <label htmlFor="addSnippet5" className="text-sm">
-          Add Snippet 5 (optional)
-        </label>
-        <input
-          className="text-sm border border-gray-400 outline-none py-2 px-3 rounded-md focus:ring-0"
-          name="addSnippet5"
-          id="addSnippet5"
-          type="text"
-          value={values.snippet5}
-          onChange={(e: any) =>
-            setValues({ ...values, snippet5: e.target.value })
-          }
-        />
-      </div>
+      <>
+        {snippets.map((value, index) => {
+          return (
+            <div key={index} className="flex flex-col gap-2">
+              <label htmlFor={`addSnippet${index + 1}`} className="text-sm">
+                Add Snippet {index + 1} (optional)
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  className="text-sm w-full border border-gray-400 outline-none py-2 px-3 rounded-md focus:ring-0"
+                  name={`addSnippet${index + 1}`}
+                  id={`addSnippet${index + 1}`}
+                  type="text"
+                  value={value}
+                  onChange={(e: any) => {
+                    const updated = snippets.map((item, idx) =>
+                      index === idx ? e.target.value : item
+                    );
+                    setSnippets(updated);
+                  }}
+                />
+                <button
+                  onClick={() => handleDeleteSnippet(index)}
+                  className="border border-gray-400 p-[5px] bg-gray-100 rounded-md"
+                >
+                  <Minus size={24} color="gray" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
 
-      <Button disabled={disableSaveBtn} type="submit" color="blue">
+        <button
+          onClick={handleAddSnippet}
+          className="flex items-center gap-2 border border-blue-500 rounded-md py-2 px-3"
+        >
+          <div className="bg-blue-500 p-[2px] rounded-full">
+            <Plus size={16} color="white" />
+          </div>
+          <span className="text-sm text-blue-500 font-medium">Add Snippet</span>
+        </button>
+      </>
+
+      <Button disabled={disableSaveBtn} onClick={handleSubmit} color="blue">
         {loading ? "Please wait.." : "Save and Continue"}
       </Button>
-    </form>
+    </div>
   );
 };
 

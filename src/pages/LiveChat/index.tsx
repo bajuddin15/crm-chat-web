@@ -4,20 +4,25 @@ import Profile from "./Components/Profile/Profile";
 import useData from "./data";
 
 const LiveChatPage = () => {
-  const { state } = useData();
-  const { selectedConversation } = state;
+  const { state, setShowMobileChatView } = useData();
+  const { selectedConversation, showMobileChatView } = state;
 
   return (
     <div className="w-full h-screen flex bg-gray-100 overflow-hidden">
-      <div style={{ flex: 1 }} className="">
-        <Conversation />
+      <div
+        style={{ flex: 1 }}
+        className={`${showMobileChatView ? "hidden sm:flex sm:flex-col" : ""}`}
+      >
+        <Conversation setShowMobileChatView={setShowMobileChatView} />
       </div>
       <div
         style={{ flex: 3 }}
-        className="border-l border-l-gray-300 border-r border-gray-300"
+        className={`${
+          showMobileChatView ? "flex flex-col" : "hidden sm:flex sm:flex-col"
+        } border-l border-l-gray-300 border-r border-gray-300`}
       >
         {selectedConversation ? (
-          <Chat />
+          <Chat setShowMobileChatView={setShowMobileChatView} />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <span className="text-sm py-2 px-3 rounded-full bg-white border border-gray-300">

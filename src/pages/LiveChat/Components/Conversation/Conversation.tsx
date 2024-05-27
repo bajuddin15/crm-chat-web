@@ -8,7 +8,11 @@ import { getFormatedTime } from "../../../../utils/common";
 import useData from "../../data";
 import Loading from "../../../../components/Common/Loading";
 
-const Conversation = () => {
+interface IProps {
+  setShowMobileChatView: any;
+}
+
+const Conversation: React.FC<IProps> = ({ setShowMobileChatView }) => {
   const dispatch = useDispatch();
   const conversations = useSelector(
     (state: RootState) => state.store.conversations
@@ -57,7 +61,10 @@ const Conversation = () => {
               className={`flex items-center gap-4 px-2 py-3 cursor-pointer ${
                 isSelected ? "bg-gray-200" : "hover:bg-gray-200"
               } `}
-              onClick={() => dispatch(setSelectedConversation(item))}
+              onClick={() => {
+                setShowMobileChatView(true);
+                dispatch(setSelectedConversation(item));
+              }}
             >
               <div className="relative w-10">
                 <img

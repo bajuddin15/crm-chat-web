@@ -42,6 +42,8 @@ const useData = () => {
     React.useState<IState["userProfileInfo"]>(null);
 
   const [loading, setLoading] = React.useState<IState["loading"]>(false);
+  const [showMobileChatView, setShowMobileChatView] =
+    React.useState<boolean>(false);
 
   const handleAuthAdmin = async () => {
     if (!token) return;
@@ -168,11 +170,13 @@ const useData = () => {
     userProfileInfo,
     selectedConversation,
     loading,
+    showMobileChatView,
   };
   return {
     state,
     setLoading,
     setUserProfileInfo,
+    setShowMobileChatView,
   };
 };
 

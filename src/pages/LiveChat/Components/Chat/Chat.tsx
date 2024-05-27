@@ -9,8 +9,13 @@ import { useSocketContext } from "../../../../context/SocketContext";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 import { Tooltip } from "flowbite-react";
+import { GoArrowLeft } from "react-icons/go";
 
-const Chat = () => {
+interface IProps {
+  setShowMobileChatView: any;
+}
+
+const Chat: React.FC<IProps> = ({ setShowMobileChatView }) => {
   const {
     state,
     setMessage,
@@ -40,6 +45,12 @@ const Chat = () => {
       {/* chat header */}
       <div className="flex items-center h-[52px] p-3 bg-white border-b border-b-gray-300">
         <div className="flex items-center gap-3">
+          <div
+            className="flex sm:hidden"
+            onClick={() => setShowMobileChatView(false)}
+          >
+            <GoArrowLeft size={20} />
+          </div>
           <img
             className="w-8 h-8 rounded-full"
             src={AVATAR_IMG}
