@@ -3,10 +3,16 @@ import React from "react";
 import { BsInfoCircleFill } from "react-icons/bs";
 import { colors } from "../../../utils/constants";
 import useData from "../data";
-import { Button, Label, Radio } from "flowbite-react";
+import { Button, FileInput, Label, Radio } from "flowbite-react";
 import axios from "axios";
 import { LIVE_CHAT_API_URL } from "../../../constants";
 import toast from "react-hot-toast";
+import { getProfileByToken } from "../../../api";
+import {
+  extractUsername,
+  setJwtTokenInLocalStorage,
+} from "../../../utils/common";
+import { useAuthContext } from "../../../context/AuthContext";
 
 type WidgetAlignment = "left" | "right";
 type Availability = "default" | "always";
@@ -22,6 +28,7 @@ interface IState {
 const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
   const { token, userProfileInfo } = useData();
 
+  const { setAuthUser } = useAuthContext();
   const [disableSaveBtn, setDisableSaveBtn] = React.useState<boolean>(true);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [state, setState] = React.useState<IState>({
@@ -36,11 +43,83 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
     src="https://cdn.jsdelivr.net/gh/njaiswal78/live-chat-widget/chatWidgetScript.js?crmToken=${token}"
     ></script>`,
   });
+  const [adminDetail, setAdminDetail] = React.useState<any>(null);
+
+  const [profileName, setProfileName] = React.useState<string>("");
+  const [profilePic, setProfilePic] = React.useState<File | null>(null);
+  const [profilePicUrl, setProfilePicUrl] = React.useState<string>("");
+
+  const handleAuthAdmin = async (profilePicture: string) => {
+    if (!token) return;
+    try {
+      // crmToken, fullName, username, password, profilePic
+      const resData = await getProfileByToken(token);
+      if (resData && resData?.status === 200) {
+        const authInfo = resData?.data;
+        const formData = {
+          crmToken: token,
+          fullName: profileName || `${authInfo?.fname} ${authInfo?.lname}`,
+          username: extractUsername(authInfo?.email) || authInfo?.phone,
+          password: authInfo?.phone,
+          profilePic: profilePicture || authInfo?.profilePic,
+          plan: authInfo?.plan,
+        };
+        const headers = {
+          "Content-Type": "application/json",
+        };
+
+        const { data } = await axios.post(
+          `${LIVE_CHAT_API_URL}/api/v1/auth/loginAdmin`,
+          formData,
+          { headers }
+        );
+
+        if (data && data?.success) {
+          let authInfo = data?.data;
+          setJwtTokenInLocalStorage(authInfo?.token);
+          setAuthUser(data?.data);
+        }
+      }
+    } catch (error: any) {
+      console.log("Auth Error : ", error.message);
+    }
+  };
 
   const handleCreateConfig = async () => {
     try {
-      const formData = { ...state, color: `#${state.color}` };
       setLoading(true);
+      let newProfilePic = "";
+      if (profilePic) {
+        const formData = new FormData();
+        formData.append("file", profilePic);
+        const { data } = await axios.post(
+          `${LIVE_CHAT_API_URL}/api/v1/uploadFile`,
+          formData
+        );
+        if (data && data?.url) {
+          newProfilePic = data?.url;
+        }
+      }
+      if (!adminDetail) {
+        // admin not exist, means first time user
+        handleAuthAdmin(newProfilePic);
+      } else {
+        // admin already exist
+
+        // if user want to change fullName or profilePic
+        if ((newProfilePic || profileName !== adminDetail?.fullName) && token) {
+          const formData = {
+            fullName: profileName,
+            profilePic: newProfilePic,
+          };
+          await axios.put(
+            `${LIVE_CHAT_API_URL}/api/v1/users/editAdminUser/?crmToken=${token}`,
+            formData
+          );
+        }
+      }
+
+      const formData = { ...state, color: `#${state.color}` };
       const { data } = await axios.post(
         `${LIVE_CHAT_API_URL}/api/v1/widgetConfig/create`,
         formData
@@ -62,6 +141,33 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
     setDisableSaveBtn(false);
   };
 
+  const fetchAdminDetails = async (token: string) => {
+    try {
+      const { data } = await axios.get(
+        `${LIVE_CHAT_API_URL}/api/v1/users/admin/?crmToken=${token}`
+      );
+      if (data && data?.success) {
+        let pic = data?.data?.profilePic || userProfileInfo?.profilePic;
+        let name =
+          data?.data?.fullName ||
+          `${userProfileInfo?.fname}  ${userProfileInfo?.lname}`;
+        setAdminDetail(data?.data);
+        setProfileName(name);
+        setProfilePicUrl(pic);
+      }
+    } catch (error: any) {
+      console.log("Error: ", error?.message);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setProfilePic(file);
+      setDisableSaveBtn(false);
+    }
+  };
+
   React.useEffect(() => {
     const fetchWidgetConfig = async (token: string) => {
       try {
@@ -79,13 +185,45 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
         console.log("Error in fetch widget config : ", error.message);
       }
     };
-    if (token) fetchWidgetConfig(token);
+    if (token) {
+      fetchWidgetConfig(token);
+      fetchAdminDetails(token);
+    }
   }, [token]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full h-full pb-3">
-      <div className="space-y-4">
+      <div className="space-y-5">
         <h2 className="text-base font-semibold">Display</h2>
+
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold">Profile Name</span>
+            <BsInfoCircleFill size={15} color="gray" className="mt-1" />
+          </div>
+          <input
+            className="w-1/2 border border-gray-400 mt-2 rounded-md py-[8px] text-sm"
+            type="text"
+            placeholder=""
+            value={profileName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setProfileName(e.target.value);
+              setDisableSaveBtn(false);
+            }}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold">Profile Picture</span>
+            <BsInfoCircleFill size={15} color="gray" className="mt-1" />
+          </div>
+          <FileInput
+            id="file-upload"
+            accept="image/*"
+            className="w-1/2 mt-2 rounded-md"
+            onChange={handleFileChange}
+          />
+        </div>
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold">Color</span>
@@ -246,8 +384,7 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
                 <img
                   className="w-9 h-9 rounded-full"
                   src={
-                    userProfileInfo?.profilePic ||
-                    "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+                    profilePic ? URL.createObjectURL(profilePic) : profilePicUrl
                   }
                   alt="profile-pic"
                 />
@@ -255,7 +392,7 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-white font-semibold">
-                  {`${userProfileInfo?.fname} ${userProfileInfo?.lname}`}
+                  {profileName}
                 </span>
                 <span className="text-xs text-white">
                   We typically reply in a few minutes
