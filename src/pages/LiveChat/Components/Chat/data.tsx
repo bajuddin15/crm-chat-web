@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 import axios from "axios";
 import {
+  setAllLabels,
   setConversations,
+  setLabels,
   setMessages,
   setUsersTypingStatus,
 } from "../../../../store/slices/storeSlice";
@@ -13,12 +15,16 @@ import { useSocketContext } from "../../../../context/SocketContext";
 import notificationSound from "../../../../assets/sounds/notification.mp3";
 import { useAuthContext } from "../../../../context/AuthContext";
 import { LIVE_CHAT_API_URL } from "../../../../constants";
+import { useSearchParams } from "react-router-dom";
 
 interface IState {
   message: string;
   selectedEmoji: any;
   loading: boolean;
   sendMsgLoading: boolean;
+  labelText: string;
+  addLabelLoading: boolean;
+  assignLabelLoading: boolean;
 }
 
 type FileType = "image" | "video" | "pdf" | "doc" | "docx" | null; // Define FileType type
@@ -27,10 +33,31 @@ const useData = () => {
   const dispatch = useDispatch();
   const { authUser } = useAuthContext();
   const { socket } = useSocketContext();
+
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
+  const teamEmail = searchParams.get("team");
+
   const selectedConversation = useSelector(
     (state: RootState) => state.store.selectedConversation
   );
   const messages = useSelector((state: RootState) => state.store.messages);
+
+  const status = useSelector((state: RootState) => state.store.status);
+  const filterLabelId = useSelector(
+    (state: RootState) => state.store.filterLabelId
+  );
+  const filterOwnerId = useSelector(
+    (state: RootState) => state.store.filterOwnerId
+  );
+
+  // teamMembers
+  const teamMembers = useSelector(
+    (state: RootState) => state.store.teamMembers
+  );
+
+  // allAabels
+  const allLabels = useSelector((state: RootState) => state.store.allLabels);
 
   const lastMessageRef = React.useRef<HTMLDivElement>(null);
   const [message, setMessage] = React.useState<IState["message"]>("");
@@ -44,6 +71,131 @@ const useData = () => {
 
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null); // State to store selected file
   const [fileType, setFileType] = React.useState<FileType>(null); // State to store type of selected file
+
+  // label
+  const [labelText, setLabelText] = React.useState<IState["labelText"]>("");
+  const [addLabelLoading, setAddLabelLoading] =
+    React.useState<IState["addLabelLoading"]>(false);
+  const [assignLabelLoading, setAssignLabelLoading] =
+    React.useState<IState["assignLabelLoading"]>(false);
+
+  // team members
+  // const [teamMembers, setTeamMembers] = React.useState<Array<any>>([]);
+  const [showTeamMembers, setShowTeamMembers] = React.useState<boolean>(false);
+  const [assignedTeamMemberId, setAssignedTeamMemberId] =
+    React.useState<string>("");
+
+  const handleChangeLabelText = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLabelText(e.target.value);
+  };
+
+  const handleExistingFilteredLabels = (labelText: string) => {
+    let labels = [];
+    labels = allLabels?.filter((item) =>
+      item?.label?.toLowerCase()?.includes(labelText?.toLowerCase())
+    );
+    return labels;
+  };
+
+  const handleAddLabel = async (labelText: string) => {
+    try {
+      setAddLabelLoading(true);
+      const jwtToken = getJwtTokenFromLocalStorage();
+      if (jwtToken) {
+        const formData = {
+          label: labelText,
+          userId: selectedConversation?._id,
+        };
+        const headers = {
+          Authorization: `Bearer ${jwtToken}`,
+        };
+        const { data } = await axios.post(
+          `${LIVE_CHAT_API_URL}/api/v1/labels/addLabel`,
+          formData,
+          { headers }
+        );
+        if (data && data?.success) {
+          const labels = data?.data?.labels || [];
+          const allLabels = data?.data?.allLabels || [];
+          dispatch(setLabels(labels));
+          dispatch(setAllLabels(allLabels));
+          setLabelText("");
+          toast.success(data?.message);
+        }
+      }
+    } catch (error: any) {
+      console.log("Error: ", error?.message);
+    } finally {
+      setAddLabelLoading(false);
+    }
+  };
+  const handleAssignLabel = async (labelId: string) => {
+    try {
+      setAssignLabelLoading(true);
+      const jwtToken = getJwtTokenFromLocalStorage();
+      if (jwtToken) {
+        const formData = {
+          labelId: labelId,
+          userId: selectedConversation?._id,
+        };
+        const headers = {
+          Authorization: `Bearer ${jwtToken}`,
+        };
+        const { data } = await axios.post(
+          `${LIVE_CHAT_API_URL}/api/v1/labels/assignLabel`,
+          formData,
+          { headers }
+        );
+        if (data && data?.success) {
+          const labels = data?.data?.allLabels || [];
+          const allLabels = data?.data?.allLabels || [];
+          dispatch(setLabels(labels));
+          dispatch(setAllLabels(allLabels));
+          setLabelText("");
+          toast.success(data?.message);
+        } else {
+          toast.error(data?.message);
+        }
+      }
+    } catch (error: any) {
+      if (error && error?.response) {
+        toast.error(error?.response?.data?.message);
+      }
+      console.log("Error: ", error?.message);
+    } finally {
+      setAssignLabelLoading(false);
+    }
+  };
+
+  const handleAssignConversation = async (assignedTeamId: string) => {
+    try {
+      const jwtToken = getJwtTokenFromLocalStorage();
+      if (jwtToken) {
+        const formData = {
+          ownerId: assignedTeamId,
+          userId: selectedConversation?._id,
+        };
+        const headers = {
+          Authorization: `Bearer ${jwtToken}`,
+        };
+        const { data } = await axios.put(
+          `${LIVE_CHAT_API_URL}/api/v1/conversations/assignConversation`,
+          formData,
+          { headers }
+        );
+        if (data && data?.success) {
+          setAssignedTeamMemberId(assignedTeamId);
+          toast.success(data?.message);
+          setShowTeamMembers(false);
+          await fetchConversations();
+        } else {
+          toast.error(data?.message);
+        }
+      }
+    } catch (error: any) {
+      console.log("Error : ", error?.message);
+    }
+  };
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -137,7 +289,7 @@ const useData = () => {
         Authorization: `Bearer ${jwtToken}`,
       };
       const { data } = await axios.get(
-        `${LIVE_CHAT_API_URL}/api/v1/users/?crmToken=${authUser?.crmToken}`,
+        `${LIVE_CHAT_API_URL}/api/v1/users/?crmToken=${authUser?.crmToken}&status=${status}&labelId=${filterLabelId}&ownerId=${filterOwnerId}`,
         { headers }
       );
       if (data && data?.success) {
@@ -250,7 +402,15 @@ const useData = () => {
     }
   }, [message]);
 
+  React.useEffect(() => {
+    if (selectedConversation) {
+      setAssignedTeamMemberId(selectedConversation?.ownerId);
+    }
+  }, [selectedConversation]);
+
   const state = {
+    token,
+    teamEmail,
     message,
     messages,
     selectedEmoji,
@@ -260,15 +420,28 @@ const useData = () => {
     selectedFile,
     fileType,
     sendMsgLoading,
+    labelText,
+    addLabelLoading,
+    assignLabelLoading,
+    teamMembers,
+    showTeamMembers,
+    assignedTeamMemberId,
   };
 
   return {
     state,
     setMessage,
     setSelectedEmoji,
+    setShowTeamMembers,
+    setAssignedTeamMemberId,
     handleChangeMessage,
     handleSendMessage,
     handleFileChange,
+    handleChangeLabelText,
+    handleExistingFilteredLabels,
+    handleAddLabel,
+    handleAssignLabel,
+    handleAssignConversation,
   };
 };
 

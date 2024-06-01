@@ -1,17 +1,34 @@
 import { useSelector } from "react-redux";
-import { MdNotifications } from "react-icons/md";
+import { MdLabel, MdNotifications } from "react-icons/md";
 import { AVATAR_IMG } from "../../../../assets/images";
 import { RootState } from "../../../../store";
 import useData from "./data";
 import Notifications from "./Components/Notifications";
+import { X } from "lucide-react";
 
-const Profile = () => {
+interface IProps {
+  fetchConversations: any;
+}
+
+const Profile: React.FC<IProps> = ({ fetchConversations }) => {
   const selectedConversation = useSelector(
     (state: RootState) => state.store.selectedConversation
   );
 
-  const { state, setShowNotifications } = useData();
-  const { showNotifications, unreadNotifications } = state;
+  const {
+    state,
+    setShowNotifications,
+    setShowDeleteLabelId,
+    handleRemoveLabel,
+    handleChangeConversationStatus,
+  } = useData();
+  const {
+    showNotifications,
+    unreadNotifications,
+    showDeleteLabelId,
+    labels,
+    convStatus,
+  } = state;
 
   if (showNotifications) {
     return <Notifications setShowNotifications={setShowNotifications} />;
@@ -35,7 +52,7 @@ const Profile = () => {
         </button>
       </div>
 
-      <div className="p-5 space-y-5">
+      <div className="py-5 px-3 space-y-5">
         <div className="flex items-center gap-3">
           <img
             className="w-10 h-10 rounded-full"
@@ -48,6 +65,49 @@ const Profile = () => {
             </h2>
             <span className="text-sm">last seen recently</span>
           </div>
+        </div>
+
+        {labels?.length > 0 && (
+          <div className="border border-gray-300 rounded-xl p-3">
+            <h3 className="text-base font-medium">Labels</h3>
+            <div className="flex gap-4 flex-wrap mt-4">
+              {labels.map((item) => {
+                return (
+                  <div
+                    key={item?._id}
+                    className="flex items-center gap-1"
+                    onMouseEnter={() => setShowDeleteLabelId(item?._id)}
+                    onMouseLeave={() => setShowDeleteLabelId(null)}
+                  >
+                    <MdLabel size={20} color="#fcba03" />
+                    <span className="text-sm mb-[1px]">{item?.label}</span>
+                    {showDeleteLabelId === item?._id && (
+                      <div
+                        className="cursor-pointer bg-white shadow-md p-[2px] rounded-full border border-gray-300"
+                        onClick={() => handleRemoveLabel(item?._id)}
+                      >
+                        <X size={14} color="red" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* mark close/open conversation */}
+        <div>
+          <button
+            onClick={async () => {
+              let status = convStatus === "open" ? "closed" : "open";
+              await handleChangeConversationStatus(status);
+              await fetchConversations();
+            }}
+            className="w-full text-sm text-start py-2 px-4 bg-gray-100 border border-gray-300 text-red-500 font-medium tracking-wide rounded-lg"
+          >
+            {convStatus === "open" ? "Close Conversation" : "Open Conversation"}
+          </button>
         </div>
       </div>
     </div>

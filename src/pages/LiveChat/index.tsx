@@ -4,7 +4,7 @@ import Profile from "./Components/Profile/Profile";
 import useData from "./data";
 
 const LiveChatPage = () => {
-  const { state, setShowMobileChatView } = useData();
+  const { state, setShowMobileChatView, fetchConversations } = useData();
   const { selectedConversation, showMobileChatView } = state;
 
   return (
@@ -16,7 +16,7 @@ const LiveChatPage = () => {
         <Conversation setShowMobileChatView={setShowMobileChatView} />
       </div>
       <div
-        style={{ flex: 3 }}
+        style={{ flex: 2 }}
         className={`${
           showMobileChatView ? "flex flex-col" : "hidden sm:flex sm:flex-col"
         } border-l border-l-gray-300 border-r border-gray-300`}
@@ -35,7 +35,7 @@ const LiveChatPage = () => {
         style={{ flex: 1 }}
         className={`hidden ${selectedConversation ? "md:flex" : "hidden"}`}
       >
-        <Profile />
+        <Profile fetchConversations={fetchConversations} />
       </div>
     </div>
   );

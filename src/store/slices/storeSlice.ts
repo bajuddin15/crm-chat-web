@@ -2,6 +2,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // Note: all of stores data about live chat admin
 
+type ConversationStatus = "open" | "closed";
+
 interface StoreState {
   unreadMessages: Array<any>;
   conversations: any[]; // live chat conversations
@@ -9,6 +11,12 @@ interface StoreState {
   messages: any[];
   usersTypingStatus: any;
   notifications: any[];
+  allLabels: any[]; // allLabels of a perticular admin
+  labels: any[]; // labels of a conversation
+  status: ConversationStatus;
+  teamMembers: Array<any>;
+  filterLabelId: string;
+  filterOwnerId: string;
 }
 
 const initialState: StoreState = {
@@ -18,6 +26,12 @@ const initialState: StoreState = {
   messages: [],
   usersTypingStatus: {},
   notifications: [],
+  allLabels: [],
+  labels: [],
+  status: "open",
+  teamMembers: [],
+  filterLabelId: "",
+  filterOwnerId: "",
 };
 
 const storeSlice = createSlice({
@@ -51,6 +65,24 @@ const storeSlice = createSlice({
     ) => {
       state.notifications[action.payload.index] = action.payload.notification;
     },
+    setAllLabels: (state, action: PayloadAction<any[]>) => {
+      state.allLabels = action.payload;
+    },
+    setLabels: (state, action: PayloadAction<any[]>) => {
+      state.labels = action.payload;
+    },
+    setStatus: (state, action: PayloadAction<ConversationStatus>) => {
+      state.status = action.payload;
+    },
+    setTeamMembers: (state, action: PayloadAction<Array<any>>) => {
+      state.teamMembers = action.payload;
+    },
+    setFilterLabelId: (state, action: PayloadAction<string>) => {
+      state.filterLabelId = action.payload;
+    },
+    setFilterOwnerId: (state, action: PayloadAction<string>) => {
+      state.filterOwnerId = action.payload;
+    },
   },
 });
 
@@ -62,5 +94,11 @@ export const {
   setUsersTypingStatus,
   setNotifications,
   setNotificationWithIndex,
+  setAllLabels,
+  setLabels,
+  setStatus,
+  setTeamMembers,
+  setFilterLabelId,
+  setFilterOwnerId,
 } = storeSlice.actions;
 export default storeSlice.reducer;

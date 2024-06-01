@@ -1,12 +1,18 @@
-import { Menu } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import { AVATAR_IMG } from "../../../../assets/images";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 import { useSocketContext } from "../../../../context/SocketContext";
-import { setSelectedConversation } from "../../../../store/slices/storeSlice";
+import {
+  setSelectedConversation,
+  setStatus,
+} from "../../../../store/slices/storeSlice";
 import { getFormatedTime } from "../../../../utils/common";
 import useData from "../../data";
 import Loading from "../../../../components/Common/Loading";
+import { useAuthContext } from "../../../../context/AuthContext";
+import React from "react";
+import FilterDrawer from "./Components/FilterDrawer";
 
 interface IProps {
   setShowMobileChatView: any;
@@ -14,6 +20,7 @@ interface IProps {
 
 const Conversation: React.FC<IProps> = ({ setShowMobileChatView }) => {
   const dispatch = useDispatch();
+  const { authUser } = useAuthContext();
   const conversations = useSelector(
     (state: RootState) => state.store.conversations
   );
@@ -24,25 +31,113 @@ const Conversation: React.FC<IProps> = ({ setShowMobileChatView }) => {
     (state: RootState) => state.store.usersTypingStatus
   );
 
+  const status = useSelector((state: RootState) => state.store.status);
+  const filterLabelId = useSelector(
+    (state: RootState) => state.store.filterLabelId
+  );
+  const filterOwnerId = useSelector(
+    (state: RootState) => state.store.filterOwnerId
+  );
+
+  const [searchInput, setSearchInput] = React.useState<string>("");
+  const [filterAppliedCount, setFilterAppliedCount] = React.useState<number>(0);
+
   const { state } = useData();
   const { loading } = state;
 
   const { onlineUsers } = useSocketContext();
 
+  // filter drawer
+  const [isFilterDrawerOpen, setFilterDrawerOpen] =
+    React.useState<boolean>(false);
+
+  const toggleDrawer = () => {
+    setFilterDrawerOpen(!isFilterDrawerOpen);
+  };
+
+  const handleSearchConversation = () => {
+    if (!searchInput.trim()) return conversations;
+
+    let users = conversations.filter((item: any) =>
+      item?.fullName?.toLowerCase()?.includes(searchInput.toLowerCase())
+    );
+    return users;
+  };
+
+  React.useEffect(() => {
+    let count = 0;
+    if (filterLabelId && filterOwnerId) {
+      count = 2;
+    } else if (filterLabelId || filterOwnerId) {
+      count = 1;
+    } else count = 0;
+
+    setFilterAppliedCount(count);
+  }, [filterLabelId, filterOwnerId]);
+
   return (
-    <div className="w-full h-full bg-white flex flex-col justify-between">
-      <div className="flex items-center gap-3 h-[52px] p-3 bg-white border-b border-b-gray-300">
-        <div>
-          <Menu size={22} />
+    <div className="relative w-full h-full bg-white flex flex-col justify-between">
+      <div className="flex flex-col gap-4 p-3 bg-white">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <img
+              className="w-7 h-7 rounded-full object-cover border border-gray-300"
+              src={authUser?.profilePic}
+              alt="profile-picture"
+            />
+            <span className="text-sm font-medium">{authUser?.fullName}</span>
+          </div>
+
+          <div>
+            <button className="relative" onClick={toggleDrawer}>
+              <Filter size={20} opacity={0.7} />
+
+              {filterAppliedCount > 0 && (
+                <span className="absolute -top-[7px] -right-[7px] w-4 h-4 rounded-full flex items-center justify-center bg-green-500 text-white text-[11px]">
+                  {filterAppliedCount}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
-        <div className="border border-gray-300 rounded-full w-full h-9 flex items-center">
+
+        <div className="flex items-center border border-gray-300 px-3 rounded-md hover:border-gray-400">
+          <Search size={20} opacity={0.7} />
           <input
-            className="w-full border-none outline-none focus:ring-0 bg-inherit text-sm"
+            className="text-sm border-none outline-none focus:ring-0 bg-inherit"
             type="text"
-            placeholder="Search"
+            placeholder="Search.."
+            value={searchInput}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSearchInput(e.target.value)
+            }
           />
         </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => dispatch(setStatus("open"))}
+            className={`${
+              status === "open"
+                ? "bg-blue-300/30 text-blue-600 border border-blue-200"
+                : "bg-gray-200/70 text-gray-700 border border-gray-200 hover:bg-gray-200"
+            }  px-4 py-[6px] rounded-full text-sm`}
+          >
+            Open
+          </button>
+          <button
+            onClick={() => dispatch(setStatus("closed"))}
+            className={`${
+              status === "closed"
+                ? "bg-blue-300/30 text-blue-600 border border-blue-200"
+                : "bg-gray-200/70 text-gray-700 border border-gray-200 hover:bg-gray-200"
+            }  px-4 py-[6px] rounded-full text-sm`}
+          >
+            Closed
+          </button>
+        </div>
       </div>
+      <FilterDrawer isOpen={isFilterDrawerOpen} onClose={toggleDrawer} />
 
       <div className="flex-1 bg-white overflow-y-auto custom-scrollbar">
         {loading && (
@@ -50,7 +145,7 @@ const Conversation: React.FC<IProps> = ({ setShowMobileChatView }) => {
             <Loading />
           </div>
         )}
-        {conversations.map((item) => {
+        {handleSearchConversation().map((item) => {
           const isSelected = selectedConversation?._id === item._id;
           const isOnline = onlineUsers.includes(item._id);
 
@@ -58,7 +153,7 @@ const Conversation: React.FC<IProps> = ({ setShowMobileChatView }) => {
           return (
             <div
               key={item?._id}
-              className={`flex items-center gap-4 px-2 py-3 cursor-pointer ${
+              className={`flex items-center gap-4 px-2 py-3 mx-2 rounded-md cursor-pointer ${
                 isSelected ? "bg-gray-200" : "hover:bg-gray-200"
               } `}
               onClick={() => {
@@ -88,6 +183,8 @@ const Conversation: React.FC<IProps> = ({ setShowMobileChatView }) => {
                   <span className="text-xs">
                     {usersTypingMap[item?._id]
                       ? `typing...`
+                      : item?.recentMessage?.message?.length >= 40
+                      ? `${item?.recentMessage?.message?.slice(0, 39)}...`
                       : item?.recentMessage?.message}
                   </span>
                   {/* <span className="text-[10px]">1</span> */}

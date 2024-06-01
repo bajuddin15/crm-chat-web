@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { getProfileByToken } from "../../api";
+import { getProfileByToken, getTeamMembers } from "../../api";
 import React from "react";
 import {
   extractUsername,
@@ -11,8 +11,10 @@ import notificationSound from "../../assets/sounds/notification.mp3";
 import { useAuthContext } from "../../context/AuthContext";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  setAllLabels,
   setConversations,
   setNotifications,
+  setTeamMembers,
 } from "../../store/slices/storeSlice";
 import { RootState } from "../../store";
 import { useSocketContext } from "../../context/SocketContext";
@@ -31,6 +33,14 @@ const useData = () => {
   );
   const notifications = useSelector(
     (state: RootState) => state.store.notifications
+  );
+
+  const status = useSelector((state: RootState) => state.store.status);
+  const filterLabelId = useSelector(
+    (state: RootState) => state.store.filterLabelId
+  );
+  const filterOwnerId = useSelector(
+    (state: RootState) => state.store.filterOwnerId
   );
 
   const [searchParams] = useSearchParams();
@@ -89,7 +99,7 @@ const useData = () => {
         Authorization: `Bearer ${jwtToken}`,
       };
       const { data } = await axios.get(
-        `${LIVE_CHAT_API_URL}/api/v1/users/?crmToken=${authUser?.crmToken}`,
+        `${LIVE_CHAT_API_URL}/api/v1/users/?crmToken=${authUser?.crmToken}&status=${status}&labelId=${filterLabelId}&ownerId=${filterOwnerId}`,
         { headers }
       );
       if (data && data?.success) {
@@ -100,8 +110,47 @@ const useData = () => {
     }
   };
 
+  // fetchAllLabels
+  const fetchAllLabels = async () => {
+    try {
+      const jwtToken = getJwtTokenFromLocalStorage();
+      if (jwtToken) {
+        const headers = {
+          Authorization: `Bearer ${jwtToken}`,
+        };
+        const { data } = await axios.get(
+          `${LIVE_CHAT_API_URL}/api/v1/labels/allLabelsOfAdmin`,
+          { headers }
+        );
+        if (data && data?.success) {
+          dispatch(setAllLabels(data?.data));
+        }
+      }
+    } catch (error: any) {
+      console.log("Error : ", error?.message);
+    }
+  };
+
+  // Feath team members
+  const fetchTeamMembers = async () => {
+    if (!token) return;
+    const data = await getTeamMembers(token);
+    if (data && data?.status === 200) {
+      let teams = data?.data;
+      let teamMembers = teams?.filter((item: any) => item?.userId);
+      dispatch(setTeamMembers(teamMembers));
+    }
+  };
+
   React.useEffect(() => {
     handleAuthAdmin();
+  }, [token]);
+
+  // Feath team members useEffect
+  React.useEffect(() => {
+    if (token) {
+      fetchTeamMembers();
+    }
   }, [token]);
 
   React.useEffect(() => {
@@ -111,7 +160,7 @@ const useData = () => {
       setLoading(false);
     };
     fetchCons();
-  }, [authUser]);
+  }, [authUser, status, filterLabelId, filterOwnerId]);
 
   // fetch all notifications
   React.useEffect(() => {
@@ -148,14 +197,13 @@ const useData = () => {
     });
 
     return () => socket?.off("newMessage");
-  }, [socket]);
+  }, [socket, status]);
 
   React.useEffect(() => {
     socket?.on("newNotification", (newNotification: any) => {
       // newNotification.shouldShake = true;
       // if (newNotification.to === authUser._id) {
       // }
-      console.log("new notification : ", newNotification);
       const updatedNotifications = [...notifications, newNotification];
       dispatch(setNotifications(updatedNotifications));
       // const sound = new Audio(notificationSound);
@@ -164,6 +212,11 @@ const useData = () => {
     });
     return () => socket?.off("newNotification");
   }, [socket, notifications, setNotifications]);
+
+  // fetchAllLabels of an admin
+  React.useEffect(() => {
+    fetchAllLabels();
+  }, [authUser]);
 
   const state = {
     token,
@@ -177,6 +230,7 @@ const useData = () => {
     setLoading,
     setUserProfileInfo,
     setShowMobileChatView,
+    fetchConversations,
   };
 };
 
