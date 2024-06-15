@@ -169,7 +169,7 @@ const NewMessage = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-gray-100 px-6 flex items-center justify-between">
+      <div className="fixed bottom-0 left-0 right-0 h-16 bg-gray-100 px-6 flex  items-center justify-between">
         <div className="flex items-center gap-5 h-full">
           <div>
             {selectedSenderId?.defaultChannel === "whatsapp" ? (
@@ -218,7 +218,7 @@ const NewMessage = () => {
             onClick={handleSubmit}
             className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center gap-2"
           >
-            <span className="text-sm">Send</span>
+            <span className="text-sm hidden sm:flex">Send</span>
             {loading ? (
               <Spinner
                 color="info"

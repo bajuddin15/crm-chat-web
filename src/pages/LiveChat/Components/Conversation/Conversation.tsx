@@ -4,15 +4,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 import { useSocketContext } from "../../../../context/SocketContext";
 import {
+  setNotifications,
   setSelectedConversation,
   setStatus,
+  setUnreadMessagesOfUsers,
 } from "../../../../store/slices/storeSlice";
-import { getFormatedTime } from "../../../../utils/common";
+import {
+  getFormatedTime,
+  getJwtTokenFromLocalStorage,
+} from "../../../../utils/common";
 import useData from "../../data";
 import Loading from "../../../../components/Common/Loading";
 import { useAuthContext } from "../../../../context/AuthContext";
 import React from "react";
 import FilterDrawer from "./Components/FilterDrawer";
+import { colors } from "../../../../utils/constants";
+import axios from "axios";
+import { LIVE_CHAT_API_URL } from "../../../../constants";
 
 interface IProps {
   setShowMobileChatView: any;
@@ -29,6 +37,14 @@ const Conversation: React.FC<IProps> = ({ setShowMobileChatView }) => {
   );
   const usersTypingMap = useSelector(
     (state: RootState) => state.store.usersTypingStatus
+  );
+
+  const notifications = useSelector(
+    (state: RootState) => state.store.notifications
+  );
+
+  const unreadMessagesOfUsersMap = useSelector(
+    (state: RootState) => state.store.unreadMessagesOfUsers
   );
 
   const status = useSelector((state: RootState) => state.store.status);
@@ -74,6 +90,55 @@ const Conversation: React.FC<IProps> = ({ setShowMobileChatView }) => {
 
     setFilterAppliedCount(count);
   }, [filterLabelId, filterOwnerId]);
+
+  // update when notifications updated
+  React.useEffect(() => {
+    const calculateUnreadMsgs = (notifications: any) => {
+      let unreadMsgsMap: any = {};
+      for (let i = 0; i < notifications.length; i++) {
+        const notification = notifications[i];
+        const userId = notification?.from?._id;
+        const isRead = notification?.read;
+        if (!isRead) {
+          unreadMsgsMap[userId] = unreadMsgsMap[userId]
+            ? unreadMsgsMap[userId] + 1
+            : 1;
+        }
+      }
+      dispatch(setUnreadMessagesOfUsers(unreadMsgsMap));
+    };
+    if (notifications?.length > 0) {
+      calculateUnreadMsgs(notifications);
+    }
+  }, [notifications]);
+
+  React.useEffect(() => {
+    const makeReadNotifications = async (selectedConversation: any) => {
+      const jwtToken = getJwtTokenFromLocalStorage();
+      const headers = {
+        Authorization: `Bearer ${jwtToken}`,
+      };
+      try {
+        const formData = {
+          userId: selectedConversation._id,
+        };
+        const { data } = await axios.put(
+          `${LIVE_CHAT_API_URL}/api/v1/notifications/makeReadNotifications`,
+          formData,
+          { headers }
+        );
+        if (data && data?.success) {
+          const notificationData = data?.data?.notifications;
+          dispatch(setNotifications(notificationData));
+        }
+      } catch (error: any) {
+        console.log("makeRead notifications error : ", error?.message);
+      }
+    };
+    if (selectedConversation) {
+      makeReadNotifications(selectedConversation);
+    }
+  }, [selectedConversation]);
 
   return (
     <div className="relative w-full h-full bg-white flex flex-col justify-between">
@@ -145,11 +210,12 @@ const Conversation: React.FC<IProps> = ({ setShowMobileChatView }) => {
             <Loading />
           </div>
         )}
-        {handleSearchConversation().map((item) => {
+        {handleSearchConversation().map((item: any) => {
           const isSelected = selectedConversation?._id === item._id;
           const isOnline = onlineUsers.includes(item._id);
 
           const formatedTime = getFormatedTime(item?.recentMessage?.createdAt);
+
           return (
             <div
               key={item?._id}
@@ -187,7 +253,14 @@ const Conversation: React.FC<IProps> = ({ setShowMobileChatView }) => {
                       ? `${item?.recentMessage?.message?.slice(0, 39)}...`
                       : item?.recentMessage?.message}
                   </span>
-                  {/* <span className="text-[10px]">1</span> */}
+                  {unreadMessagesOfUsersMap[item._id] && (
+                    <span
+                      style={{ backgroundColor: colors.whatsapp }}
+                      className="text-[10px] w-4 h-4 rounded-full flex items-center justify-center text-white"
+                    >
+                      {unreadMessagesOfUsersMap[item._id]}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

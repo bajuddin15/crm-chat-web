@@ -40,7 +40,7 @@ const ScheduleMessage: React.FC<IProps> = ({
         onClick={() => setOpenModal(true)}
         className="bg-gray-100 hover:bg-gray-200 text-black border border-gray-400 py-2 px-4 rounded-md flex items-center gap-2"
       >
-        <span className="text-sm">Schedule</span>
+        <span className="text-sm hidden sm:flex">Schedule</span>
         <Clock color="black" size={16} />
       </button>
       <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>

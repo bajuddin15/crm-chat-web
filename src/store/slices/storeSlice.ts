@@ -17,6 +17,7 @@ interface StoreState {
   teamMembers: Array<any>;
   filterLabelId: string;
   filterOwnerId: string;
+  unreadMessagesOfUsers: any;
 }
 
 const initialState: StoreState = {
@@ -32,9 +33,10 @@ const initialState: StoreState = {
   teamMembers: [],
   filterLabelId: "",
   filterOwnerId: "",
+  unreadMessagesOfUsers: {}, // it store all users unread msgs
 };
 
-const storeSlice = createSlice({
+const storeSlice: any = createSlice({
   name: "store",
   initialState,
   reducers: {
@@ -83,6 +85,9 @@ const storeSlice = createSlice({
     setFilterOwnerId: (state, action: PayloadAction<string>) => {
       state.filterOwnerId = action.payload;
     },
+    setUnreadMessagesOfUsers: (state, action: PayloadAction<any>) => {
+      state.unreadMessagesOfUsers = action.payload;
+    },
   },
 });
 
@@ -100,5 +105,6 @@ export const {
   setTeamMembers,
   setFilterLabelId,
   setFilterOwnerId,
+  setUnreadMessagesOfUsers,
 } = storeSlice.actions;
 export default storeSlice.reducer;

@@ -113,7 +113,7 @@ const useData = () => {
 
   React.useEffect(() => {
     const countUnreadNotifications = () => {
-      let unread = notifications.filter((item) => item.read === false);
+      let unread = notifications.filter((item: any) => item.read === false);
       setUnreadNotifications(unread);
     };
     countUnreadNotifications();

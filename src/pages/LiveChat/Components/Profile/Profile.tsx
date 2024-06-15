@@ -53,17 +53,34 @@ const Profile: React.FC<IProps> = ({ fetchConversations }) => {
       </div>
 
       <div className="py-5 px-3 space-y-5">
-        <div className="flex items-center gap-3">
-          <img
-            className="w-10 h-10 rounded-full"
-            src={AVATAR_IMG}
-            alt="profile-image"
-          />
-          <div>
-            <h2 className="text-sm font-medium">
-              {selectedConversation?.fullName}
-            </h2>
-            <span className="text-sm">last seen recently</span>
+        <div className="space-y-5 border border-gray-200 shadow-sm p-4 rounded-lg">
+          <div className="flex items-center gap-3">
+            <img
+              className="w-10 h-10 rounded-full"
+              src={AVATAR_IMG}
+              alt="profile-image"
+            />
+            <div>
+              <h2 className="text-sm font-medium">
+                {selectedConversation?.fullName}
+              </h2>
+              <span className="text-sm font-normal text-gray-600">
+                last seen recently
+              </span>
+            </div>
+          </div>
+
+          <div className="text-sm flex flex-col">
+            <span className="font-medium">Email: </span>
+            <span className="text-sm font-normal text-gray-600">
+              {selectedConversation?.email}
+            </span>
+          </div>
+          <div className="text-sm flex flex-col">
+            <span className="font-medium">Phone Number: </span>
+            <span className="text-sm font-normal text-gray-600">
+              {selectedConversation?.phoneNumber}
+            </span>
           </div>
         </div>
 
@@ -71,7 +88,7 @@ const Profile: React.FC<IProps> = ({ fetchConversations }) => {
           <div className="border border-gray-300 rounded-xl p-3">
             <h3 className="text-base font-medium">Labels</h3>
             <div className="flex gap-4 flex-wrap mt-4">
-              {labels.map((item) => {
+              {labels.map((item: any) => {
                 return (
                   <div
                     key={item?._id}
@@ -104,7 +121,7 @@ const Profile: React.FC<IProps> = ({ fetchConversations }) => {
               await handleChangeConversationStatus(status);
               await fetchConversations();
             }}
-            className="w-full text-sm text-start py-2 px-4 bg-gray-100 border border-gray-300 text-red-500 font-medium tracking-wide rounded-lg"
+            className="w-full text-sm text-start py-2 px-4 bg-gray-100 border border-gray-300 text-red-500 font-medium tracking-wide rounded-lg shadow-sm"
           >
             {convStatus === "open" ? "Close Conversation" : "Open Conversation"}
           </button>

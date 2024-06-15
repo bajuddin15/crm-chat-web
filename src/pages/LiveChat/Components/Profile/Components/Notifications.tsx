@@ -67,7 +67,7 @@ const Notifications: React.FC<IProps> = ({ setShowNotifications }) => {
         style={{ height: "calc(100% - 52px)", overflowY: "auto" }}
         className="custom-scrollbar"
       >
-        {notifications?.map((item, index) => {
+        {notifications?.map((item: any, index: number) => {
           const isOnline = onlineUsers.includes(item?.from._id);
 
           const time = formatCreatedAt(item?.createdAt);
