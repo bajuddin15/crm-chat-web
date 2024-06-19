@@ -23,7 +23,7 @@ import {
   getUnreadMsgCountByCid,
   identifyFileType,
   transformLinks,
-  trimCompanyName,
+  // trimCompanyName,
 } from "../../utils/common";
 import { Badge, Button, Spinner, TextInput, Tooltip } from "flowbite-react";
 import EmojiPickerModal from "../../components/Modals/EmojiPickerModal";
