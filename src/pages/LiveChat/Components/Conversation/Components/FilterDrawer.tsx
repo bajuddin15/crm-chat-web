@@ -82,22 +82,22 @@ const FilterDrawer: React.FC<DrawerProps> = ({ isOpen, onClose }) => {
   };
 
   React.useEffect(() => {
-    const options = allLabels.map((item) => ({
+    const options = allLabels.map((item: any) => ({
       value: item?._id,
       label: item?.label,
     }));
-    const selected = options.find((item) => item?.value === filterLabelId);
+    const selected = options.find((item: any) => item?.value === filterLabelId);
     if (selected) {
       setSelectedLabel(selected);
     }
     setLabelOptions(options);
   }, [allLabels]);
   React.useEffect(() => {
-    const options = teamMembers.map((item) => ({
+    const options = teamMembers.map((item: any) => ({
       value: item?.userId,
       label: item?.name,
     }));
-    const selected = options.find((item) => item?.value === filterOwnerId);
+    const selected = options.find((item: any) => item?.value === filterOwnerId);
     if (selected) {
       setSelectedLabel(selected);
     }
