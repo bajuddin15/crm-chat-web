@@ -57,7 +57,7 @@ const Chat: React.FC<IProps> = ({ setShowMobileChatView }) => {
 
   const getSelectedTeamMember = (assignedTeamMemberId: string) => {
     let teamMember = teamMembers?.find(
-      (item) => item?.userId === assignedTeamMemberId
+      (item: any) => item?.userId === assignedTeamMemberId
     );
     return teamMember;
   };
@@ -132,7 +132,7 @@ const Chat: React.FC<IProps> = ({ setShowMobileChatView }) => {
 
                 <hr />
                 <div className="flex flex-col gap-2">
-                  {handleExistingFilteredLabels(labelText)?.map((item) => {
+                  {handleExistingFilteredLabels(labelText)?.map((item: any) => {
                     return (
                       <div
                         key={item?._id}
@@ -184,8 +184,8 @@ const Chat: React.FC<IProps> = ({ setShowMobileChatView }) => {
                   className="absolute top-9 right-0 flex flex-col gap-2 bg-white z-50 w-52 max-h-64 overflow-auto break-words border border-gray-300 p-2 rounded-md shadow-sm"
                 >
                   {teamMembers
-                    .filter((item) => item?.userId)
-                    ?.map((item, index) => {
+                    .filter((item: any) => item?.userId)
+                    ?.map((item: any, index: number) => {
                       if (!item?.name) return;
                       return (
                         <div
@@ -230,7 +230,7 @@ const Chat: React.FC<IProps> = ({ setShowMobileChatView }) => {
       >
         <div></div>
         <div>
-          {messages?.map((item, index) => {
+          {messages?.map((item: any, index: number) => {
             return (
               <div
                 key={index}
