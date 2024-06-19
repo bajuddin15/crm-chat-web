@@ -35,17 +35,16 @@ const TemplateModal = ({
 
   const handleTemplateChange = (item: any) => {
     const template = item?.template;
-    let countVars = 0; // count of all {{}} in template msg
-    let tempVars = [];
-    for (let i = 0; i < template?.length - 2; i++) {
-      if (template[i] === "{" && template[i + 1] === "{") {
-        tempVars.push("");
-        countVars++;
-      }
+    const uniqueVars = new Set();
+    const regex = /{{\d+}}/g;
+    let match;
+    while ((match = regex.exec(template)) !== null) {
+      uniqueVars.add(match[0]);
     }
-    setTempVariables(tempVars);
+    setTempVariables(Array.from(uniqueVars).map(() => ""));
     setSelectedTemplate(item);
   };
+
   const handleCloseModal = () => {
     setOpenModal(false);
   };
@@ -152,11 +151,9 @@ const TemplateValueEdit = ({
   const handleSubmit = () => {
     let msg = selectedTemplate?.template;
     for (let i = 0; i < tempVariables.length; i++) {
-      let key = i + 1;
-      let vKey = key.toString();
-      let varKey = "{{" + vKey + "}}";
-      let result = msg.replace(varKey, `[${tempVariables[i]}]`);
-      msg = result;
+      const placeholder = `{{${i + 1}}}`;
+      const value = tempVariables[i];
+      msg = msg.replaceAll(placeholder, `[${value}]`);
     }
     setMessage(msg);
     handleCloseModal();

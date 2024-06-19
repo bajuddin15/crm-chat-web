@@ -20,6 +20,7 @@ import AttachmentModal from "../../components/Modals/AttachmentModal";
 import TemplateModal from "../../components/Modals/TemplateModal";
 import EmojiPickerModal from "../../components/Modals/EmojiPickerModal";
 import useData from "./data";
+import MergeVariableModal from "../../components/Modals/MergeVariableModal";
 
 const ChatViewPage = () => {
   const {
@@ -440,6 +441,8 @@ const ChatViewPage = () => {
                 setSelectedEmoji={setSelectedEmoji}
                 setMessage={setMessage}
               />
+
+              <MergeVariableModal setMessage={setMessage} />
 
               <div>
                 {!mediaLink &&

@@ -7,7 +7,8 @@ const API_URLS = {
 
 const colors = {
   primary: "#2046D0",
-  whatsapp: "#25D366",
+  // whatsapp: "#25D366",
+  whatsapp: "#128C7E",
 };
 
 export const PHONE_IMG1 = p1;

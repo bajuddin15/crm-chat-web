@@ -91,7 +91,7 @@ const useData = () => {
 
   const handleExistingFilteredLabels = (labelText: string) => {
     let labels = [];
-    labels = allLabels?.filter((item) =>
+    labels = allLabels?.filter((item: any) =>
       item?.label?.toLowerCase()?.includes(labelText?.toLowerCase())
     );
     return labels;

@@ -5,6 +5,7 @@ import NewMessage from "./pages/NewMessage";
 import ChatViewPage from "./pages/ChatView";
 import LiveChatPage from "./pages/LiveChat";
 import SetupLiveChat from "./pages/SetupLiveChat";
+// import DialCall from "./pages/DialCall";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
         <Route path="/chat" element={<ChatViewPage />} />
         <Route path="/liveChat" element={<LiveChatPage />} />
         <Route path="/setupLiveChat" element={<SetupLiveChat />} />
+        {/* <Route path="/dial-call" element={<DialCall />} /> */}
       </Routes>
     </BrowserRouter>
   );

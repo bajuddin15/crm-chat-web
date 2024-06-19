@@ -203,6 +203,14 @@ export const formatCreatedAt = (createdAt: string) => {
   }
 };
 
+export function transformLinks(message: string, color: string): string {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return message.replace(
+    urlRegex,
+    `<a href="$1" target="_blank" style="color: ${color}; text-decoration: underline;">$1</a>`
+  );
+}
+
 export {
   getFormatedDate,
   identifyFileType,

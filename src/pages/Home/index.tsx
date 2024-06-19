@@ -22,6 +22,7 @@ import {
   getFullName,
   getUnreadMsgCountByCid,
   identifyFileType,
+  transformLinks,
   trimCompanyName,
 } from "../../utils/common";
 import { Badge, Button, Spinner, TextInput, Tooltip } from "flowbite-react";
@@ -48,7 +49,8 @@ import SidebarDrawer from "../../components/SidebarDrawer";
 import EditContactInfo from "../../components/Modals/EditContactInfo";
 import VoiceCall from "../../components/VoiceCall/VoiceCall";
 import { AVATAR_IMG } from "../../assets/images";
-// import SidebarDrawer from "../../components/SidebarDrawer";
+import MergeVariableModal from "../../components/Modals/MergeVariableModal";
+import HtmlRenderer from "../../components/Common/HtmlRenderer";
 
 const Home = () => {
   const {
@@ -148,6 +150,10 @@ const Home = () => {
   const timeDifference = currentTime.getTime() - whats.getTime();
   const hoursDifference = timeDifference / (1000 * 60 * 60);
   const showBadge = hoursDifference < 24;
+
+  console.log({
+    selectedTeamMember,
+  });
 
   return (
     <div className="relative">
@@ -504,8 +510,8 @@ const Home = () => {
                           <FaUser size={16} color="gray" />
                           <span className="text-sm">
                             {getOwnerNameSlice(
-                              currentContact?.ownerName ||
-                                selectedTeamMember?.name
+                              selectedTeamMember?.name ||
+                                currentContact?.ownerName
                             )}
                           </span>
                         </div>
@@ -600,6 +606,9 @@ const Home = () => {
                         fileType === "unknown" ? chat?.media : null;
 
                       const isLastMessage = index === chats.length - 1;
+                      const linkColor =
+                        chat?.log === "INCOMING" ? "blue" : "white";
+                      const message = transformLinks(chat?.msg, linkColor);
                       return (
                         <div key={index}>
                           {isLastMessage && <div ref={lastMessageRef}></div>}
@@ -608,7 +617,7 @@ const Home = () => {
                               {/* incomming */}
                               <div className="w-5/6 text-xs bg-white  p-4 rounded-tl-3xl rounded-tr-3xl rounded-br-3xl border border-gray-300 break-words">
                                 <p className="mb-1">@{chat?.fromnumber}</p>
-                                <p>{chat?.msg}</p>
+                                <HtmlRenderer htmlString={message} />
                                 {imageLink && (
                                   <a href={imageLink} target="_blank">
                                     <div className="my-3">
@@ -677,7 +686,7 @@ const Home = () => {
                                   }}
                                   className="w-5/6  text-xs text-white p-4 rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl break-words"
                                 >
-                                  <p>{chat?.msg}</p>
+                                  <HtmlRenderer htmlString={message} />
                                   {imageLink && (
                                     <a href={imageLink} target="_blank">
                                       <div className="my-3">
@@ -805,6 +814,8 @@ const Home = () => {
                         setSelectedEmoji={setSelectedEmoji}
                         setMessage={setMessage}
                       />
+
+                      <MergeVariableModal setMessage={setMessage} />
 
                       <div>
                         {!mediaLink &&

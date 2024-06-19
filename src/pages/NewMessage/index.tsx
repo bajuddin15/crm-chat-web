@@ -13,6 +13,7 @@ import { PHONE_IMG1 } from "../../utils/constants";
 import { identifyFileType } from "../../utils/common";
 import ShortUrlModal from "../../components/Modals/ShortUrlModal";
 import ScheduleMessage from "../../components/Modals/ScheduleMessage";
+import MergeVariableModal from "../../components/Modals/MergeVariableModal";
 
 const NewMessage = () => {
   const {
@@ -170,7 +171,7 @@ const NewMessage = () => {
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 h-16 bg-gray-100 px-6 flex  items-center justify-between">
-        <div className="flex items-center gap-5 h-full">
+        <div className="flex items-center gap-4 sm:gap-5 h-full">
           <div>
             {selectedSenderId?.defaultChannel === "whatsapp" ? (
               <FaWhatsapp size={20} color={"green"} />
@@ -191,6 +192,7 @@ const NewMessage = () => {
           />
 
           <ShortUrlModal setMessage={setMessage} />
+          <MergeVariableModal setMessage={setMessage} />
           <div>
             {!mediaLink &&
               selectedTemplate &&

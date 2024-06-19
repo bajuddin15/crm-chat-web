@@ -403,8 +403,9 @@ const useData = () => {
       teamEmail
     );
     if (data && data?.status === 200) {
-      toast.success(data?.success);
       setShowTeamMembers(false);
+      toast.success(data?.success);
+      await fetchConvContacts(token, contactStatusVal);
     }
   };
 
@@ -622,6 +623,16 @@ const useData = () => {
   useEffect(() => {
     handleSearchSubmit();
   }, [searchInput]);
+
+  // update selected teammember when current contact updated
+  useEffect(() => {
+    if (currentContact && teamMembers) {
+      let selectedMember = teamMembers.find(
+        (item: any) => item?.userId === currentContact?.owner
+      );
+      setSelectedTeamMember(selectedMember);
+    }
+  }, [currentContact, teamMembers]);
 
   const state = {
     token,
