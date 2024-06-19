@@ -176,7 +176,7 @@ const Home = () => {
                 alt="Rounded avatar"
               />
               <h2 className="text-sm font-semibold text-black">
-                {trimCompanyName(userProfileInfo?.company)}
+                {userProfileInfo?.company}
               </h2>
             </div>
             <div className="flex items-center gap-4 relative">
