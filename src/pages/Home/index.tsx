@@ -151,10 +151,6 @@ const Home = () => {
   const hoursDifference = timeDifference / (1000 * 60 * 60);
   const showBadge = hoursDifference < 24;
 
-  console.log({
-    selectedTeamMember,
-  });
-
   return (
     <div className="relative">
       <div className="flex fixed top-0 left-0 right-0 bottom-0">

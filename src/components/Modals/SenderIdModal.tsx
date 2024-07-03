@@ -1,7 +1,9 @@
 import { Button, Modal } from "flowbite-react";
 import { FaCommentSms, FaWhatsapp } from "react-icons/fa6";
 import { useEffect, useState } from "react";
-import { getSenderIds } from "../../api";
+import { getSenderIds, getTeamMembers } from "../../api";
+import { MyRoleData } from "../../types/types";
+import { useSearchParams } from "react-router-dom";
 
 interface IProps {
   token: any;
@@ -15,6 +17,9 @@ interface IState {
 }
 
 const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
+  const [searchParams] = useSearchParams();
+  const teamEmail = searchParams.get("team");
+
   const [openModal, setOpenModal] = useState<IState["openModal"]>(false);
   const [senderIds, setSenderIds] = useState<IState["senderIds"]>([]);
   const [senderIdIndex, setSenderIdIndex] = useState(1);
@@ -35,19 +40,46 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
   };
   useEffect(() => {
     const fetchProviders = async () => {
+      if (!token) return;
       const data = await getSenderIds(token);
+      const resData = await getTeamMembers(token);
+      const teamMembers = resData?.data;
       const providers = data?.Provider;
       if (providers?.length > 0) {
         let provd1 = providers?.filter((item: any) => item?.isDefault === "1");
         let provd2 = providers?.filter((item: any) => item?.isDefault === "0");
         const provd = [...provd1, ...provd2];
-        setSenderIds(provd);
-        setSelectedSenderId(provd[0]);
-        setSelectedValue(provd[0]);
+
+        let allNumbers = provd;
+        let myRoleData: MyRoleData | null = null;
+        if (teamMembers.length > 0 && teamEmail) {
+          const myRole = teamMembers.find(
+            (item: MyRoleData) => item?.email === teamEmail
+          );
+          myRoleData = myRole;
+        }
+
+        if (
+          myRoleData &&
+          (myRoleData?.roll === "admin" || myRoleData?.roll === "adminuser")
+        ) {
+          allNumbers = provd;
+        } else if (myRoleData && myRoleData?.roll === "standard") {
+          allNumbers = provd.filter(
+            (item: any) => item?.assignTo === myRoleData?.userId
+          );
+          if (allNumbers.length === 0) {
+            allNumbers = provd.filter((item: any) => item?.assignTo === "0");
+          }
+        }
+
+        setSenderIds(allNumbers);
+        setSelectedSenderId(allNumbers[0]);
+        setSelectedValue(allNumbers[0]);
       }
     };
     fetchProviders();
-  }, []);
+  }, [token, teamEmail]);
 
   return (
     <>

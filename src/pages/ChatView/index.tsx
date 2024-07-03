@@ -13,7 +13,11 @@ import {
 } from "lucide-react";
 import { getOwnerNameSlice } from "../../constants";
 import { IoCheckmark } from "react-icons/io5";
-import { formatDateOfChat, identifyFileType } from "../../utils/common";
+import {
+  formatDateOfChat,
+  identifyFileType,
+  transformLinks,
+} from "../../utils/common";
 import { colors } from "../../utils/constants";
 import SenderIdModal from "../../components/Modals/SenderIdModal";
 import AttachmentModal from "../../components/Modals/AttachmentModal";
@@ -21,6 +25,7 @@ import TemplateModal from "../../components/Modals/TemplateModal";
 import EmojiPickerModal from "../../components/Modals/EmojiPickerModal";
 import useData from "./data";
 import MergeVariableModal from "../../components/Modals/MergeVariableModal";
+import HtmlRenderer from "../../components/Common/HtmlRenderer";
 
 const ChatViewPage = () => {
   const {
@@ -255,6 +260,8 @@ const ChatViewPage = () => {
               const unknownLink = fileType === "unknown" ? chat?.media : null;
 
               const isLastMessage = index === chats.length - 1;
+              const linkColor = chat?.log === "INCOMING" ? "blue" : "white";
+              const message = transformLinks(chat?.msg, linkColor);
               return (
                 <div key={index}>
                   {isLastMessage && <div ref={lastMessageRef}></div>}
@@ -263,7 +270,7 @@ const ChatViewPage = () => {
                       {/* incomming */}
                       <div className="w-5/6 md:w-1/3 text-xs bg-white  p-4 rounded-tl-3xl rounded-tr-3xl rounded-br-3xl border border-gray-300 break-words">
                         <p className="mb-1">@{chat?.fromnumber}</p>
-                        <p>{chat?.msg}</p>
+                        <HtmlRenderer htmlString={message} />
                         {imageLink && (
                           <a href={imageLink} target="_blank">
                             <div className="my-3">
@@ -324,7 +331,7 @@ const ChatViewPage = () => {
                           }}
                           className="w-5/6 md:w-1/3  text-xs text-white p-4 rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl break-words"
                         >
-                          <p>{chat?.msg}</p>
+                          <HtmlRenderer htmlString={message} />
                           {imageLink && (
                             <a href={imageLink} target="_blank">
                               <div className="my-3">

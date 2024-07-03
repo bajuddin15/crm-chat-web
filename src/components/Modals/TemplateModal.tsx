@@ -153,7 +153,8 @@ const TemplateValueEdit = ({
     for (let i = 0; i < tempVariables.length; i++) {
       const placeholder = `{{${i + 1}}}`;
       const value = tempVariables[i];
-      msg = msg.replaceAll(placeholder, `[${value}]`);
+      msg = msg.replace(placeholder, `[${value}]`);
+      msg = msg.replaceAll(placeholder, value);
     }
     setMessage(msg);
     handleCloseModal();

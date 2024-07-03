@@ -3,10 +3,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   getProfileByToken,
   getSenderIds,
+  getTeamMembers,
   scheduleMessage,
   sendMessage,
 } from "../../api";
 import toast from "react-hot-toast";
+import { MyRoleData } from "../../types/types";
 
 interface IState {
   message: string;
@@ -88,14 +90,41 @@ const useData = () => {
   };
 
   const fetchProviders = async () => {
+    if (!token) return;
     const data = await getSenderIds(token);
     const providers = data?.Provider;
+    const resData = await getTeamMembers(token);
+    const teamMembers = resData?.data;
     if (providers?.length > 0) {
       let provd1 = providers?.filter((item: any) => item?.isDefault === "1");
       let provd2 = providers?.filter((item: any) => item?.isDefault === "0");
       const provd = [...provd1, ...provd2];
-      setSenderIds(provd);
-      setSelectedSenderId(provd[0]);
+
+      let allNumbers = provd;
+      let myRoleData: MyRoleData | null = null;
+      if (teamMembers.length > 0 && teamEmail) {
+        const myRole = teamMembers.find(
+          (item: MyRoleData) => item?.email === teamEmail
+        );
+        myRoleData = myRole;
+      }
+
+      if (
+        myRoleData &&
+        (myRoleData?.roll === "admin" || myRoleData?.roll === "adminuser")
+      ) {
+        allNumbers = provd;
+      } else if (myRoleData && myRoleData?.roll === "standard") {
+        allNumbers = provd.filter(
+          (item: any) => item?.assignTo === myRoleData?.userId
+        );
+        if (allNumbers.length === 0) {
+          allNumbers = provd.filter((item: any) => item?.assignTo === "0");
+        }
+      }
+
+      setSenderIds(allNumbers);
+      setSelectedSenderId(allNumbers[0]);
     }
   };
 
@@ -182,7 +211,7 @@ const useData = () => {
     if (token) {
       Promise.all([fetchProfileInfo(token), fetchProviders()]);
     }
-  }, [token]);
+  }, [token, teamEmail]);
 
   React.useEffect(() => {
     if (selectedTemplate) {
