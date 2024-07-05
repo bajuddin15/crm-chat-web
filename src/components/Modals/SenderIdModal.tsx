@@ -52,7 +52,7 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
 
         let allNumbers = provd;
         let myRoleData: MyRoleData | null = null;
-        if (teamMembers.length > 0 && teamEmail) {
+        if (teamMembers?.length > 0 && teamEmail) {
           const myRole = teamMembers.find(
             (item: MyRoleData) => item?.email === teamEmail
           );
