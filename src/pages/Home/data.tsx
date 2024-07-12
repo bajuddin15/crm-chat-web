@@ -115,16 +115,43 @@ const useData = () => {
   const [selectedFilterLabelId, setSelectedFilterLabelId] = useState<any>("");
   const [selectedFilterOwnerId, setSelectedFilterOwnerId] = useState<any>("");
 
+  // max characters and credit count
+  const [charactersCount, setCharactersCount] = useState<number>(0);
+  const [totalCharacters, setTotalCharacters] = useState<number>(0);
+  const [creditCount, setCreditCount] = useState<number>(0);
+
   // auto scrolling
 
   const lastMessageRef = useRef<any>();
 
   const handleTextareaChange = (event: any) => {
+    const inputValue = event.target.value;
     const textareaRows = event.target.value.split("\n").length;
     const newRows = Math.min(Math.max(1, textareaRows), 5);
 
-    setRows(newRows);
-    setMessage(event.target.value);
+    if (inputValue?.length <= totalCharacters) {
+      setRows(newRows);
+      setMessage(inputValue);
+      countCharacters(inputValue);
+    }
+  };
+  const countCharacters = (inputValue: string) => {
+    const unicodeCharacters = [...inputValue];
+    const hasUnicodeChars = /[^ -~]/.test(inputValue); // Check for any non-ASCII characters
+    const unicodeCharacterCount = unicodeCharacters.length;
+    let creditCount = 0;
+    if (selectedSenderId?.defaultChannel === "sms") {
+      if (hasUnicodeChars) {
+        creditCount = Math.ceil(unicodeCharacterCount / 70);
+      } else {
+        creditCount = Math.ceil(inputValue.length / 160);
+      }
+    }
+    if (mediaLink) {
+      creditCount = 4;
+    }
+    setCharactersCount(inputValue.length);
+    setCreditCount(creditCount);
   };
 
   const handleSendMessage = async () => {
@@ -474,6 +501,15 @@ const useData = () => {
     return labels;
   };
 
+  // totalCharacters
+  useEffect(() => {
+    if (selectedSenderId?.defaultChannel === "whatsapp") {
+      setTotalCharacters(1024);
+    } else if (selectedSenderId?.defaultChannel === "sms") {
+      setTotalCharacters(640);
+    }
+  }, [selectedSenderId]);
+
   // Filtered apply
   useEffect(() => {
     const fetchFilteredContacts = async () => {
@@ -680,6 +716,9 @@ const useData = () => {
     selectedFilterLabelId,
     selectedFilterOwnerId,
     assignLabelLoading,
+    charactersCount,
+    creditCount,
+    totalCharacters,
   };
 
   return {

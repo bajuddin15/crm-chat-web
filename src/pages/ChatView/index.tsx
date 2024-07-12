@@ -67,6 +67,9 @@ const ChatViewPage = () => {
     label,
     addLabelLoading,
     assignLabelLoading,
+    selectedSenderId,
+    creditCount,
+    totalCharacters,
   } = state;
 
   // badge show
@@ -315,6 +318,7 @@ const ChatViewPage = () => {
                           <span className="text-[10px]">
                             {chat?.channel === "whatsapp" ? "WhatsApp" : "SMS"}
                           </span>
+                          <span className="text-[10px]">@{chat?.tonumber}</span>
                         </div>
                       </div>
                     </div>
@@ -373,6 +377,9 @@ const ChatViewPage = () => {
 
                       <div className="flex justify-end mt-1">
                         <div className="flex items-center space-x-3">
+                          <span className="text-[10px]">
+                            @{chat?.fromnumber}
+                          </span>
                           <span className="text-[10px]">{formatedDate}</span>
 
                           <Tooltip
@@ -486,6 +493,17 @@ const ChatViewPage = () => {
               </Button>
             </div>
           </div>
+        </div>
+        {/* max characters */}
+        <div className="flex items-center justify-between text-gray-600">
+          <span className="text-xs font-normal">
+            Max Characters: {message?.length}/{totalCharacters}
+          </span>
+          {selectedSenderId?.defaultChannel === "sms" && (
+            <span className="text-sm font-normal">
+              Credit Count : {creditCount}
+            </span>
+          )}
         </div>
       </div>
     </div>

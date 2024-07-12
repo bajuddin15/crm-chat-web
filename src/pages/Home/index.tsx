@@ -133,6 +133,9 @@ const Home = () => {
     showDeleteLabelId,
     labelsOfToken,
     assignLabelLoading,
+    selectedSenderId,
+    creditCount,
+    totalCharacters,
   } = state;
 
   const unreadMsgs = useSelector(
@@ -666,6 +669,9 @@ const Home = () => {
                                       ? "WhatsApp"
                                       : "SMS"}
                                   </span>
+                                  <span className="text-[10px]">
+                                    @{chat?.tonumber}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -729,6 +735,9 @@ const Home = () => {
                               <div className="flex justify-end mt-1">
                                 <div className="flex items-center space-x-3">
                                   <span className="text-[10px]">
+                                    @{chat?.fromnumber}
+                                  </span>
+                                  <span className="text-[10px]">
                                     {formatedDate}
                                   </span>
 
@@ -781,7 +790,7 @@ const Home = () => {
                     <ArrowDownCircle size={20} color="gray" />
                   </div>
                 </div>
-                <div className=" bg-white px-4 py-2 rounded-md border border-gray-200 hover:border hover:border-blue-500 hover:ring-1 hover:ring-blue-500">
+                <div className="bg-white px-4 py-2 rounded-md border border-gray-200 hover:border hover:border-blue-500 hover:ring-1 hover:ring-blue-500">
                   <textarea
                     className="w-full bg-transparent border-none outline-none focus:ring-0 text-xs overflow-y-auto scrollbar-none rounded-md"
                     placeholder="Write a Message..."
@@ -848,6 +857,17 @@ const Home = () => {
                       </Button>
                     </div>
                   </div>
+                </div>
+                {/* max characters */}
+                <div className="flex items-center justify-between text-gray-600">
+                  <span className="text-xs font-normal">
+                    Max Characters: {message?.length}/{totalCharacters}
+                  </span>
+                  {selectedSenderId?.defaultChannel === "sms" && (
+                    <span className="text-sm font-normal">
+                      Credit Count : {creditCount}
+                    </span>
+                  )}
                 </div>
               </div>
             </>
