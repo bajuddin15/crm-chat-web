@@ -58,7 +58,7 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
       console.log("Device not ready!");
     }
     const params = {
-      To: phoneNumber,
+      To: phoneNumber[0] === "+" ? phoneNumber : `+${phoneNumber}`,
       Provider_Number:
         providerNumber[0] === "+" ? providerNumber : `+${providerNumber}`,
     };
