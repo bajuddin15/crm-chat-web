@@ -34,6 +34,9 @@ const useData = () => {
   const notifications = useSelector(
     (state: RootState) => state.store.notifications
   );
+  const conversations = useSelector(
+    (state: RootState) => state.store.conversations
+  );
 
   const status = useSelector((state: RootState) => state.store.status);
   const filterLabelId = useSelector(
@@ -70,6 +73,7 @@ const useData = () => {
           password: authInfo?.phone,
           profilePic: authInfo?.profilePic,
           plan: authInfo?.plan,
+          email: authInfo?.email,
         };
         const headers = {
           "Content-Type": "application/json",
@@ -220,6 +224,8 @@ const useData = () => {
 
   const state = {
     token,
+    authUser,
+    conversations,
     userProfileInfo,
     selectedConversation,
     loading,
