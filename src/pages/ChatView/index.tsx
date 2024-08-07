@@ -70,6 +70,7 @@ const ChatViewPage = () => {
     selectedSenderId,
     creditCount,
     totalCharacters,
+    voiceEnableNumber,
   } = state;
 
   // badge show
@@ -78,6 +79,12 @@ const ChatViewPage = () => {
   const timeDifference = currentTime.getTime() - whats.getTime();
   const hoursDifference = timeDifference / (1000 * 60 * 60);
   const showBadge = hoursDifference < 24;
+
+  const handleNavigateToCallHistory = (phoneNumber: string) => {
+    const url = `https://calling.crm-messaging.cloud/callLogs?token=OMs5rXuCphJxcYqSnmVP9RQAy&team=prateek.bansal@crm-messaging.cloud&phone=${phoneNumber}`;
+    window.location.href = url;
+  };
+
   return (
     <div className="relative h-screen custom-scrollbar bg-gray-100 overflow-y-auto overflow-x-hidden">
       {/* chat container header */}
@@ -94,6 +101,15 @@ const ChatViewPage = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-4">
+          {voiceEnableNumber && (
+            <button
+              style={{ backgroundColor: colors.primary }}
+              className="text-white text-sm py-[6px] px-3 rounded-md hover:opacity-90"
+              onClick={() => handleNavigateToCallHistory(phone as string)}
+            >
+              Call history
+            </button>
+          )}
           <div className="relative">
             <div>
               <input
@@ -253,7 +269,7 @@ const ChatViewPage = () => {
             </Badge>
           </div>
         ) : (
-          <div className="flex flex-col justify-end">
+          <div className="flex flex-col justify-end mb-5">
             {chats?.map((chat: any, index: number) => {
               const formatedDate = formatDateOfChat(chat?.date);
               const fileType = identifyFileType(chat?.media);

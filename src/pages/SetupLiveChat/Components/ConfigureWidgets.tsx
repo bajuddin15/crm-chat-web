@@ -22,6 +22,7 @@ interface IState {
   color: string;
   alignment: WidgetAlignment;
   availability: Availability;
+  emailNotifications: boolean;
   scriptCode: string;
 }
 
@@ -36,6 +37,7 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
     color: "2046D0",
     alignment: "right",
     availability: "always",
+    emailNotifications: true,
     scriptCode: `<script
     type="text/javascript"
     async
@@ -141,6 +143,11 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
     setDisableSaveBtn(false);
   };
 
+  const handleEmailNotificationsChange = (value: boolean) => {
+    setState({ ...state, emailNotifications: value });
+    setDisableSaveBtn(false);
+  };
+
   const fetchAdminDetails = async (token: string) => {
     try {
       const { data } = await axios.get(
@@ -175,10 +182,15 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
           `${LIVE_CHAT_API_URL}/api/v1/widgetConfig/${token}`
         );
         if (data && data?.success) {
+          const emailNotifications = data?.data?.notifications?.email;
           if (data?.data?.color[0] === "#") {
-            setState({ ...data?.data, color: data?.data?.color.substring(1) });
+            setState({
+              ...data?.data,
+              color: data?.data?.color.substring(1),
+              emailNotifications,
+            });
           } else {
-            setState(data?.data);
+            setState({ ...data?.data, emailNotifications });
           }
         }
       } catch (error: any) {
@@ -323,7 +335,7 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-5">
           <fieldset className="flex max-w-md flex-col gap-4">
             <legend className="mb-4">Channel availability</legend>
             <div className="flex items-center gap-2">
@@ -354,6 +366,43 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
                 <Label htmlFor="always">Chat is available 24/7</Label>
                 <span className="text-xs">
                   Chat is available on everyday 24/7 hours.
+                </span>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset className="flex max-w-md flex-col gap-4">
+            <legend className="mb-4">Email Notifications</legend>
+            <div className="flex items-center gap-2">
+              <Radio
+                id="all-emails"
+                name="email-notifications"
+                value="all-emails"
+                checked={state.emailNotifications === true ? true : false}
+                onChange={() => handleEmailNotificationsChange(true)}
+              />
+              <div className="flex flex-col">
+                <Label htmlFor="all-emails">
+                  Receive incoming chat replies on email
+                </Label>
+                <span className="text-xs">
+                  You will receive email notifications for all activities.
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Radio
+                id="no-emails"
+                name="email-notifications"
+                value="no-emails"
+                checked={state.emailNotifications === true ? false : true}
+                onChange={() => handleEmailNotificationsChange(false)}
+              />
+              <div className="flex flex-col">
+                <Label htmlFor="no-emails">
+                  Don't receive email notification
+                </Label>
+                <span className="text-xs">
+                  You will not receive any email notifications for live chat.
                 </span>
               </div>
             </div>

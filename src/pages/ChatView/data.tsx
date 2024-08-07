@@ -8,10 +8,12 @@ import {
   getConvId,
   getConvViewChats,
   getIncomingMessages,
+  getSenderIds,
   getTeamMembers,
   sendMessage,
 } from "../../api";
 import notificationSound from "../../assets/sounds/notification.mp3";
+import { MyRoleData } from "../../types/types";
 
 interface IState {
   allContacts: Array<any>;
@@ -77,6 +79,7 @@ const useData = () => {
   const [charactersCount, setCharactersCount] = useState<number>(0);
   const [totalCharacters, setTotalCharacters] = useState<number>(0);
   const [creditCount, setCreditCount] = useState<number>(0);
+  const [voiceEnableNumber, setVoiceEnableNumber] = useState<string>("");
 
   // auto scrolling
 
@@ -261,6 +264,51 @@ const useData = () => {
     return labels;
   };
 
+  // fetch senders ids to check voice number is exist or not
+  const fetchProviders = async () => {
+    if (!token) return;
+    const data = await getSenderIds(token);
+    const resData = await getTeamMembers(token);
+    const teamMembers = resData?.data;
+    const providers = data?.Provider;
+    if (providers?.length > 0) {
+      let provd1 = providers?.filter((item: any) => item?.isDefault === "1");
+      let provd2 = providers?.filter((item: any) => item?.isDefault === "0");
+      const provd = [...provd1, ...provd2];
+
+      let allNumbers = provd;
+      let myRoleData: MyRoleData | null = null;
+      if (teamMembers?.length > 0 && teamEmail) {
+        const myRole = teamMembers.find(
+          (item: MyRoleData) => item?.email === teamEmail
+        );
+        myRoleData = myRole;
+      }
+
+      if (
+        myRoleData &&
+        (myRoleData?.roll === "admin" || myRoleData?.roll === "adminuser")
+      ) {
+        allNumbers = provd;
+      } else if (myRoleData && myRoleData?.roll === "standard") {
+        allNumbers = provd.filter(
+          (item: any) => item?.assignTo === myRoleData?.userId
+        );
+        if (allNumbers.length === 0) {
+          allNumbers = provd.filter((item: any) => item?.assignTo === "0");
+        }
+      }
+
+      const voiceEnabledProvider = providers?.find(
+        (item: any) => item?.voice === "1"
+      );
+
+      let voiceNum = voiceEnabledProvider?.number;
+
+      setVoiceEnableNumber(voiceNum);
+    }
+  };
+
   // totalCharacters
   useEffect(() => {
     if (selectedSenderId?.defaultChannel === "whatsapp") {
@@ -300,7 +348,11 @@ const useData = () => {
 
   useEffect(() => {
     if (token) {
-      Promise.all([fetchTeamMembers(), fetchLabelsOfToken(token)]);
+      Promise.all([
+        fetchTeamMembers(),
+        fetchLabelsOfToken(token),
+        fetchProviders(),
+      ]);
     }
   }, [token]);
 
@@ -388,6 +440,7 @@ const useData = () => {
     charactersCount,
     creditCount,
     totalCharacters,
+    voiceEnableNumber,
   };
 
   return {

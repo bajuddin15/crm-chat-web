@@ -239,7 +239,7 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
   const intitializeDevice = () => {
     if (!token) return;
     const device = new Device(token, {
-      logLevel: 1,
+      logLevel: "error",
       edge: "ashburn",
       // codecPreferences: ["opus", "pcmu"],
     });
