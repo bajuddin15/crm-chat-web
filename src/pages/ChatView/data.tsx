@@ -14,6 +14,7 @@ import {
 } from "../../api";
 import notificationSound from "../../assets/sounds/notification.mp3";
 import { MyRoleData } from "../../types/types";
+import { decodeUrlString } from "../../utils/common";
 
 interface IState {
   allContacts: Array<any>;
@@ -38,7 +39,8 @@ const useData = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const phone = searchParams.get("phone");
-  const teamEmail = searchParams.get("team");
+  let teamEmail = searchParams.get("team") || "";
+  teamEmail = decodeUrlString(teamEmail);
   const source = searchParams.get("source");
 
   const [message, setMessage] = useState("");
@@ -299,7 +301,7 @@ const useData = () => {
         }
       }
 
-      const voiceEnabledProvider = providers?.find(
+      const voiceEnabledProvider = allNumbers?.find(
         (item: any) => item?.voice === "1"
       );
 

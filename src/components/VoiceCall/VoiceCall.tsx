@@ -10,10 +10,13 @@ import {
   getTitleOfVoiceCall,
 } from "../../constants";
 import { ArrowLeft } from "lucide-react";
-import { getSenderIds } from "../../api";
+import { getSenderIds, getTeamMembers } from "../../api";
 import PopupModal from "./Modals/PopupModal";
 import toast from "react-hot-toast";
 import { AVATAR_IMG } from "../../assets/images";
+import { MyRoleData } from "../../types/types";
+import { useSearchParams } from "react-router-dom";
+import { decodeUrlString } from "../../utils/common";
 
 interface IProps {
   devToken: any;
@@ -22,6 +25,9 @@ interface IProps {
 
 const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
   // const [clientName, setClientName] = useState("");
+  const [searchParams] = useSearchParams();
+  let teamEmail = searchParams.get("team") || "";
+  teamEmail = decodeUrlString(teamEmail);
   const [incomingCallNumber, setIncomingCallNumber] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState("");
   // const [log, setLog] = useState([]);
@@ -167,21 +173,62 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
     // so there is no incomming call we can reset ui based on this incommingCall parameter
   };
 
-  useEffect(() => {
-    const getToken = async () => {
-      try {
-        const senderIdsData = await getSenderIds(devToken);
-        const providers = senderIdsData?.Provider;
+  // fetch senders ids to check voice number is exist or not
+  const fetchProviders = async (token: string) => {
+    if (!token) return;
+    const data = await getSenderIds(token);
+    const resData = await getTeamMembers(token);
+    const teamMembers = resData?.data;
+    const providers = data?.Provider;
+    if (providers?.length > 0) {
+      let provd1 = providers?.filter((item: any) => item?.isDefault === "1");
+      let provd2 = providers?.filter((item: any) => item?.isDefault === "0");
+      const provd = [...provd1, ...provd2];
 
-        const voiceEnabledProvider = providers?.find(
-          (item: any) => item?.voice === "1"
+      let allNumbers = provd;
+      let myRoleData: MyRoleData | null = null;
+      if (teamMembers?.length > 0 && teamEmail) {
+        const myRole = teamMembers.find(
+          (item: MyRoleData) => item?.email === teamEmail
         );
-        const provideNumber = voiceEnabledProvider?.number;
-        setProviderNumber(provideNumber);
+        myRoleData = myRole;
+      }
 
+      if (
+        myRoleData &&
+        (myRoleData?.roll === "admin" || myRoleData?.roll === "adminuser")
+      ) {
+        allNumbers = provd;
+      } else if (myRoleData && myRoleData?.roll === "standard") {
+        allNumbers = provd.filter(
+          (item: any) => item?.assignTo === myRoleData?.userId
+        );
+        if (allNumbers.length === 0) {
+          allNumbers = provd.filter((item: any) => item?.assignTo === "0");
+        }
+      }
+
+      const voiceEnabledProvider = allNumbers?.find(
+        (item: any) => item?.voice === "1"
+      );
+
+      let voiceNum = voiceEnabledProvider?.number;
+      setProviderNumber(voiceNum);
+    }
+  };
+
+  useEffect(() => {
+    if (devToken) {
+      fetchProviders(devToken);
+    }
+  }, [devToken]);
+
+  useEffect(() => {
+    const getToken = async (providerNumber: string) => {
+      try {
         const formData = {
           devToken,
-          providerNumber: provideNumber,
+          providerNumber,
         };
 
         const { data } = await axios.post(
@@ -196,8 +243,10 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
       }
     };
 
-    getToken();
-  }, [devToken]);
+    if (providerNumber) {
+      getToken(providerNumber);
+    }
+  }, [providerNumber]);
 
   useEffect(() => {
     intitializeDevice();
@@ -207,23 +256,16 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
     getAudioDevices();
 
     const status = token ? DEVICE_STATUS.ACTIVE : DEVICE_STATUS.INACTIVE;
-    updateDeviceStatus(status);
+    updateDeviceStatus(status, providerNumber);
 
     return () => {
       // Update deviceStatus to "INACTIVE" when component unmounts
-      updateDeviceStatus(DEVICE_STATUS.INACTIVE);
+      updateDeviceStatus(DEVICE_STATUS.INACTIVE, providerNumber);
     };
-  }, [token]);
+  }, [token, providerNumber]);
 
-  const updateDeviceStatus = async (status: any) => {
+  const updateDeviceStatus = async (status: any, phoneNumber: string) => {
     try {
-      const senderIdsData = await getSenderIds(devToken);
-      const providers = senderIdsData?.Provider;
-
-      const voiceEnabledProvider = providers?.find(
-        (item: any) => item?.voice === "1"
-      );
-      const phoneNumber = voiceEnabledProvider?.number;
       const formData = {
         phoneNumber,
         deviceStatus: status,

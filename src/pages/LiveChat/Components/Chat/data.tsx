@@ -10,7 +10,10 @@ import {
   setUsersTypingStatus,
 } from "../../../../store/slices/storeSlice";
 import toast from "react-hot-toast";
-import { getJwtTokenFromLocalStorage } from "../../../../utils/common";
+import {
+  decodeUrlString,
+  getJwtTokenFromLocalStorage,
+} from "../../../../utils/common";
 import { useSocketContext } from "../../../../context/SocketContext";
 import notificationSound from "../../../../assets/sounds/notification.mp3";
 import { useAuthContext } from "../../../../context/AuthContext";
@@ -36,7 +39,8 @@ const useData = () => {
 
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  const teamEmail = searchParams.get("team");
+  let teamEmail = searchParams.get("team") || "";
+  teamEmail = decodeUrlString(teamEmail);
 
   const selectedConversation = useSelector(
     (state: RootState) => state.store.selectedConversation

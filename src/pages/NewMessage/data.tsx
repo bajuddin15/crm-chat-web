@@ -9,6 +9,7 @@ import {
 } from "../../api";
 import toast from "react-hot-toast";
 import { MyRoleData } from "../../types/types";
+import { decodeUrlString } from "../../utils/common";
 
 interface IState {
   message: string;
@@ -29,7 +30,8 @@ const useData = () => {
 
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  const teamEmail = searchParams.get("team");
+  let teamEmail = searchParams.get("team") || "";
+  teamEmail = decodeUrlString(teamEmail);
   const source = searchParams.get("source");
   const cid = searchParams.get("cid");
   const contact = searchParams.get("contact");

@@ -211,6 +211,10 @@ export function transformLinks(message: string, color: string): string {
   );
 }
 
+export const decodeUrlString = (value: string) => {
+  return decodeURIComponent(value.replace(/\+/g, "%20")).replace(/ /g, "+");
+};
+
 export {
   getFormatedDate,
   identifyFileType,

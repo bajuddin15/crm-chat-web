@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getSenderIds, getTeamMembers } from "../../api";
 import { MyRoleData } from "../../types/types";
 import { useSearchParams } from "react-router-dom";
+import { decodeUrlString } from "../../utils/common";
 
 interface IProps {
   token: any;
@@ -18,7 +19,8 @@ interface IState {
 
 const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
   const [searchParams] = useSearchParams();
-  const teamEmail = searchParams.get("team");
+  let teamEmail = searchParams.get("team") || "";
+  teamEmail = decodeUrlString(teamEmail);
 
   const [openModal, setOpenModal] = useState<IState["openModal"]>(false);
   const [senderIds, setSenderIds] = useState<IState["senderIds"]>([]);

@@ -25,7 +25,7 @@ import {
   sendMessage,
 } from "../../api";
 import notificationSound from "../../assets/sounds/notification.mp3";
-import { getUniqueContacts } from "../../utils/common";
+import { decodeUrlString, getUniqueContacts } from "../../utils/common";
 
 interface IState {
   allContacts: Array<any>;
@@ -49,7 +49,8 @@ interface IState {
 const useData = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  const teamEmail = searchParams.get("team");
+  let teamEmail = searchParams.get("team") || "";
+  teamEmail = decodeUrlString(teamEmail);
   const source = searchParams.get("source");
   const cid = searchParams.get("cid");
   const contact = searchParams.get("contact");
