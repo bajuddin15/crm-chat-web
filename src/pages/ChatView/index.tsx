@@ -80,8 +80,12 @@ const ChatViewPage = () => {
   const hoursDifference = timeDifference / (1000 * 60 * 60);
   const showBadge = hoursDifference < 24;
 
-  const handleNavigateToCallHistory = (phoneNumber: string) => {
-    const url = `https://calling.crm-messaging.cloud/callLogs?token=OMs5rXuCphJxcYqSnmVP9RQAy&team=prateek.bansal@crm-messaging.cloud&phone=${phoneNumber}`;
+  const handleNavigateToCallHistory = (
+    token: string,
+    teamEmail: string,
+    phoneNumber: string
+  ) => {
+    const url = `https://calling.crm-messaging.cloud/callLogs?token=${token}&team=${teamEmail}&phone=${phoneNumber}`;
     window.location.href = url;
   };
 
@@ -105,7 +109,13 @@ const ChatViewPage = () => {
             <button
               style={{ backgroundColor: colors.primary }}
               className="text-white text-sm py-[6px] px-3 rounded-md hover:opacity-90"
-              onClick={() => handleNavigateToCallHistory(phone as string)}
+              onClick={() =>
+                handleNavigateToCallHistory(
+                  token as string,
+                  teamEmail,
+                  phone as string
+                )
+              }
             >
               Call history
             </button>
