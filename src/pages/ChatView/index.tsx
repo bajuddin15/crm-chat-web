@@ -15,6 +15,7 @@ import { getOwnerNameSlice } from "../../constants";
 import { IoCheckmark } from "react-icons/io5";
 import {
   formatDateOfChat,
+  getFullName,
   identifyFileType,
   transformLinks,
 } from "../../utils/common";
@@ -71,6 +72,7 @@ const ChatViewPage = () => {
     creditCount,
     totalCharacters,
     voiceEnableNumber,
+    contactProfileDetails,
   } = state;
 
   // badge show
@@ -99,7 +101,12 @@ const ChatViewPage = () => {
             src={AVATAR_IMG}
             alt="avatar-img"
           />
-          <h2 className="text-base font-semibold text-black">{phone}</h2>
+          <h2 className="text-base font-semibold text-black">
+            {getFullName(
+              contactProfileDetails?.fname,
+              contactProfileDetails?.lname
+            ) || contactProfileDetails?.phone}
+          </h2>
 
           <VoiceCall devToken={token} currentContact={currentContact} />
         </div>

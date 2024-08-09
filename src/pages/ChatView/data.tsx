@@ -5,6 +5,7 @@ import {
   addLabelByCid,
   assignConversationByCid,
   getAllLabelsByToken,
+  getContactDetails,
   getConvId,
   getConvViewChats,
   getIncomingMessages,
@@ -63,6 +64,8 @@ const useData = () => {
   const [requiredMediaType, setRequiredMediaType] =
     useState<IState["requiredMediaType"]>(null);
   useState<IState["contactProfileDetails"]>(null);
+  const [contactProfileDetails, setContactProfileDetails] =
+    useState<IState["contactProfileDetails"]>(null);
 
   const [whatsTimer, setWhatsTimer] = useState<IState["whatsTimer"]>(null);
   const [lastTimestamp, setLastTimestamp] =
@@ -311,6 +314,17 @@ const useData = () => {
     }
   };
 
+  // contact profile details
+  useEffect(() => {
+    const fetchContactDetails = async () => {
+      if (token && phone) {
+        const res = await getContactDetails(token, phone);
+        setContactProfileDetails(res?.data);
+      }
+    };
+    fetchContactDetails();
+  }, [token, phone]);
+
   // totalCharacters
   useEffect(() => {
     if (selectedSenderId?.defaultChannel === "whatsapp") {
@@ -443,6 +457,7 @@ const useData = () => {
     creditCount,
     totalCharacters,
     voiceEnableNumber,
+    contactProfileDetails,
   };
 
   return {
@@ -464,6 +479,7 @@ const useData = () => {
     setAddLabelLoading,
     setLabelsOfToken,
     setAssignLabelLoading,
+    setContactProfileDetails,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
