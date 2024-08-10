@@ -10,13 +10,14 @@ import {
   getTitleOfVoiceCall,
 } from "../../constants";
 import { ArrowLeft } from "lucide-react";
-import { getSenderIds, getTeamMembers } from "../../api";
+import { getProfileByToken, getSenderIds, getTeamMembers } from "../../api";
 import PopupModal from "./Modals/PopupModal";
 import toast from "react-hot-toast";
 import { AVATAR_IMG } from "../../assets/images";
 import { MyRoleData } from "../../types/types";
 import { useSearchParams } from "react-router-dom";
 import { decodeUrlString } from "../../utils/common";
+import FreePlanModal from "./Modals/FreePlanModal";
 
 interface IProps {
   devToken: any;
@@ -49,6 +50,7 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
   const [showSettingsView, setShowSettingsView] = useState<boolean>(false);
 
   const [providerNumber, setProviderNumber] = useState<any>("");
+  const [isFreePlan, setIsFreePlan] = useState<boolean>(false);
 
   useEffect(() => {
     setPhoneNumber(currentContact?.contact);
@@ -217,9 +219,21 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
     }
   };
 
+  const fetchProfileInfo = async (devToken: string) => {
+    const resData = await getProfileByToken(devToken);
+    if (resData && resData?.status === 200) {
+      const profileData = resData?.data;
+      if (profileData && profileData?.plan === "1") {
+        // it is free plan so update state
+        setIsFreePlan(true);
+      }
+    }
+  };
+
   useEffect(() => {
     if (devToken) {
       fetchProviders(devToken);
+      fetchProfileInfo(devToken);
     }
   }, [devToken]);
 
@@ -380,7 +394,9 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
       style={{ zIndex: 999 }}
       className="relative flex items-center justify-center h-screen"
     >
-      {providerNumber && device ? (
+      {isFreePlan ? (
+        <FreePlanModal />
+      ) : providerNumber && device ? (
         <div
           onClick={makeOutgoingCall}
           className="w-6 h-6 cursor-pointer flex items-center justify-center bg-green-500 rounded-full"
