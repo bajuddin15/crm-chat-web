@@ -340,11 +340,6 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
     // Event listener for incoming call notifications
     client.on("telnyx.notification", (notification: any) => {
       const call = notification?.call;
-      console.log({
-        state: call?.state,
-        type: notification.type,
-        notification,
-      });
 
       if (notification.type === "callUpdate") {
         const callType = call?.direction;
