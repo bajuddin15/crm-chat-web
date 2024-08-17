@@ -1,4 +1,6 @@
 import axios from "axios";
+import { TelnyxRTC } from "@telnyx/webrtc";
+import { Audio } from "@telnyx/react-client";
 import { Device } from "@twilio/voice-sdk";
 import { useEffect, useState } from "react";
 import { FaPhoneAlt } from "react-icons/fa";
@@ -18,6 +20,7 @@ import { MyRoleData } from "../../types/types";
 import { useSearchParams } from "react-router-dom";
 import { decodeUrlString } from "../../utils/common";
 import FreePlanModal from "./Modals/FreePlanModal";
+import { ProviderName } from "./types";
 
 interface IProps {
   devToken: any;
@@ -36,6 +39,11 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
   const [ringtoneDevices, setRingtoneDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedSpeakerDevice, setSelectedSpeakerDevice] = useState("");
   const [selectedRingtoneDevice, setSelectedRingtoneDevice] = useState("");
+
+  // telnyx webrtc
+  const [rtcClient, setRtcClient] = useState<TelnyxRTC | null>(null);
+  const [allProviders, setAllProviders] = useState<any[]>([]);
+  const [providerName, setProviderName] = useState<ProviderName>("twillio");
 
   const [token, setToken] = useState<string | null>(null);
   const [device, setDevice] = useState<undefined | Device>();
@@ -216,6 +224,7 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
 
       let voiceNum = voiceEnabledProvider?.number;
       setProviderNumber(voiceNum);
+      setAllProviders(allNumbers);
     }
   };
 
@@ -257,14 +266,49 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
       }
     };
 
+    const getTelnyxLoginToken = async (providerNumber: string) => {
+      try {
+        setDevice(undefined);
+        setToken(null);
+        const formData = {
+          crmToken: devToken,
+          providerNumber,
+        };
+        const { data } = await axios.post(
+          `${VOICE_API_BASE_URL}/api/telnyx/loginToken`,
+          formData
+        );
+        if (data && data?.success) {
+          setToken(data?.token);
+        }
+      } catch (error: any) {
+        console.log(error?.message);
+      }
+    };
+
     if (providerNumber) {
-      getToken(providerNumber);
+      const provider = allProviders.find(
+        (item: any) => item?.number === providerNumber
+      );
+      const providerName = provider?.name;
+      setProviderName(providerName);
+      if (providerName === "twilio") {
+        getToken(providerNumber);
+      } else if (providerName === "telnyx") {
+        getTelnyxLoginToken(providerNumber);
+      }
     }
   }, [providerNumber]);
 
+  // make rtc client if provider is telnyx
+
   useEffect(() => {
-    intitializeDevice();
-  }, [token]);
+    if (providerName === "twillio") {
+      intitializeDevice();
+    } else if (providerName === "telnyx" && token && !isFreePlan) {
+      initializeTelnyxClient(token);
+    }
+  }, [token, providerName, isFreePlan]);
 
   useEffect(() => {
     getAudioDevices();
@@ -277,6 +321,108 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
       updateDeviceStatus(DEVICE_STATUS.INACTIVE, providerNumber);
     };
   }, [token, providerNumber]);
+
+  const initializeTelnyxClient = async (token: string) => {
+    // Initialize TelnyxRTC client
+    const client = new TelnyxRTC({
+      login_token: token,
+      ringtoneFile: "./sounds/ringback_tone.mp3",
+      ringbackFile: "./sounds/ringback_tone.mp3",
+    });
+    client.connect();
+
+    // Event listener for when the client is ready
+    client.on("telnyx.ready", () => {
+      console.log("Telnyx client is ready");
+      setRtcClient(client);
+    });
+
+    // Event listener for incoming call notifications
+    client.on("telnyx.notification", (notification: any) => {
+      const call = notification?.call;
+      console.log({
+        state: call?.state,
+        type: notification.type,
+        notification,
+      });
+
+      if (notification.type === "callUpdate") {
+        const callType = call?.direction;
+
+        if (callType === "outbound") {
+          // Handle outgoing call updates
+          if (call?.state === "active") {
+            setOutgoingCallAccepted(true);
+            setCallDuration(0); // Reset call duration when the call becomes active
+          } else if (
+            call?.state === "hangup" ||
+            call?.state === "destroy" ||
+            call?.state === "purge"
+          ) {
+            setOutgoingCall(null);
+            setOutgoingCallAccepted(false);
+            setCallDuration(0);
+          }
+        } else if (callType === "inbound") {
+          // Handle incoming call updates
+          if (call?.state === "ringing") {
+            setIncomingCall(call);
+          } else if (call?.state === "active") {
+            setIncomingCallAccepted(true);
+          } else if (
+            call?.state === "hangup" ||
+            call?.state === "destroy" ||
+            call?.state === "purge"
+          ) {
+            setIncomingCall(null);
+            setIncomingCallAccepted(false);
+            setCallDuration(0);
+          }
+        }
+      } else if (notification.type === "error") {
+        console.error("Telnyx error:", notification.message);
+        // Handle specific error cases if needed
+      } else if (notification.type === "message") {
+        console.log("Telnyx message:", notification.message);
+        // Handle messaging events if needed
+      }
+      // Handle additional notification types here if needed
+    });
+
+    return () => {
+      // Clean up: Disconnect and remove event listeners
+      client.disconnect();
+      setRtcClient(null);
+    };
+  };
+  const handleMakeTelnyxCall = async () => {
+    if (!phoneNumber) {
+      toast.error("Please enter phone number");
+      return;
+    }
+    if (!rtcClient) {
+      toast.error("Device is not ready for making calls");
+    }
+    const newCall: any = rtcClient?.newCall({
+      destinationNumber: phoneNumber,
+      callerNumber: providerNumber,
+      audio: true,
+      video: false,
+    });
+    setOutgoingCall(newCall);
+  };
+
+  // const disconnectTelnyxOutgoingCall = async()=>{
+
+  // }
+  const hangupTelnyxOutgoingCall = async () => {
+    if (outgoingCall) {
+      outgoingCall?.hangup();
+    }
+    setOutgoingCall(null);
+    setOutgoingCallAccepted(false);
+    setCallDuration(0);
+  };
 
   const updateDeviceStatus = async (status: any, phoneNumber: string) => {
     try {
@@ -396,9 +542,12 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
     >
       {isFreePlan ? (
         <FreePlanModal />
-      ) : providerNumber && device ? (
+      ) : (providerNumber && device) ||
+        (providerName === "telnyx" && rtcClient) ? (
         <div
-          onClick={makeOutgoingCall}
+          onClick={
+            providerName === "telnyx" ? handleMakeTelnyxCall : makeOutgoingCall
+          }
           className="w-6 h-6 cursor-pointer flex items-center justify-center bg-green-500 rounded-full"
         >
           <MdCall size={14} color="white" />
@@ -515,7 +664,13 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
           <div>
             <div className="flex items-center justify-center gap-5">
               <div
-                onClick={() => outgoingCallHangup(outgoingCall)}
+                onClick={() => {
+                  if (providerName === "twillio") {
+                    outgoingCallHangup(outgoingCall);
+                  } else if (providerName === "telnyx") {
+                    hangupTelnyxOutgoingCall();
+                  }
+                }}
                 className="cursor-pointer bg-red-600 w-10 h-10 rounded-full flex items-center justify-center"
               >
                 <ImPhoneHangUp size={22} color="white" />
@@ -659,6 +814,10 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
           </div>
         </div>
       )}
+
+      <Audio
+        stream={outgoingCall?.remoteStream || incomingCall?.remoteStream}
+      />
     </div>
   );
 };

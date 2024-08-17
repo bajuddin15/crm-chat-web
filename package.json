@@ -13,6 +13,8 @@
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@reduxjs/toolkit": "^2.1.0",
+    "@telnyx/react-client": "^1.0.2",
+    "@telnyx/webrtc": "^2.21.0",
     "@twilio/voice-sdk": "^2.10.2",
     "axios": "^1.6.7",
     "emoji-mart": "^5.5.2",
