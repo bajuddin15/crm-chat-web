@@ -292,7 +292,6 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
       );
       const providerName = provider?.name;
       setProviderName(providerName);
-      console.log("making token with twilio: ---", { providerName });
       if (providerName === "twillio") {
         getToken(providerNumber);
       } else if (providerName === "telnyx") {
@@ -530,8 +529,6 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
       return () => clearInterval(timer);
     }
   }, [outgoingCallAccepted, incomingCallAccepted]);
-
-  console.log({ providerName, providerNumber });
 
   return (
     <div
