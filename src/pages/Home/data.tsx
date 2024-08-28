@@ -207,17 +207,23 @@ const useData = () => {
   };
 
   const handleSearchSubmit = async () => {
-    if (searchInput == "") {
+    if (searchInput === "") {
       setSearchedContacts([]);
+      return; // Added to prevent unnecessary API call
     }
+
     if (!searchInput || !token) {
       return;
     }
 
     const searchedData = await getSearchContacts(token, searchInput);
-    if (searchedData) setSearchedContacts(searchedData);
-  };
 
+    if (Array.isArray(searchedData)) {
+      setSearchedContacts(searchedData);
+    } else {
+      setSearchedContacts([]); // Fallback to empty array if response is not an array
+    }
+  };
   const fetchConvContacts = async (token: any, status: string) => {
     let readContStatus = status.toLowerCase();
     setContactLoading(true);
