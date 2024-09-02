@@ -11,6 +11,7 @@ import {
   deleteNote,
   deleteTag,
   fetchLabelsByCid,
+  generateMessageFromAi,
   getAllLabelsByToken,
   getAllNotesByCid,
   getAllTagsByCid,
@@ -120,6 +121,8 @@ const useData = () => {
   const [charactersCount, setCharactersCount] = useState<number>(0);
   const [totalCharacters, setTotalCharacters] = useState<number>(0);
   const [creditCount, setCreditCount] = useState<number>(0);
+
+  const [isGeneratingAiMsg, setIsGeneratingAiMsg] = useState<boolean>(false);
 
   // auto scrolling
 
@@ -508,6 +511,26 @@ const useData = () => {
     return labels;
   };
 
+  // ai compose message
+  const generateComposeMessage = async (currentContact: any) => {
+    const userId = userProfileInfo?.id;
+    const convId = currentContact?.conversationId;
+    setIsGeneratingAiMsg(true);
+    const resData = await generateMessageFromAi(userId, convId);
+    if (resData) {
+      let msg = resData?.trim();
+      const textareaRows = msg.split("\n").length;
+      const newRows = Math.min(Math.max(1, textareaRows), 5);
+
+      if (msg?.length <= totalCharacters) {
+        setRows(newRows);
+        setMessage(msg);
+        countCharacters(msg);
+      }
+    }
+    setIsGeneratingAiMsg(false);
+  };
+
   // totalCharacters
   useEffect(() => {
     if (selectedSenderId?.defaultChannel === "whatsapp") {
@@ -726,6 +749,7 @@ const useData = () => {
     charactersCount,
     creditCount,
     totalCharacters,
+    isGeneratingAiMsg,
   };
 
   return {
@@ -785,6 +809,7 @@ const useData = () => {
     handleAssignLabel,
     handleDeleteLabel,
     handleExistingFilteredLabels,
+    generateComposeMessage,
   };
 };
 

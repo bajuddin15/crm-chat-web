@@ -1,6 +1,7 @@
 import {
   ArrowDownCircle,
   Ban,
+  Bot,
   Check,
   CheckCheck,
   ChevronDown,
@@ -92,6 +93,7 @@ const Home = () => {
     handleDeleteLabel,
     handleExistingFilteredLabels,
     handleAssignLabel,
+    generateComposeMessage,
   } = useData();
   const {
     token,
@@ -136,6 +138,7 @@ const Home = () => {
     selectedSenderId,
     creditCount,
     totalCharacters,
+    isGeneratingAiMsg,
   } = state;
 
   const unreadMsgs = useSelector(
@@ -467,34 +470,36 @@ const Home = () => {
 
                         <hr />
                         <div className="flex flex-col gap-2">
-                          {handleExistingFilteredLabels(label)?.map((item) => {
-                            return (
-                              <div
-                                key={item?.labelId}
-                                className="flex items-center cursor-pointer"
-                                onClick={() =>
-                                  handleAssignLabel(
-                                    token || "",
-                                    currentContact?.conversationId,
-                                    item?.label
-                                  )
-                                }
-                              >
-                                {assignLabelLoading && (
-                                  <Spinner
-                                    color="info"
-                                    aria-label="Info spinner loading"
-                                    size="sm"
-                                    className="mr-2 mb-1"
-                                  />
-                                )}
-                                <span className="mx-2 mt-1">
-                                  <MdLabel size={24} color="#fcba03" />
-                                </span>
-                                <span className="text-sm">{item?.label}</span>
-                              </div>
-                            );
-                          })}
+                          {handleExistingFilteredLabels(label)?.map(
+                            (item, index: number) => {
+                              return (
+                                <div
+                                  key={index}
+                                  className="flex items-center cursor-pointer"
+                                  onClick={() =>
+                                    handleAssignLabel(
+                                      token || "",
+                                      currentContact?.conversationId,
+                                      item?.label
+                                    )
+                                  }
+                                >
+                                  {assignLabelLoading && (
+                                    <Spinner
+                                      color="info"
+                                      aria-label="Info spinner loading"
+                                      size="sm"
+                                      className="mr-2 mb-1"
+                                    />
+                                  )}
+                                  <span className="mx-2 mt-1">
+                                    <MdLabel size={24} color="#fcba03" />
+                                  </span>
+                                  <span className="text-sm">{item?.label}</span>
+                                </div>
+                              );
+                            }
+                          )}
                         </div>
                       </div>
                     )}
@@ -821,6 +826,20 @@ const Home = () => {
                       />
 
                       <MergeVariableModal setMessage={setMessage} />
+
+                      <button
+                        onClick={() => generateComposeMessage(currentContact)}
+                        disabled={isGeneratingAiMsg}
+                        className="flex items-center gap-2"
+                      >
+                        <Bot color="gray" size={22} />
+
+                        {isGeneratingAiMsg && (
+                          <span className="text-sm text-blue-600">
+                            Ai is generating message...
+                          </span>
+                        )}
+                      </button>
 
                       <div>
                         {!mediaLink &&

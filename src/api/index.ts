@@ -774,6 +774,32 @@ const updateContactApi = async (token: string, contactData: any) => {
 //   return resData;
 // };
 
+const generateMessageFromAi = async (userId: string, convId: string) => {
+  if (!userId) {
+    console.log("User id required");
+    return;
+  }
+  if (!convId) {
+    console.log("Conversation id required");
+    return;
+  }
+  let resData;
+  try {
+    const apiUrl = "https://app.crm-messaging.cloud/index.php/OpenAI/compose";
+    const formData = new FormData();
+    formData.append("key", "openai-doremon");
+    formData.append("type", "con");
+    formData.append("id", userId);
+    formData.append("conId", convId);
+
+    const { data } = await axios.post(apiUrl, formData);
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
+
 export {
   getSenderIds,
   getAllTemplates,
@@ -807,4 +833,5 @@ export {
   scheduleMessage,
   updateContactApi,
   // getProviderDetails,
+  generateMessageFromAi,
 };

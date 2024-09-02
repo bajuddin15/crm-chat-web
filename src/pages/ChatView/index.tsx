@@ -6,6 +6,7 @@ import { FaCircleUser, FaUser } from "react-icons/fa6";
 import {
   ArrowDownCircle,
   Ban,
+  Bot,
   Check,
   CheckCheck,
   ChevronDown,
@@ -46,6 +47,7 @@ const ChatViewPage = () => {
     handleAddLabel,
     handleExistingFilteredLabels,
     handleAssignLabel,
+    generateComposeMessage,
   } = useData();
   const {
     token,
@@ -73,6 +75,7 @@ const ChatViewPage = () => {
     totalCharacters,
     voiceEnableNumber,
     contactProfileDetails,
+    isGeneratingAiMsg,
   } = state;
 
   // badge show
@@ -490,6 +493,19 @@ const ChatViewPage = () => {
               />
 
               <MergeVariableModal setMessage={setMessage} />
+              <button
+                onClick={() => generateComposeMessage(currentContact)}
+                disabled={isGeneratingAiMsg}
+                className="flex items-center gap-2"
+              >
+                <Bot color="gray" size={22} />
+
+                {isGeneratingAiMsg && (
+                  <span className="text-sm text-blue-600">
+                    Ai is generating message...
+                  </span>
+                )}
+              </button>
 
               <div>
                 {!mediaLink &&

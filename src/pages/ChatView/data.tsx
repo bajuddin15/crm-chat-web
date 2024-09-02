@@ -4,11 +4,13 @@ import toast from "react-hot-toast";
 import {
   addLabelByCid,
   assignConversationByCid,
+  generateMessageFromAi,
   getAllLabelsByToken,
   getContactDetails,
   getConvId,
   getConvViewChats,
   getIncomingMessages,
+  getProfileByToken,
   getSenderIds,
   getTeamMembers,
   sendMessage,
@@ -85,6 +87,9 @@ const useData = () => {
   const [totalCharacters, setTotalCharacters] = useState<number>(0);
   const [creditCount, setCreditCount] = useState<number>(0);
   const [voiceEnableNumber, setVoiceEnableNumber] = useState<string>("");
+
+  const [userProfileInfo, setUserProfileInfo] = useState<any>(null);
+  const [isGeneratingAiMsg, setIsGeneratingAiMsg] = useState<boolean>(false);
 
   // auto scrolling
 
@@ -314,6 +319,33 @@ const useData = () => {
     }
   };
 
+  const fetchProfileInfo = async (token: string) => {
+    const resData = await getProfileByToken(token);
+    if (resData && resData?.status === 200) {
+      setUserProfileInfo(resData?.data);
+    }
+  };
+
+  // ai compose message
+  // ai compose message
+  const generateComposeMessage = async (currentContact: any) => {
+    const userId = userProfileInfo?.id;
+    const convId = currentContact?.conversationId;
+    setIsGeneratingAiMsg(true);
+    const resData = await generateMessageFromAi(userId, convId);
+    if (resData) {
+      let msg = resData?.trim();
+      const textareaRows = msg.split("\n").length;
+      const newRows = Math.min(Math.max(1, textareaRows), 5);
+
+      if (msg?.length <= totalCharacters) {
+        setRows(newRows);
+        setMessage(msg);
+        countCharacters(msg);
+      }
+    }
+    setIsGeneratingAiMsg(false);
+  };
   // contact profile details
   useEffect(() => {
     const fetchContactDetails = async () => {
@@ -368,6 +400,7 @@ const useData = () => {
         fetchTeamMembers(),
         fetchLabelsOfToken(token),
         fetchProviders(),
+        fetchProfileInfo(token),
       ]);
     }
   }, [token]);
@@ -458,6 +491,7 @@ const useData = () => {
     totalCharacters,
     voiceEnableNumber,
     contactProfileDetails,
+    isGeneratingAiMsg,
   };
 
   return {
@@ -487,6 +521,7 @@ const useData = () => {
     handleAddLabel,
     handleAssignLabel,
     handleExistingFilteredLabels,
+    generateComposeMessage,
   };
 };
 
