@@ -166,6 +166,11 @@ const sendMessage = async (msgData: any) => {
     const res = await axios.post(url, formData, { headers });
     data = res?.data;
   } catch (err: any) {
+    if (err && err?.response?.data?.message) {
+      toast.error(err?.response?.data?.message);
+    } else {
+      toast.error(err?.message);
+    }
     data = null;
   }
   return data;

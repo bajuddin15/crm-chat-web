@@ -27,6 +27,9 @@ import {
 } from "../../api";
 import notificationSound from "../../assets/sounds/notification.mp3";
 import { decodeUrlString, getUniqueContacts } from "../../utils/common";
+import { Task } from "../../types/types";
+import axios from "axios";
+import { CAMPAIGN_BASE_URL } from "../../constants";
 
 interface IState {
   allContacts: Array<any>;
@@ -123,6 +126,10 @@ const useData = () => {
   const [creditCount, setCreditCount] = useState<number>(0);
 
   const [isGeneratingAiMsg, setIsGeneratingAiMsg] = useState<boolean>(false);
+
+  // tasks
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [showAllTasksComp, setShowAllTasksComp] = useState<boolean>(false);
 
   // auto scrolling
 
@@ -531,6 +538,77 @@ const useData = () => {
     setIsGeneratingAiMsg(false);
   };
 
+  // fetch tasks for conversation
+  const fetchTasksForConversation = async () => {
+    if (!currentContact || !token) return;
+    try {
+      const { data } = await axios.get(
+        `${CAMPAIGN_BASE_URL}/api/tasks/getAllTasksForConversation/${currentContact.conversationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (data && data?.success) {
+        setTasks(data?.data?.tasks);
+      }
+    } catch (error: any) {
+      console.log("Error in fetch tasks: ", error?.message);
+    }
+  };
+
+  const handleCloseOpenTask = async (taskId: string) => {
+    try {
+      const { data } = await axios.put(
+        `${CAMPAIGN_BASE_URL}/api/tasks/closeOpenTaskForConversation`,
+        { taskId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (data && data?.success) {
+        toast.success(data?.message);
+        fetchTasksForConversation();
+      }
+    } catch (error: any) {
+      console.log("Error in close open task: ", error?.message);
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const { data } = await axios.delete(
+        `${CAMPAIGN_BASE_URL}/api/tasks/deleteTaskOfConversation/${taskId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (data && data?.success) {
+        toast.success(data?.message);
+        fetchTasksForConversation();
+      }
+    } catch (error: any) {
+      console.log("Error in delete a task: ", error?.message);
+      if (error && error?.response?.data?.message) {
+        toast.error(error?.response?.data?.message);
+      } else {
+        toast.error(error?.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (token && currentContact) {
+      setTasks([]);
+      fetchTasksForConversation();
+    }
+  }, [currentContact, token]);
+
   // totalCharacters
   useEffect(() => {
     if (selectedSenderId?.defaultChannel === "whatsapp") {
@@ -750,6 +828,8 @@ const useData = () => {
     creditCount,
     totalCharacters,
     isGeneratingAiMsg,
+    tasks,
+    showAllTasksComp,
   };
 
   return {
@@ -794,6 +874,8 @@ const useData = () => {
     setSelectedFilterLabelId,
     setSelectedFilterOwnerId,
     setAssignLabelLoading,
+    setTasks,
+    setShowAllTasksComp,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
@@ -810,6 +892,9 @@ const useData = () => {
     handleDeleteLabel,
     handleExistingFilteredLabels,
     generateComposeMessage,
+    fetchTasksForConversation,
+    handleCloseOpenTask,
+    handleDeleteTask,
   };
 };
 

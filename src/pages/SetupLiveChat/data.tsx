@@ -2,7 +2,11 @@ import { useSearchParams } from "react-router-dom";
 import { getProfileByToken } from "../../api";
 import { useEffect, useState } from "react";
 
-type Tabs = "configureWidgets" | "configureChannels" | "trackingCode";
+type Tabs =
+  | "configureWidgets"
+  | "configureChannels"
+  | "trackingCode"
+  | "botSettings";
 
 const useData = () => {
   const [searchParams] = useSearchParams();

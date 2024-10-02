@@ -2,8 +2,13 @@ import ConfigureWidgets from "./Components/ConfigureWidgets";
 import TrackingCode from "./Components/TrackingCode";
 import ConfigureChannels from "./Components/ConfigureChannels";
 import useData from "./data";
+import BotSettings from "./Components/BotSettings";
 
-type Tabs = "configureWidgets" | "configureChannels" | "trackingCode";
+type Tabs =
+  | "configureWidgets"
+  | "configureChannels"
+  | "trackingCode"
+  | "botSettings";
 
 interface TabProps {
   activeTab: string;
@@ -17,6 +22,8 @@ const SetupLiveChat = () => {
     switch (tab) {
       case "configureWidgets":
         return <ConfigureWidgets setActiveTab={setActiveTab} />;
+      case "botSettings":
+        return <BotSettings setActiveTab={setActiveTab} />;
       case "configureChannels":
         return <ConfigureChannels setActiveTab={setActiveTab} />;
       case "trackingCode":
@@ -54,6 +61,19 @@ const TabNavigation: React.FC<TabProps> = ({ activeTab, setActiveTab }) => {
             }`}
           >
             Configure Widgets
+          </a>
+        </li>
+        <li className="me-2">
+          <a
+            href="#"
+            onClick={() => handleTabClick("botSettings")}
+            className={`inline-block p-4 border-b-2 rounded-t-lg ${
+              activeTab === "botSettings"
+                ? "text-blue-600 border-blue-600"
+                : "text-gray-500 border-b-transparent dark:text-gray-500 hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            }`}
+          >
+            Bot Settings
           </a>
         </li>
         {/* Tab 2: Availability */}

@@ -23,6 +23,7 @@ interface IState {
   alignment: WidgetAlignment;
   availability: Availability;
   emailNotifications: boolean;
+  autoReply: boolean;
   scriptCode: string;
 }
 
@@ -38,6 +39,7 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
     alignment: "right",
     availability: "always",
     emailNotifications: true,
+    autoReply: false,
     scriptCode: `<script
     type="text/javascript"
     async
@@ -127,7 +129,7 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
         formData
       );
       if (data && data?.success) {
-        setActiveTab("configureChannels");
+        setActiveTab("botSettings");
         toast.success(data?.message);
       }
     } catch (error: any) {
@@ -145,6 +147,10 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
 
   const handleEmailNotificationsChange = (value: boolean) => {
     setState({ ...state, emailNotifications: value });
+    setDisableSaveBtn(false);
+  };
+  const handleAutoReplyChange = (value: boolean) => {
+    setState({ ...state, autoReply: value });
     setDisableSaveBtn(false);
   };
 
@@ -403,6 +409,46 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
                 </Label>
                 <span className="text-xs">
                   You will not receive any email notifications for live chat.
+                </span>
+              </div>
+            </div>
+          </fieldset>
+          {/* for auto reply feature */}
+          <fieldset className="flex max-w-md flex-col gap-4">
+            <legend className="mb-4">Auto Reply Settings</legend>
+
+            {/* Option 1: Enable Auto Reply */}
+            <div className="flex items-center gap-2">
+              <Radio
+                id="enable-auto-reply"
+                name="auto-reply"
+                value="enable-auto-reply"
+                checked={state.autoReply === true}
+                onChange={() => handleAutoReplyChange(true)}
+              />
+              <div className="flex flex-col">
+                <Label htmlFor="enable-auto-reply">Enable Auto Reply</Label>
+                <span className="text-xs">
+                  Automatically send replies to incoming chats when you're
+                  unavailable.
+                </span>
+              </div>
+            </div>
+
+            {/* Option 2: Disable Auto Reply */}
+            <div className="flex items-center gap-2">
+              <Radio
+                id="disable-auto-reply"
+                name="auto-reply"
+                value="disable-auto-reply"
+                checked={state.autoReply === false}
+                onChange={() => handleAutoReplyChange(false)}
+              />
+              <div className="flex flex-col">
+                <Label htmlFor="disable-auto-reply">Disable Auto Reply</Label>
+                <span className="text-xs">
+                  Do not send automatic replies. You will need to manually reply
+                  to chats.
                 </span>
               </div>
             </div>

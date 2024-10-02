@@ -5,6 +5,7 @@ import { getSenderIds, getTeamMembers } from "../../api";
 import { MyRoleData } from "../../types/types";
 import { useSearchParams } from "react-router-dom";
 import { decodeUrlString } from "../../utils/common";
+import { Mail } from "lucide-react";
 
 interface IProps {
   token: any;
@@ -105,6 +106,8 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
             <div>
               {selectedValue?.defaultChannel === "whatsapp" ? (
                 <FaWhatsapp size={20} color={"green"} />
+              ) : selectedValue?.defaultChannel === "email" ? (
+                <Mail size={20} />
               ) : (
                 <FaCommentSms size={20} color={"blue"} />
               )}
@@ -125,6 +128,8 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
                     <div>
                       {item?.defaultChannel === "whatsapp" ? (
                         <FaWhatsapp size={20} color={"green"} />
+                      ) : item?.defaultChannel === "email" ? (
+                        <Mail size={20} />
                       ) : (
                         <FaCommentSms size={20} color={"blue"} />
                       )}

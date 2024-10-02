@@ -85,11 +85,11 @@ const TemplateModal = ({
       <Modal show={openModal} onClose={() => setOpenModal(false)}>
         <Modal.Header className="h-16">
           <div className="flex flex-col rounded-md">
-            <span className="text-base">Choose Whatsapp Template</span>
+            <span className="text-base">Choose Template</span>
           </div>
         </Modal.Header>
         <Modal.Body className="relative">
-          <div className="w-full bg-white py-4 sticky -top-7 left-0">
+          <div className="w-full bg-white pb-4 sticky -top-7 left-0">
             <TextInput
               id="search"
               type="text"

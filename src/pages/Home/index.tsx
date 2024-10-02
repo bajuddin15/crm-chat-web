@@ -9,6 +9,12 @@ import {
   Send,
   UserPlus,
   X,
+  CircleCheckBig,
+  Flag,
+  Mail,
+  PhoneCall,
+  Calendar,
+  Utensils,
 } from "lucide-react";
 import { TiMessages } from "react-icons/ti";
 import { IoCheckmark, IoSearch } from "react-icons/io5";
@@ -32,15 +38,10 @@ import { colors } from "../../utils/constants";
 import SenderIdModal from "../../components/Modals/SenderIdModal";
 import TemplateModal from "../../components/Modals/TemplateModal";
 import AttachmentModal from "../../components/Modals/AttachmentModal";
-// import CreateContactModal from "../../components/Modals/CreateContactModal";
 import SearchContactModal from "../../components/Modals/SearchContactModal";
 import APP_LOGO from "../../assets/images/app_logo.png";
 
-//
-import {
-  // contactStatusData,
-  getOwnerNameSlice,
-} from "../../constants";
+import { getOwnerNameSlice } from "../../constants";
 import ViewAllTags from "../../components/ViewAllTags";
 import ViewAllNotes from "../../components/ViewAllNotes";
 import { useSelector } from "react-redux";
@@ -52,6 +53,10 @@ import VoiceCall from "../../components/VoiceCall/VoiceCall";
 import { AVATAR_IMG } from "../../assets/images";
 import MergeVariableModal from "../../components/Modals/MergeVariableModal";
 import HtmlRenderer from "../../components/Common/HtmlRenderer";
+import CreateTaskModal from "../../components/Modals/CreateTaskModal";
+import moment from "moment";
+import ViewAllTasks from "../../components/ViewAllTasks";
+import EmailTemplatesModal from "../../components/Modals/EmailTemplatesModal";
 
 const Home = () => {
   const {
@@ -79,6 +84,7 @@ const Home = () => {
     setSelectedFilterLabelId,
     setSelectedFilterOwnerId,
     setContactProfileDetails,
+    setShowAllTasksComp,
     handleTextareaChange,
     handleSendMessage,
     autoTopToBottomScroll,
@@ -94,6 +100,9 @@ const Home = () => {
     handleExistingFilteredLabels,
     handleAssignLabel,
     generateComposeMessage,
+    fetchTasksForConversation,
+    handleCloseOpenTask,
+    handleDeleteTask,
   } = useData();
   const {
     token,
@@ -139,6 +148,8 @@ const Home = () => {
     creditCount,
     totalCharacters,
     isGeneratingAiMsg,
+    tasks,
+    showAllTasksComp,
   } = state;
 
   const unreadMsgs = useSelector(
@@ -802,6 +813,7 @@ const Home = () => {
                     value={message}
                     onChange={handleTextareaChange}
                     rows={rows}
+                    disabled={selectedSenderId?.defaultChannel === "email"}
                   />
 
                   <div className="flex items-center justify-between mt-1">
@@ -810,36 +822,49 @@ const Home = () => {
                         token={token}
                         setSelectedSenderId={setSelectedSenderId}
                       />
-                      <AttachmentModal
-                        mediaLink={mediaLink}
-                        setMediaLink={setMediaLink}
-                      />
-                      <TemplateModal
-                        token={token}
-                        setMessage={setMessage}
-                        selectedTemplate={selectedTemplate}
-                        setSelectedTemplate={setSelectedTemplate}
-                      />
-                      <EmojiPickerModal
-                        setSelectedEmoji={setSelectedEmoji}
-                        setMessage={setMessage}
-                      />
 
-                      <MergeVariableModal setMessage={setMessage} />
+                      {selectedSenderId?.defaultChannel === "email" ? (
+                        <EmailTemplatesModal
+                          token={token as string}
+                          currentContact={currentContact}
+                          selectedSenderId={selectedSenderId}
+                        />
+                      ) : (
+                        <>
+                          <AttachmentModal
+                            mediaLink={mediaLink}
+                            setMediaLink={setMediaLink}
+                          />
+                          <TemplateModal
+                            token={token}
+                            setMessage={setMessage}
+                            selectedTemplate={selectedTemplate}
+                            setSelectedTemplate={setSelectedTemplate}
+                          />
+                          <EmojiPickerModal
+                            setSelectedEmoji={setSelectedEmoji}
+                            setMessage={setMessage}
+                          />
 
-                      <button
-                        onClick={() => generateComposeMessage(currentContact)}
-                        disabled={isGeneratingAiMsg}
-                        className="flex items-center gap-2"
-                      >
-                        <Bot color="gray" size={22} />
+                          <MergeVariableModal setMessage={setMessage} />
 
-                        {isGeneratingAiMsg && (
-                          <span className="text-sm text-blue-600">
-                            Ai is generating message...
-                          </span>
-                        )}
-                      </button>
+                          <button
+                            onClick={() =>
+                              generateComposeMessage(currentContact)
+                            }
+                            disabled={isGeneratingAiMsg}
+                            className="flex items-center gap-2"
+                          >
+                            <Bot color="gray" size={22} />
+
+                            {isGeneratingAiMsg && (
+                              <span className="text-sm text-blue-600">
+                                Ai is generating message...
+                              </span>
+                            )}
+                          </button>
+                        </>
+                      )}
 
                       <div>
                         {!mediaLink &&
@@ -863,6 +888,7 @@ const Home = () => {
                         color="blue"
                         onClick={handleSendMessage}
                         className="p-1"
+                        disabled={selectedSenderId?.defaultChannel === "email"}
                       >
                         {sendMsgLoading ? (
                           <Spinner
@@ -909,6 +935,18 @@ const Home = () => {
               conversationId={currentContact?.conversationId}
               setShowNotesComp={setShowNotesComp}
             />
+          ) : showAllTasksComp ? (
+            <>
+              <ViewAllTasks
+                token={token as string}
+                tasks={tasks}
+                setShowAllTasksComp={setShowAllTasksComp}
+                handleCloseOpenTask={handleCloseOpenTask}
+                handleDeleteTask={handleDeleteTask}
+                fetchTasksForConversation={fetchTasksForConversation}
+                currentContact={currentContact}
+              />
+            </>
           ) : (
             <>
               <Profile
@@ -963,6 +1001,82 @@ const Home = () => {
                   </div>
                 </div>
 
+                {/* tasks box */}
+                <div className="border border-gray-300 p-4 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-medium">Tasks</h2>{" "}
+                  </div>
+                  <div className="mt-4 space-y-3">
+                    {tasks
+                      .filter((item) => !item?.completed)
+                      .slice(0, 3)
+                      .map((item) => {
+                        return (
+                          <div
+                            key={item?._id}
+                            className="flex items-center justify-between border border-gray-300 shadow-sm px-3 py-3 rounded-xl"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="mt-1">
+                                {item?.type === "To do" && (
+                                  <CircleCheckBig size={18} />
+                                )}
+                                {item?.type === "Email" && <Mail size={18} />}
+                                {item?.type === "Call" && (
+                                  <PhoneCall size={18} />
+                                )}
+                                {item?.type === "Meeting" && (
+                                  <Calendar size={18} />
+                                )}
+                                {item?.type === "Lunch" && (
+                                  <Utensils size={18} />
+                                )}
+                                {item?.type === "Deadline" && (
+                                  <Flag size={18} />
+                                )}
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">
+                                  {item?.name}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {moment(item?.createdAt).format(
+                                    "DD/MM/YYYY [at] HH:mm"
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                            <div>
+                              <button
+                                onClick={() => handleCloseOpenTask(item?._id)}
+                                className="text-sm border border-gray-300 hover:bg-gray-50 px-3 py-[6px] rounded-full"
+                              >
+                                Done
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                    {tasks.filter((item) => !item?.completed).length > 0 && (
+                      <button
+                        onClick={() => setShowAllTasksComp(true)}
+                        className="w-full py-2 text-sm bg-blue-600 hover:bg-blue-600/90 text-white text-center rounded-xl shadow-sm cursor-pointer"
+                      >
+                        View All (
+                        {tasks.filter((item) => !item?.completed).length})
+                      </button>
+                    )}
+                    {currentContact && (
+                      <CreateTaskModal
+                        token={token as string}
+                        currentContact={currentContact}
+                        fetchTasksForConversation={fetchTasksForConversation}
+                      />
+                    )}
+                  </div>
+                </div>
+
                 {/* labels box */}
                 {allLabels?.length > 0 && (
                   <div className="border border-gray-300 p-4 rounded-xl">
@@ -1000,6 +1114,7 @@ const Home = () => {
                     </div>
                   </div>
                 )}
+
                 {/* add tag */}
                 <div className="border border-gray-300 p-4 rounded-xl">
                   <div className="flex flex-col space-y-4">
