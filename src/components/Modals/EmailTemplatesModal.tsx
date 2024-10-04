@@ -169,7 +169,7 @@ const TemplateEditModal: React.FC<TemplateEditProps> = ({
   const handleSendEmail = async () => {
     try {
       setLoading(true);
-      let toEmail = "";
+      let toEmail = currentContact?.email || "";
       if (!currentContact?.email) {
         const res = await getContactDetails(token, currentContact?.contact);
         const resData = res?.data;
@@ -178,6 +178,11 @@ const TemplateEditModal: React.FC<TemplateEditProps> = ({
           return;
         }
         toEmail = resData?.email;
+      }
+
+      if (!toEmail) {
+        toast.error("Contact email is required");
+        return;
       }
 
       let content = item?.content;
@@ -237,7 +242,7 @@ const TemplateEditModal: React.FC<TemplateEditProps> = ({
     <div>
       <div
         className={`${
-          item?.name === selectedTemplate?.name
+          item?._id === selectedTemplate?._id
             ? "bg-blue-600 text-white"
             : "bg-gray-200"
         } p-2 rounded-md cursor-pointer`}

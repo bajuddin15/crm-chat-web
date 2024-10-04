@@ -11,12 +11,13 @@ type Tabs =
   | "botSettings";
 
 interface TabProps {
+  isFreePlan: boolean;
   activeTab: string;
   setActiveTab: any;
 }
 
 const SetupLiveChat = () => {
-  const { activeTab, setActiveTab } = useData();
+  const { isFreePlan, activeTab, setActiveTab } = useData();
 
   const getTabComponent = (tab: Tabs) => {
     switch (tab) {
@@ -32,7 +33,11 @@ const SetupLiveChat = () => {
   };
   return (
     <div className="w-full h-screen overflow-y-auto px-4 md:px-10">
-      <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      <TabNavigation
+        isFreePlan={isFreePlan}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
 
       <div className="mt-4">{getTabComponent(activeTab)}</div>
     </div>
@@ -41,7 +46,11 @@ const SetupLiveChat = () => {
 
 export default SetupLiveChat;
 
-const TabNavigation: React.FC<TabProps> = ({ activeTab, setActiveTab }) => {
+const TabNavigation: React.FC<TabProps> = ({
+  isFreePlan,
+  activeTab,
+  setActiveTab,
+}) => {
   const handleTabClick = (tabName: Tabs) => {
     setActiveTab(tabName); // Update the active tab state when a tab is clicked
   };
@@ -63,19 +72,21 @@ const TabNavigation: React.FC<TabProps> = ({ activeTab, setActiveTab }) => {
             Configure Widgets
           </a>
         </li>
-        <li className="me-2">
-          <a
-            href="#"
-            onClick={() => handleTabClick("botSettings")}
-            className={`inline-block p-4 border-b-2 rounded-t-lg ${
-              activeTab === "botSettings"
-                ? "text-blue-600 border-blue-600"
-                : "text-gray-500 border-b-transparent dark:text-gray-500 hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-            }`}
-          >
-            Bot Settings
-          </a>
-        </li>
+        {!isFreePlan && (
+          <li className="me-2">
+            <a
+              href="#"
+              onClick={() => handleTabClick("botSettings")}
+              className={`inline-block p-4 border-b-2 rounded-t-lg ${
+                activeTab === "botSettings"
+                  ? "text-blue-600 border-blue-600"
+                  : "text-gray-500 border-b-transparent dark:text-gray-500 hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+              }`}
+            >
+              Bot Settings
+            </a>
+          </li>
+        )}
         {/* Tab 2: Availability */}
         <li className="me-2">
           <a

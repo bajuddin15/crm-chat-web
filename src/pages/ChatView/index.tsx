@@ -28,6 +28,8 @@ import EmojiPickerModal from "../../components/Modals/EmojiPickerModal";
 import useData from "./data";
 import MergeVariableModal from "../../components/Modals/MergeVariableModal";
 import HtmlRenderer from "../../components/Common/HtmlRenderer";
+import ShortUrlModal from "../../components/Modals/ShortUrlModal";
+import EmailTemplatesModal from "../../components/Modals/EmailTemplatesModal";
 
 const ChatViewPage = () => {
   const {
@@ -477,35 +479,49 @@ const ChatViewPage = () => {
                 token={token}
                 setSelectedSenderId={setSelectedSenderId}
               />
-              <AttachmentModal
-                mediaLink={mediaLink}
-                setMediaLink={setMediaLink}
-              />
-              <TemplateModal
-                token={token}
-                setMessage={setMessage}
-                selectedTemplate={selectedTemplate}
-                setSelectedTemplate={setSelectedTemplate}
-              />
-              <EmojiPickerModal
-                setSelectedEmoji={setSelectedEmoji}
-                setMessage={setMessage}
-              />
 
-              <MergeVariableModal setMessage={setMessage} />
-              <button
-                onClick={() => generateComposeMessage(currentContact)}
-                disabled={isGeneratingAiMsg}
-                className="flex items-center gap-2"
-              >
-                <Bot color="gray" size={22} />
+              {selectedSenderId?.defaultChannel === "email" ? (
+                <EmailTemplatesModal
+                  token={token as string}
+                  currentContact={currentContact}
+                  selectedSenderId={selectedSenderId}
+                />
+              ) : (
+                <>
+                  <AttachmentModal
+                    mediaLink={mediaLink}
+                    setMediaLink={setMediaLink}
+                  />
+                  <TemplateModal
+                    token={token}
+                    setMessage={setMessage}
+                    selectedTemplate={selectedTemplate}
+                    setSelectedTemplate={setSelectedTemplate}
+                  />
+                  <EmojiPickerModal
+                    setSelectedEmoji={setSelectedEmoji}
+                    setMessage={setMessage}
+                  />
 
-                {isGeneratingAiMsg && (
-                  <span className="text-sm text-blue-600">
-                    Ai is generating message...
-                  </span>
-                )}
-              </button>
+                  <ShortUrlModal setMessage={setMessage} />
+
+                  <MergeVariableModal setMessage={setMessage} />
+
+                  <button
+                    onClick={() => generateComposeMessage(currentContact)}
+                    disabled={isGeneratingAiMsg}
+                    className="flex items-center gap-2"
+                  >
+                    <Bot color="gray" size={22} />
+
+                    {isGeneratingAiMsg && (
+                      <span className="text-sm text-blue-600">
+                        Ai is generating message...
+                      </span>
+                    )}
+                  </button>
+                </>
+              )}
 
               <div>
                 {!mediaLink &&
@@ -529,6 +545,7 @@ const ChatViewPage = () => {
                 color="blue"
                 onClick={handleSendMessage}
                 className="p-1"
+                disabled={selectedSenderId?.defaultChannel === "email"}
               >
                 {sendMsgLoading ? (
                   <Spinner

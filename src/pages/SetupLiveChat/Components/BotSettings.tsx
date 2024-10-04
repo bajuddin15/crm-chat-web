@@ -1,5 +1,5 @@
 import { Button } from "flowbite-react";
-import { Plus, Trash2 } from "lucide-react";
+import { ExternalLink, Plus, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import useData from "../data";
 import { LIVE_CHAT_API_URL } from "../../../constants";
@@ -210,6 +210,28 @@ const BotSettings: React.FC<BotSettingsProps> = ({ setActiveTab }) => {
           <Button disabled={loading} onClick={handleSubmit} color="blue">
             {loading ? "Saving.." : "Save"}
           </Button>
+        </div>
+      </div>
+
+      {/* pricing */}
+      <div className="bg-white shadow-sm p-5 border border-gray-300 rounded-md">
+        <h2 className="text-base font-medium">Pricing</h2>
+        <div className="flex items-center justify-between bg-gray-50 p-5 rounded-md border border-gray-300 mt-2">
+          <div>
+            <h2 className="text-sm font-medium">Current plan</h2>
+            <p className="text-sm">$0.02 per response</p>
+          </div>
+          <a
+            href="https://buy.crm-messaging.cloud/b/bIY15K6k2eQl5Bm5l5"
+            target="_blank"
+            className="text-sm bg-blue-50 text-blue-600 flex items-center gap-1 px-3 py-2 rounded-md"
+          >
+            <ExternalLink size={18} />
+            <span className="text-sm">
+              Upgrade to unlimited plan for Open AI responses to ($79/month)
+              {/* Upgrade to unlimited plan ($49/month) */}
+            </span>
+          </a>
         </div>
       </div>
     </div>

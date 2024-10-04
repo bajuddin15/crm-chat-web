@@ -1,10 +1,11 @@
 import axios from "axios";
-import { Button } from "flowbite-react";
+import { Alert, Button } from "flowbite-react";
 import React from "react";
 import { LIVE_CHAT_API_URL } from "../../../constants";
 import toast from "react-hot-toast";
 import useData from "../data";
 import { Minus, Plus } from "lucide-react";
+import { HiInformationCircle } from "react-icons/hi";
 
 interface FormState {
   whatsappNumber: string;
@@ -25,7 +26,7 @@ interface IState {
 }
 
 const ConfigureChannels: React.FC<IProps> = ({ setActiveTab }) => {
-  const { token } = useData();
+  const { token, isFreePlan } = useData();
   const [values, setValues] = React.useState<FormState>({
     whatsappNumber: "",
     smsNumber: "",
@@ -121,6 +122,17 @@ const ConfigureChannels: React.FC<IProps> = ({ setActiveTab }) => {
   }, [token]);
   return (
     <div className="pb-5 space-y-5 w-full md:w-[500px]">
+      {isFreePlan && (
+        <Alert color="failure" icon={HiInformationCircle}>
+          <a
+            className="font-medium underline"
+            href="https://crm-messaging.cloud/pricing?utm_source=voice-chat"
+            target="_blank"
+          >
+            You are on free plan! Upgrade your plan to pro features
+          </a>
+        </Alert>
+      )}
       <div className="flex flex-col gap-2">
         <label htmlFor="whatsappNumber" className="text-sm">
           WhatsApp Number

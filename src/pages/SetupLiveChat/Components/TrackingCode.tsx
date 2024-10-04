@@ -1,10 +1,23 @@
+import { Alert } from "flowbite-react";
 import { handleCopy } from "../../../utils/common";
 import useData from "../data";
+import { HiInformationCircle } from "react-icons/hi";
 
 const TrackingCode = () => {
-  const { token } = useData();
+  const { token, isFreePlan } = useData();
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full md:w-[700px]">
+      {isFreePlan && (
+        <Alert color="failure" icon={HiInformationCircle}>
+          <a
+            className="font-medium underline"
+            href="https://crm-messaging.cloud/pricing?utm_source=voice-chat"
+            target="_blank"
+          >
+            You are on free plan! Upgrade your plan to pro features
+          </a>
+        </Alert>
+      )}
       <h2 className="text-base font-semibold">
         Install the tracking code on your website
       </h2>

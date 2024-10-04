@@ -804,6 +804,29 @@ const generateMessageFromAi = async (userId: string, convId: string) => {
   }
   return resData;
 };
+const addAiCredit = async (credits: any, userId: any) => {
+  const url = "https://app.crm-messaging.cloud/index.php/Admin/addAiCredit";
+
+  let resData;
+  try {
+    const cred = `-${credits}`;
+    const uid = userId;
+    console.log({ cred, uid });
+    const formData = new FormData();
+    formData.append("cred", cred);
+    formData.append("uid", uid);
+
+    const { data } = await axios.post(url, formData, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+    resData = data;
+  } catch (error) {
+    resData = null;
+  }
+  return resData;
+};
 
 export {
   getSenderIds,
@@ -839,4 +862,5 @@ export {
   updateContactApi,
   // getProviderDetails,
   generateMessageFromAi,
+  addAiCredit,
 };

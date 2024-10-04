@@ -3,7 +3,7 @@ import React from "react";
 import { BsInfoCircleFill } from "react-icons/bs";
 import { colors } from "../../../utils/constants";
 import useData from "../data";
-import { Button, FileInput, Label, Radio } from "flowbite-react";
+import { Alert, Button, FileInput, Label, Radio } from "flowbite-react";
 import axios from "axios";
 import { LIVE_CHAT_API_URL } from "../../../constants";
 import toast from "react-hot-toast";
@@ -13,6 +13,7 @@ import {
   setJwtTokenInLocalStorage,
 } from "../../../utils/common";
 import { useAuthContext } from "../../../context/AuthContext";
+import { HiInformationCircle } from "react-icons/hi";
 
 type WidgetAlignment = "left" | "right";
 type Availability = "default" | "always";
@@ -28,7 +29,7 @@ interface IState {
 }
 
 const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
-  const { token, userProfileInfo } = useData();
+  const { token, isFreePlan, userProfileInfo } = useData();
 
   const { setAuthUser } = useAuthContext();
   const [disableSaveBtn, setDisableSaveBtn] = React.useState<boolean>(true);
@@ -129,7 +130,12 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
         formData
       );
       if (data && data?.success) {
-        setActiveTab("botSettings");
+        if (!isFreePlan) {
+          // not free plan
+          setActiveTab("botSettings");
+        } else {
+          setActiveTab("configureChannels");
+        }
         toast.success(data?.message);
       }
     } catch (error: any) {
@@ -212,6 +218,18 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full h-full pb-3">
       <div className="space-y-5">
+        {isFreePlan && (
+          <Alert color="failure" icon={HiInformationCircle}>
+            <a
+              className="font-medium underline"
+              href="https://crm-messaging.cloud/pricing?utm_source=voice-chat"
+              target="_blank"
+            >
+              You are on free plan! Upgrade your plan to pro features
+            </a>
+          </Alert>
+        )}
+
         <h2 className="text-base font-semibold">Display</h2>
 
         <div className="flex flex-col gap-1">
@@ -414,45 +432,47 @@ const ConfigureWidgets = ({ setActiveTab }: { setActiveTab: any }) => {
             </div>
           </fieldset>
           {/* for auto reply feature */}
-          <fieldset className="flex max-w-md flex-col gap-4">
-            <legend className="mb-4">Auto Reply Settings</legend>
+          {!isFreePlan && (
+            <fieldset className="flex max-w-md flex-col gap-4">
+              <legend className="mb-4">Auto Reply Settings</legend>
 
-            {/* Option 1: Enable Auto Reply */}
-            <div className="flex items-center gap-2">
-              <Radio
-                id="enable-auto-reply"
-                name="auto-reply"
-                value="enable-auto-reply"
-                checked={state.autoReply === true}
-                onChange={() => handleAutoReplyChange(true)}
-              />
-              <div className="flex flex-col">
-                <Label htmlFor="enable-auto-reply">Enable Auto Reply</Label>
-                <span className="text-xs">
-                  Automatically send replies to incoming chats when you're
-                  unavailable.
-                </span>
+              {/* Option 1: Enable Auto Reply */}
+              <div className="flex items-center gap-2">
+                <Radio
+                  id="enable-auto-reply"
+                  name="auto-reply"
+                  value="enable-auto-reply"
+                  checked={state.autoReply === true}
+                  onChange={() => handleAutoReplyChange(true)}
+                />
+                <div className="flex flex-col">
+                  <Label htmlFor="enable-auto-reply">Enable Auto Reply</Label>
+                  <span className="text-xs">
+                    Automatically send replies to incoming chats when you're
+                    unavailable.
+                  </span>
+                </div>
               </div>
-            </div>
 
-            {/* Option 2: Disable Auto Reply */}
-            <div className="flex items-center gap-2">
-              <Radio
-                id="disable-auto-reply"
-                name="auto-reply"
-                value="disable-auto-reply"
-                checked={state.autoReply === false}
-                onChange={() => handleAutoReplyChange(false)}
-              />
-              <div className="flex flex-col">
-                <Label htmlFor="disable-auto-reply">Disable Auto Reply</Label>
-                <span className="text-xs">
-                  Do not send automatic replies. You will need to manually reply
-                  to chats.
-                </span>
+              {/* Option 2: Disable Auto Reply */}
+              <div className="flex items-center gap-2">
+                <Radio
+                  id="disable-auto-reply"
+                  name="auto-reply"
+                  value="disable-auto-reply"
+                  checked={state.autoReply === false}
+                  onChange={() => handleAutoReplyChange(false)}
+                />
+                <div className="flex flex-col">
+                  <Label htmlFor="disable-auto-reply">Disable Auto Reply</Label>
+                  <span className="text-xs">
+                    Do not send automatic replies. You will need to manually
+                    reply to chats.
+                  </span>
+                </div>
               </div>
-            </div>
-          </fieldset>
+            </fieldset>
+          )}
         </div>
 
         <div className="py-4">

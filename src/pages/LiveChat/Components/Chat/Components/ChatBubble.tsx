@@ -20,9 +20,11 @@ const ChatBubble: React.FC<IProps> = ({ item }) => {
         <div className="flex justify-start gap-2.5">
           <div className="flex flex-col gap-1 max-w-[80%]">
             <div className="flex flex-col leading-1.5 px-3 py-2 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
-              <p className="text-sm font-normal text-gray-900 dark:text-white">
-                {item.message}
-              </p>
+              <div
+                dangerouslySetInnerHTML={{ __html: item.message }}
+                className="text-sm font-normal text-gray-900 dark:text-white"
+              />
+
               {item?.mediaType === "image" && (
                 <div className="group relative my-2.5">
                   <div className="absolute w-full h-full bg-gray-900/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center">
@@ -113,9 +115,11 @@ const ChatBubble: React.FC<IProps> = ({ item }) => {
           {(item.message || item.mediaUrl) && (
             <div className="flex flex-col gap-1 max-w-[80%]">
               <div className="flex flex-col leading-1.5 px-3 py-2 border-gray-200 bg-blue-100 rounded-s-xl rounded-ee-xl dark:bg-gray-700">
-                <p className="text-sm font-normal text-gray-900 dark:text-white">
-                  {item.message}
-                </p>
+                <div
+                  dangerouslySetInnerHTML={{ __html: item.message }}
+                  className="text-sm font-normal text-gray-900 dark:text-white"
+                />
+
                 {item?.mediaType === "image" && (
                   <div className="group relative my-2.5">
                     <div className="absolute w-full h-full bg-gray-900/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center">

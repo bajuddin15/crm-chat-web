@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
+  addAiCredit,
   addLabelByCid,
   addNoteByCid,
   addTagByCid,
@@ -525,6 +526,8 @@ const useData = () => {
     setIsGeneratingAiMsg(true);
     const resData = await generateMessageFromAi(userId, convId);
     if (resData) {
+      const credits = 0.02;
+      await addAiCredit(credits, userId);
       let msg = resData?.trim();
       const textareaRows = msg.split("\n").length;
       const newRows = Math.min(Math.max(1, textareaRows), 5);

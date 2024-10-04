@@ -57,6 +57,7 @@ import CreateTaskModal from "../../components/Modals/CreateTaskModal";
 import moment from "moment";
 import ViewAllTasks from "../../components/ViewAllTasks";
 import EmailTemplatesModal from "../../components/Modals/EmailTemplatesModal";
+import ShortUrlModal from "../../components/Modals/ShortUrlModal";
 
 const Home = () => {
   const {
@@ -845,6 +846,8 @@ const Home = () => {
                             setSelectedEmoji={setSelectedEmoji}
                             setMessage={setMessage}
                           />
+
+                          <ShortUrlModal setMessage={setMessage} />
 
                           <MergeVariableModal setMessage={setMessage} />
 
