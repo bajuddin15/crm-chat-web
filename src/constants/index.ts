@@ -4,6 +4,7 @@ export const VOICE_API_BASE_URL = "https://voice.crm-messaging.cloud";
 export const SOCKET_URL = "https://live-chat-api.crm-messaging.cloud";
 export const LIVE_CHAT_API_URL = "https://live-chat-api.crm-messaging.cloud";
 export const CAMPAIGN_BASE_URL = "https://campaigns.crm-messaging.cloud";
+export const WORKFLOW_BASE_URL = "https://workflows.crm-messaging.cloud";
 
 export const AVATAR_URL =
   "https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg";
