@@ -1,5 +1,5 @@
 import { Button, Modal, TextInput } from "flowbite-react";
-import { NotepadText } from "lucide-react";
+import { ExternalLink, NotepadText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getAllTemplates } from "../../api";
 import { IoSearch } from "react-icons/io5";
@@ -83,9 +83,17 @@ const TemplateModal = ({
         <NotepadText color="gray" size={20} />
       </div>
       <Modal show={openModal} onClose={() => setOpenModal(false)}>
-        <Modal.Header className="h-16">
+        <Modal.Header className="h-16 flex items-center">
           <div className="flex flex-col rounded-md">
             <span className="text-base">Choose Template</span>
+            <a
+              className="text-sm font-normal text-blue-600 flex items-center gap-1 hover:underline"
+              href="https://app.crm-messaging.cloud/index.php/App/template"
+              target="_blank"
+            >
+              <span>Create New Template</span>
+              <ExternalLink size={16} />
+            </a>
           </div>
         </Modal.Header>
         <Modal.Body className="relative">

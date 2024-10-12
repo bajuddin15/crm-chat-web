@@ -39,6 +39,8 @@ export type Template = {
   _id: string;
   crmToken: string;
   name: string;
+  subject: string;
+  preheader: string;
   content: string;
   imageUrl: string;
   type: "html" | "text";

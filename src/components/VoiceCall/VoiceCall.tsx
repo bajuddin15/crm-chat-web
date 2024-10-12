@@ -218,12 +218,24 @@ const VoiceCall: React.FC<IProps> = ({ devToken, currentContact }) => {
         }
       }
 
-      const voiceEnabledProvider = allNumbers?.find(
-        (item: any) => item?.voice === "1"
-      );
+      const voiceNumbers = allNumbers.filter((item) => item?.voice === "1");
+      // Check if there are any voice numbers available
+      if (voiceNumbers.length > 0) {
+        // Get a random index between 0 and the length of voiceNumbers array
+        const randomIndex = Math.floor(Math.random() * voiceNumbers.length);
 
-      let voiceNum = voiceEnabledProvider?.number;
-      setProviderNumber(voiceNum);
+        // Pick the random voice number
+        const randomVoiceNumber = voiceNumbers[randomIndex];
+
+        console.log("Random Voice Number:", randomVoiceNumber);
+
+        let voiceNum = randomVoiceNumber?.number;
+        console.log({ allNumbers, voiceNumbers, voiceNum });
+        setProviderNumber(voiceNum);
+      } else {
+        console.log("No voice numbers available");
+      }
+
       setAllProviders(allNumbers);
     }
   };

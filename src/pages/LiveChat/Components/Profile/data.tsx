@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 import axios from "axios";
@@ -35,6 +35,9 @@ const useData = () => {
 
   const [convStatus, setConvStatus] = React.useState("");
 
+  // auto reply
+  const [isAutoReply, setIsAutoReply] = useState<boolean>(false);
+
   const fetchAllLabelsOfConversation = async () => {
     try {
       const jwtToken = getJwtTokenFromLocalStorage();
@@ -52,6 +55,19 @@ const useData = () => {
       }
     } catch (error: any) {
       console.log("Error : ", error?.message);
+    }
+  };
+  const fetchConversation = async () => {
+    const jwtToken = getJwtTokenFromLocalStorage();
+    const headers = {
+      Authorization: `Bearer ${jwtToken}`,
+    };
+    const { data } = await axios.get(
+      `${LIVE_CHAT_API_URL}/api/v1/conversations/${selectedConversation?._id}`,
+      { headers }
+    );
+    if (data && data?.success) {
+      setIsAutoReply(data?.conversation?.autoReply);
     }
   };
   const handleRemoveLabel = async (labelId: string) => {
@@ -104,8 +120,35 @@ const useData = () => {
     }
   };
 
+  const handleChangeBotStatus = async (checked: boolean) => {
+    // changeAutoReplySetting
+    try {
+      const jwtToken = getJwtTokenFromLocalStorage();
+      if (jwtToken) {
+        const headers = {
+          Authorization: `Bearer ${jwtToken}`,
+        };
+        const formData = {
+          autoReply: checked,
+        };
+        const { data } = await axios.put(
+          `${LIVE_CHAT_API_URL}/api/v1/conversations/changeAutoReplySetting/${selectedConversation?._id}`,
+          formData,
+          { headers }
+        );
+        if (data && data?.success) {
+          setIsAutoReply(checked);
+          toast.success(data?.message);
+        }
+      }
+    } catch (error: any) {
+      console.log("Error: ", error?.message);
+    }
+  };
+
   React.useEffect(() => {
     if (selectedConversation) {
+      fetchConversation();
       fetchAllLabelsOfConversation();
       setConvStatus(selectedConversation?.status);
     }
@@ -125,6 +168,7 @@ const useData = () => {
     showDeleteLabelId,
     labels,
     convStatus,
+    isAutoReply,
   };
 
   return {
@@ -133,8 +177,10 @@ const useData = () => {
     setUnreadNotifications,
     setShowDeleteLabelId,
     setConvStatus,
+    setIsAutoReply,
     handleRemoveLabel,
     handleChangeConversationStatus,
+    handleChangeBotStatus,
   };
 };
 

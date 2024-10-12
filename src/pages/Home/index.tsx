@@ -46,7 +46,7 @@ import ViewAllTags from "../../components/ViewAllTags";
 import ViewAllNotes from "../../components/ViewAllNotes";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import SidebarDrawer from "../../components/SidebarDrawer";
 import EditContactInfo from "../../components/Modals/EditContactInfo";
 import VoiceCall from "../../components/VoiceCall/VoiceCall";
@@ -60,6 +60,8 @@ import EmailTemplatesModal from "../../components/Modals/EmailTemplatesModal";
 import ShortUrlModal from "../../components/Modals/ShortUrlModal";
 
 const Home = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const {
     state,
     setMessage,
@@ -1078,6 +1080,29 @@ const Home = () => {
                       />
                     )}
                   </div>
+                </div>
+
+                {/* add to workflow */}
+                <div className="border border-gray-300 p-4 rounded-xl">
+                  <div className="flex flex-col gap-1">
+                    <h2 className="text-sm font-medium">Add to workflows</h2>{" "}
+                    <p className="text-xs text-gray-500">
+                      Use workflows to automate actions for this project
+                    </p>
+                  </div>
+                  <button
+                    onClick={() =>
+                      navigate(`/workflow-memberships${location.search}`, {
+                        state: {
+                          currentContact,
+                          contactProfileDetails,
+                        },
+                      })
+                    }
+                    className="w-full py-2 mt-5 text-sm bg-blue-600 hover:bg-blue-600/90 text-white text-center rounded-xl shadow-sm cursor-pointer"
+                  >
+                    Manage
+                  </button>
                 </div>
 
                 {/* labels box */}

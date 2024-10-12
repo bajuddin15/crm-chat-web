@@ -5,6 +5,7 @@ import NewMessage from "./pages/NewMessage";
 import ChatViewPage from "./pages/ChatView";
 import LiveChatPage from "./pages/LiveChat";
 import SetupLiveChat from "./pages/SetupLiveChat";
+import WorkflowMemberships from "./pages/WorkflowMemberships";
 
 const App = () => {
   return (
@@ -16,6 +17,8 @@ const App = () => {
         <Route path="/chat" element={<ChatViewPage />} />
         <Route path="/liveChat" element={<LiveChatPage />} />
         <Route path="/setupLiveChat" element={<SetupLiveChat />} />
+
+        <Route path="/workflow-memberships" element={<WorkflowMemberships />} />
       </Routes>
     </BrowserRouter>
   );

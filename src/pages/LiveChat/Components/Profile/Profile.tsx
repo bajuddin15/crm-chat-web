@@ -5,6 +5,7 @@ import { RootState } from "../../../../store";
 import useData from "./data";
 import Notifications from "./Components/Notifications";
 import { X } from "lucide-react";
+import { ToggleSwitch } from "flowbite-react";
 
 interface IProps {
   fetchConversations: any;
@@ -21,6 +22,7 @@ const Profile: React.FC<IProps> = ({ fetchConversations }) => {
     setShowDeleteLabelId,
     handleRemoveLabel,
     handleChangeConversationStatus,
+    handleChangeBotStatus,
   } = useData();
   const {
     showNotifications,
@@ -28,6 +30,7 @@ const Profile: React.FC<IProps> = ({ fetchConversations }) => {
     showDeleteLabelId,
     labels,
     convStatus,
+    isAutoReply,
   } = state;
 
   if (showNotifications) {
@@ -82,6 +85,17 @@ const Profile: React.FC<IProps> = ({ fetchConversations }) => {
               {selectedConversation?.phoneNumber}
             </span>
           </div>
+
+          <div className="text-sm flex items-center gap-2">
+            <label htmlFor="botSetting">
+              {isAutoReply ? "Deactivate" : "Activate"} Bot
+            </label>
+
+            <ToggleSwitch
+              checked={isAutoReply}
+              onChange={(checked: boolean) => handleChangeBotStatus(checked)}
+            />
+          </div>
         </div>
 
         {labels?.length > 0 && (
@@ -114,7 +128,7 @@ const Profile: React.FC<IProps> = ({ fetchConversations }) => {
         )}
 
         {/* mark close/open conversation */}
-        <div>
+        <div className="space-y-4">
           <button
             onClick={async () => {
               let status = convStatus === "open" ? "closed" : "open";

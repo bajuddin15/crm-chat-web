@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Template } from "../../types/types";
 import axios from "axios";
 import { CAMPAIGN_BASE_URL } from "../../constants";
-import { Mail } from "lucide-react";
+import { ExternalLink, Mail } from "lucide-react";
 import { IoSearch } from "react-icons/io5";
 import toast from "react-hot-toast";
 import { getContactDetails } from "../../api";
@@ -92,9 +92,17 @@ const EmailTemplatesModal: React.FC<IProps> = ({
         <Mail color="gray" size={20} />
       </div>
       <Modal show={openModal} onClose={() => setOpenModal(false)}>
-        <Modal.Header className="h-16">
+        <Modal.Header className="h-16 flex items-center">
           <div className="flex flex-col rounded-md">
             <span className="text-base">Choose Email Template</span>
+            <a
+              className="text-sm font-normal text-blue-600 flex items-center gap-1 hover:underline"
+              href={`https://campaigns.crm-messaging.cloud/email-templates/?token=${token}`}
+              target="_blank"
+            >
+              <span>Create New Template</span>
+              <ExternalLink size={16} />
+            </a>
           </div>
         </Modal.Header>
         <Modal.Body className="relative">
@@ -162,8 +170,8 @@ const TemplateEditModal: React.FC<TemplateEditProps> = ({
 }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [disabledSubmitBtn, setDisabledSubmitBtn] = useState<boolean>(false);
-  const [subject, setSubject] = useState<string>("");
-  const [preheader, setPreheader] = useState<string>("");
+  const [subject, setSubject] = useState<string>(item?.subject || "");
+  const [preheader, setPreheader] = useState<string>(item?.preheader || "");
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSendEmail = async () => {
