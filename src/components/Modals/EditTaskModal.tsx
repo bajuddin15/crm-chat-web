@@ -154,7 +154,6 @@ const EditTaskModal: React.FC<IProps> = ({
         toEmail,
       };
 
-      console.log({ formValues, formData });
       setLoading(true);
       const { data } = await axios.put(
         `${CAMPAIGN_BASE_URL}/api/tasks/editTaskForConversation/${currentTask?._id}`,

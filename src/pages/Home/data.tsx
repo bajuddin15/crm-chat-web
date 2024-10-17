@@ -202,7 +202,11 @@ const useData = () => {
 
     if (token && currentContact) {
       Promise.all([
-        fetchConvChats(token, currentContact?.contact),
+        fetchConvChats(
+          token,
+          currentContact?.contact,
+          currentContact?.conversationId
+        ),
         fetchNewContacts(token),
       ]);
     }
@@ -256,8 +260,12 @@ const useData = () => {
     setContactLoading(false);
   };
 
-  const fetchConvChats = async (token: any, contact: string) => {
-    const chatsData = await getConvViewChats(token, contact);
+  const fetchConvChats = async (
+    token: any,
+    contact: string,
+    conversationId: string
+  ) => {
+    const chatsData = await getConvViewChats(token, contact, conversationId);
     if (chatsData && chatsData?.status === 200) {
       let newChats = chatsData?.data?.conArr;
       let chatsNew = [...newChats].reverse();
@@ -687,7 +695,11 @@ const useData = () => {
     if (token && currentContact) {
       const fetchChats = async () => {
         setChatLoading(true);
-        await fetchConvChats(token, currentContact?.contact);
+        await fetchConvChats(
+          token,
+          currentContact?.contact,
+          currentContact?.conversationId
+        );
         setChatLoading(false);
       };
       fetchChats();

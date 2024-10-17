@@ -18,6 +18,9 @@ interface StoreState {
   filterLabelId: string;
   filterOwnerId: string;
   unreadMessagesOfUsers: any;
+
+  // not livechat
+  providers: any[];
 }
 
 const initialState: StoreState = {
@@ -34,6 +37,7 @@ const initialState: StoreState = {
   filterLabelId: "",
   filterOwnerId: "",
   unreadMessagesOfUsers: {}, // it store all users unread msgs
+  providers: [],
 };
 
 const storeSlice: any = createSlice({
@@ -88,6 +92,9 @@ const storeSlice: any = createSlice({
     setUnreadMessagesOfUsers: (state, action: PayloadAction<any>) => {
       state.unreadMessagesOfUsers = action.payload;
     },
+    setProviders: (state, action: PayloadAction<any>) => {
+      state.providers = action.payload;
+    },
   },
 });
 
@@ -106,5 +113,6 @@ export const {
   setFilterLabelId,
   setFilterOwnerId,
   setUnreadMessagesOfUsers,
+  setProviders,
 } = storeSlice.actions;
 export default storeSlice.reducer;

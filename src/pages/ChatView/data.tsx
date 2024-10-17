@@ -9,7 +9,7 @@ import {
   getAllLabelsByToken,
   getContactDetails,
   getConvId,
-  getConvViewChats,
+  getConvViewChatsView,
   getIncomingMessages,
   getProfileByToken,
   getSenderIds,
@@ -158,7 +158,7 @@ const useData = () => {
   };
 
   const fetchConvChats = async (token: any, contact: string) => {
-    const chatsData = await getConvViewChats(token, contact);
+    const chatsData = await getConvViewChatsView(token, contact);
     if (chatsData && chatsData?.status === 200) {
       let newChats = chatsData?.data?.conArr;
       let chatsNew = [...newChats].reverse();

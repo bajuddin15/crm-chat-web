@@ -2,11 +2,12 @@ import { Modal } from "flowbite-react";
 import { Paperclip } from "lucide-react";
 import { useState } from "react";
 import { Tabs } from "flowbite-react";
-import { MdPictureAsPdf, MdVideoLibrary } from "react-icons/md";
+import { MdAudiotrack, MdPictureAsPdf, MdVideoLibrary } from "react-icons/md";
 import { BiImage } from "react-icons/bi";
 import ImagePicker from "../Common/ImagePicker";
 import VideoPicker from "../Common/VideoPicker";
 import DocumentPicker from "../Common/DocumentPicker";
+import AudioPicker from "../Common/AudioPicker";
 
 interface IProps {
   mediaLink: any;
@@ -62,6 +63,12 @@ const AttachmentModal = ({ mediaLink, setMediaLink }: IProps) => {
             </Tabs.Item>
             <Tabs.Item title="Document" icon={MdPictureAsPdf}>
               <DocumentPicker
+                setMediaLink={setMediaLink}
+                setOpenModal={setOpenModal}
+              />
+            </Tabs.Item>
+            <Tabs.Item title="Audio" icon={MdAudiotrack}>
+              <AudioPicker
                 setMediaLink={setMediaLink}
                 setOpenModal={setOpenModal}
               />

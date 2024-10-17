@@ -6,6 +6,8 @@ import { MyRoleData } from "../../types/types";
 import { useSearchParams } from "react-router-dom";
 import { decodeUrlString } from "../../utils/common";
 import { Mail } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { setProviders } from "../../store/slices/storeSlice";
 
 interface IProps {
   token: any;
@@ -19,6 +21,7 @@ interface IState {
 }
 
 const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
+  const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   let teamEmail = searchParams.get("team") || "";
   teamEmail = decodeUrlString(teamEmail);
@@ -49,6 +52,7 @@ const SenderIdModal = ({ token, setSelectedSenderId }: IProps) => {
       const teamMembers = resData?.data;
       const providers = data?.Provider;
       if (providers?.length > 0) {
+        dispatch(setProviders(providers));
         let provd1 = providers?.filter((item: any) => item?.isDefault === "1");
         let provd2 = providers?.filter((item: any) => item?.isDefault === "0");
         const provd = [...provd1, ...provd2];

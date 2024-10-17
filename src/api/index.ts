@@ -103,7 +103,29 @@ const getConvContacts = async (accessToken: string, filterFormData: any) => {
   return contacts;
 };
 
-const getConvViewChats = async (token: string, contact: string) => {
+const getConvViewChats = async (
+  token: string,
+  contact: string,
+  conversationId: string
+) => {
+  let chatsData = null;
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+    const getChatsApiUrl =
+      "https://app.crm-messaging.cloud/index.php/api/getconversationview4";
+    const formData = new FormData();
+    formData.append("contact", contact);
+    formData.append("cid", conversationId);
+    const resp2 = await axios.post(getChatsApiUrl, formData, { headers });
+    chatsData = resp2?.data;
+  } catch (error: any) {
+    chatsData = null;
+  }
+  return chatsData;
+};
+export const getConvViewChatsView = async (token: string, contact: string) => {
   let chatsData = null;
   try {
     // get cid from contact
@@ -123,7 +145,9 @@ const getConvViewChats = async (token: string, contact: string) => {
       const resp2 = await axios.post(getChatsApiUrl, formData, { headers });
       chatsData = resp2?.data;
     }
-  } catch (error: any) {}
+  } catch (error: any) {
+    chatsData = null;
+  }
   return chatsData;
 };
 
@@ -811,7 +835,6 @@ const addAiCredit = async (credits: any, userId: any) => {
   try {
     const cred = `-${credits}`;
     const uid = userId;
-    console.log({ cred, uid });
     const formData = new FormData();
     formData.append("cred", cred);
     formData.append("uid", uid);

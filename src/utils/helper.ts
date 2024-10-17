@@ -29,3 +29,29 @@ export const calculateReminderDateTime = (
   // Subtract the reminder offset from the due date-time
   return dueDateTime - offsetMs;
 };
+
+export const handleDownload = (docLink: string) => {
+  // fetch(docLink)
+  //   .then((response) => response.blob()) // Convert response to a blob
+  //   .then((blob) => {
+  //     const url = window.URL.createObjectURL(blob); // Create a temporary URL for the blob
+  //     const link: any = document.createElement("a");
+  //     link.href = url;
+  //     link.download = docLink ? docLink.split("/").pop() : "file"; // Extract filename from the URL
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link); // Clean up the link
+  //     window.URL.revokeObjectURL(url); // Release the blob URL
+  //   })
+  //   .catch((error) => {
+  //     console.error("Download error:", error);
+  //   });
+
+  const link = document.createElement("a");
+  link.href = docLink;
+  link.setAttribute("download", docLink.split("/").pop() || "file"); // Set download attribute to suggest a file name
+  link.setAttribute("target", "_blank"); // This helps with some file types
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link); // Clean up the link
+};

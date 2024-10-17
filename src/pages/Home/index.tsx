@@ -58,6 +58,7 @@ import moment from "moment";
 import ViewAllTasks from "../../components/ViewAllTasks";
 import EmailTemplatesModal from "../../components/Modals/EmailTemplatesModal";
 import ShortUrlModal from "../../components/Modals/ShortUrlModal";
+import { MyRoleData } from "../../types/types";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -158,6 +159,8 @@ const Home = () => {
   const unreadMsgs = useSelector(
     (state: RootState) => state.store.unreadMessages
   );
+
+  const providers = useSelector((state: RootState) => state.store.providers);
 
   const currentUrl = window.location.href; // Get the current URL
   const url = currentUrl.split("?"); // split url
@@ -627,6 +630,13 @@ const Home = () => {
                       const linkColor =
                         chat?.log === "INCOMING" ? "blue" : "white";
                       const message = transformLinks(chat?.msg, linkColor);
+
+                      const msgOwnerId =
+                        chat?.owner_id === "0" ? chat?.user_id : chat?.owner_id;
+                      const messageOwner = teamMembers.find(
+                        (item: MyRoleData) => item?.userId === msgOwnerId
+                      );
+
                       return (
                         <div key={index}>
                           {isLastMessage && <div ref={lastMessageRef}></div>}
@@ -635,7 +645,6 @@ const Home = () => {
                               {/* incomming */}
                               <div className="w-5/6 text-xs bg-white  p-4 rounded-tl-3xl rounded-tr-3xl rounded-br-3xl border border-gray-300 break-words">
                                 <p className="mb-1">@{chat?.fromnumber}</p>
-                                <HtmlRenderer htmlString={message} />
                                 {imageLink && (
                                   <a href={imageLink} target="_blank">
                                     <div className="my-3">
@@ -647,7 +656,6 @@ const Home = () => {
                                     </div>
                                   </a>
                                 )}
-
                                 {videoLink && (
                                   <div className="my-3">
                                     <video className="w-full" controls>
@@ -660,17 +668,19 @@ const Home = () => {
                                     </video>
                                   </div>
                                 )}
+                                <HtmlRenderer htmlString={message} />
 
                                 {(docLink || unknownLink) && (
                                   <div className="my-3">
                                     <a
                                       href={docLink || unknownLink}
                                       target="_blank"
+                                      download
                                       className={`${
                                         chat?.channel === "sms"
                                           ? "bg-blue-600"
                                           : "bg-green-600"
-                                      } text-white px-5 py-2 rounded-md font-semibold`}
+                                      } text-white px-5 py-2 rounded-md font-semibold cursor-pointer z-50`}
                                     >
                                       View File
                                     </a>
@@ -707,7 +717,6 @@ const Home = () => {
                                   }}
                                   className="w-5/6  text-xs text-white p-4 rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl break-words"
                                 >
-                                  <HtmlRenderer htmlString={message} />
                                   {imageLink && (
                                     <a href={imageLink} target="_blank">
                                       <div className="my-3">
@@ -719,7 +728,6 @@ const Home = () => {
                                       </div>
                                     </a>
                                   )}
-
                                   {videoLink && (
                                     <div className="my-3">
                                       <video className="w-full" controls>
@@ -732,17 +740,19 @@ const Home = () => {
                                       </video>
                                     </div>
                                   )}
+                                  <HtmlRenderer htmlString={message} />
 
                                   {(docLink || unknownLink) && (
                                     <div className="my-3">
                                       <a
                                         href={docLink || unknownLink}
                                         target="_blank"
+                                        download
                                         className={`${
                                           chat?.channel === "sms"
                                             ? "bg-blue-600"
                                             : "bg-green-600"
-                                        } text-white px-5 py-2 rounded-md font-semibold`}
+                                        } text-white px-5 py-2 rounded-md font-semibold cursor-pointer`}
                                       >
                                         View File
                                       </a>
@@ -754,7 +764,17 @@ const Home = () => {
                               <div className="flex justify-end mt-1">
                                 <div className="flex items-center space-x-3">
                                   <span className="text-[10px]">
-                                    @{chat?.fromnumber}
+                                    {providers?.find(
+                                      (f: any) => f?.number === chat?.fromnumber
+                                    )
+                                      ? providers?.find(
+                                          (f: any) =>
+                                            f?.number === chat?.fromnumber
+                                        )?.label || chat?.fromnumber
+                                      : chat?.fromnumber}
+                                  </span>
+                                  <span className="text-[10px]">
+                                    {messageOwner?.name}
                                   </span>
                                   <span className="text-[10px]">
                                     {formatedDate}

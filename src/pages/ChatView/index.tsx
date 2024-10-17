@@ -30,6 +30,9 @@ import MergeVariableModal from "../../components/Modals/MergeVariableModal";
 import HtmlRenderer from "../../components/Common/HtmlRenderer";
 import ShortUrlModal from "../../components/Modals/ShortUrlModal";
 import EmailTemplatesModal from "../../components/Modals/EmailTemplatesModal";
+import { MyRoleData } from "../../types/types";
+import { RootState } from "../../store";
+import { useSelector } from "react-redux";
 
 const ChatViewPage = () => {
   const {
@@ -79,6 +82,8 @@ const ChatViewPage = () => {
     contactProfileDetails,
     isGeneratingAiMsg,
   } = state;
+
+  const providers = useSelector((state: RootState) => state.store.providers);
 
   // badge show
   const whats = new Date(whatsTimer); // Convert the string to a Date object
@@ -303,6 +308,12 @@ const ChatViewPage = () => {
               const isLastMessage = index === chats.length - 1;
               const linkColor = chat?.log === "INCOMING" ? "blue" : "white";
               const message = transformLinks(chat?.msg, linkColor);
+
+              const msgOwnerId =
+                chat?.owner_id === "0" ? chat?.user_id : chat?.owner_id;
+              const messageOwner = teamMembers.find(
+                (item: MyRoleData) => item?.userId === msgOwnerId
+              );
               return (
                 <div key={index}>
                   {isLastMessage && <div ref={lastMessageRef}></div>}
@@ -311,7 +322,6 @@ const ChatViewPage = () => {
                       {/* incomming */}
                       <div className="w-5/6 md:w-1/3 text-xs bg-white  p-4 rounded-tl-3xl rounded-tr-3xl rounded-br-3xl border border-gray-300 break-words">
                         <p className="mb-1">@{chat?.fromnumber}</p>
-                        <HtmlRenderer htmlString={message} />
                         {imageLink && (
                           <a href={imageLink} target="_blank">
                             <div className="my-3">
@@ -332,6 +342,7 @@ const ChatViewPage = () => {
                             </video>
                           </div>
                         )}
+                        <HtmlRenderer htmlString={message} />
 
                         {(docLink || unknownLink) && (
                           <div className="my-3">
@@ -373,7 +384,6 @@ const ChatViewPage = () => {
                           }}
                           className="w-5/6 md:w-1/3  text-xs text-white p-4 rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl break-words"
                         >
-                          <HtmlRenderer htmlString={message} />
                           {imageLink && (
                             <a href={imageLink} target="_blank">
                               <div className="my-3">
@@ -394,6 +404,7 @@ const ChatViewPage = () => {
                               </video>
                             </div>
                           )}
+                          <HtmlRenderer htmlString={message} />
 
                           {(docLink || unknownLink) && (
                             <div className="my-3">
@@ -416,7 +427,16 @@ const ChatViewPage = () => {
                       <div className="flex justify-end mt-1">
                         <div className="flex items-center space-x-3">
                           <span className="text-[10px]">
-                            @{chat?.fromnumber}
+                            {providers?.find(
+                              (f: any) => f?.number === chat?.fromnumber
+                            )
+                              ? providers?.find(
+                                  (f: any) => f?.number === chat?.fromnumber
+                                )?.label || chat?.fromnumber
+                              : chat?.fromnumber}
+                          </span>
+                          <span className="text-[10px]">
+                            {messageOwner?.name}
                           </span>
                           <span className="text-[10px]">{formatedDate}</span>
 

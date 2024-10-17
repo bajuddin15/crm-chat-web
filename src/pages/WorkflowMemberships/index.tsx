@@ -18,10 +18,7 @@ const WorkflowMemberships = () => {
     enrollWorkflows,
     workflows,
   } = state;
-  console.log({
-    currentContact,
-    contactProfileDetails,
-  });
+
   return (
     <div className="">
       {/* header */}
